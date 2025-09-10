@@ -1,5 +1,9 @@
-import apiClient from "@/apis/fetch";
-import type { GroupJoinStatus, GroupJoinInfo, MyGroupJoinInfo } from "@/apis/types";
+import apiClient from "@/shared/apis/fetch";
+import type {
+  GroupJoinStatus,
+  GroupJoinInfo,
+  MyGroupJoinInfo,
+} from "@/shared/apis/types";
 
 // Group Join API 전용 타입들
 export interface GroupJoinRequest {

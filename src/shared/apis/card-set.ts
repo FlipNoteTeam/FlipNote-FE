@@ -1,5 +1,9 @@
-import apiClient from "@/apis/fetch";
-import type { GroupCategory, PagingResponse, PaginationRequest } from "@/apis/types";
+import apiClient from "@/shared/apis/fetch";
+import type {
+  GroupCategory,
+  PagingResponse,
+  PaginationRequest,
+} from "@/shared/apis/types";
 
 // CardSet API 전용 타입들
 export interface CardSetSummaryResponse {

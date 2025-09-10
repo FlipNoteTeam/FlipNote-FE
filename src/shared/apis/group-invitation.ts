@@ -1,9 +1,9 @@
-import apiClient from "@/apis/fetch";
+import apiClient from "@/shared/apis/fetch";
 import type {
   GroupInvitationStatus,
   PagingResponse,
   PaginationRequest,
-} from "@/apis/types";
+} from "@/shared/apis/types";
 
 // Group Invitation API 전용 타입들
 export interface GroupInvitationCreateRequest {

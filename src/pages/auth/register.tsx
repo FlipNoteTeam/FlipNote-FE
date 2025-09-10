@@ -3,12 +3,12 @@ import {
   CardContent,
   CardFooter,
   CardHeader,
-} from "../../components/ui/card";
-import { Input } from "../../components/ui/input";
+} from "../../shared/components/card";
+import { Input } from "../../shared/components/input";
 
-import { Button } from "../../components/ui/button";
-import { Label } from "../../components/ui/label";
-import { Checkbox } from "../../components/ui/checkbox";
+import { Button } from "../../shared/components/button";
+import { Label } from "../../shared/components/label";
+import { Checkbox } from "../../shared/components/checkbox";
 // import { Link } from "@tanstack/react-router";
 
 // type Props = {};

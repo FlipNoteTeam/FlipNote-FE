@@ -1,4 +1,4 @@
-import apiClient from "@/apis/fetch";
+import apiClient from "@/shared/apis/fetch";
 
 // User API 전용 타입들
 export interface UserInfoResponse {
