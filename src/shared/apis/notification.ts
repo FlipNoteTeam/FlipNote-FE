@@ -1,5 +1,5 @@
-import apiClient from "@/apis/fetch";
-import type { CursorPagingResponse } from "@/apis/types";
+import apiClient from "@/shared/apis/fetch";
+import type { CursorPagingResponse } from "@/shared/apis/types";
 
 // Notification API 전용 타입들
 export interface NotificationResponse {

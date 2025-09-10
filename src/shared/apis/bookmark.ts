@@ -1,11 +1,11 @@
-import apiClient from "@/apis/fetch";
+import apiClient from "@/shared/apis/fetch";
 import type {
   BookmarkTargetType,
   BookmarkTargetResponse,
   IdResponse,
   PagingResponse,
   PaginationRequest,
-} from "@/apis/types";
+} from "@/shared/apis/types";
 
 // Bookmark API 전용 타입들
 export interface BookmarkResponseBookmarkTargetResponse {

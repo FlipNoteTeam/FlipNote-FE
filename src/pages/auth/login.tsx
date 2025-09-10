@@ -3,12 +3,12 @@ import {
   CardContent,
   CardFooter,
   CardHeader,
-} from "../../components/ui/card";
-import { Input } from "../../components/ui/input";
+} from "../../shared/components/card";
+import { Input } from "../../shared/components/input";
 
-import { Button } from "../../components/ui/button";
-import { Label } from "../../components/ui/label";
-import { Separator } from "../../components/ui/separator";
+import { Button } from "../../shared/components/button";
+import { Label } from "../../shared/components/label";
+import { Separator } from "../../shared/components/separator";
 
 // type Props = {};
 const Login = () => {
