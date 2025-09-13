@@ -1,5 +1,6 @@
 import apiClient from "@/shared/apis/fetch";
 import type {
+  ApiResponse,
   GroupJoinStatus,
   GroupJoinInfo,
   MyGroupJoinInfo,
@@ -34,15 +35,15 @@ export interface GroupJoinRespondResponse {
 export const groupJoinApi = {
   // 가입 신청 요청
   joinRequest: (groupId: number, data?: GroupJoinRequest) =>
-    apiClient.post<GroupJoinResponse>(`/groups/${groupId}/joins`, data),
+    apiClient.post<ApiResponse<GroupJoinResponse>>(`/groups/${groupId}/joins`, data),
 
   // 그룹 내 가입 신청 리스트 조회
   getGroupJoinList: (groupId: number) =>
-    apiClient.get<GroupJoinListResponse>(`/groups/${groupId}/joins`),
+    apiClient.get<ApiResponse<GroupJoinListResponse>>(`/groups/${groupId}/joins`),
 
   // 내가 신청한 가입신청 리스트 조회
   getMyGroupJoinList: () =>
-    apiClient.get<FindGroupJoinListMeResponse>("/groups/joins/me"),
+    apiClient.get<ApiResponse<FindGroupJoinListMeResponse>>("/groups/joins/me"),
 
   // 가입 신청 응답 (승인/거절)
   respondToJoinRequest: (
@@ -50,7 +51,7 @@ export const groupJoinApi = {
     joinId: number,
     data: GroupJoinRespondRequest
   ) =>
-    apiClient.patch<GroupJoinRespondResponse>(
+    apiClient.patch<ApiResponse<GroupJoinRespondResponse>>(
       `/groups/${groupId}/joins/${joinId}`,
       data
     ),

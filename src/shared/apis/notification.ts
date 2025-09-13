@@ -1,5 +1,5 @@
 import apiClient from "@/shared/apis/fetch";
-import type { CursorPagingResponse } from "@/shared/apis/types";
+import type { ApiResponse, CursorPagingResponse } from "@/shared/apis/types";
 
 // Notification API 전용 타입들
 export interface NotificationResponse {
@@ -28,7 +28,7 @@ export interface TokenRegisterRequest {
 export const notificationApi = {
   // 알림 목록 조회
   getNotifications: (params: NotificationListRequest) =>
-    apiClient.get<CursorPagingResponse<NotificationResponse>>(
+    apiClient.get<ApiResponse<CursorPagingResponse<NotificationResponse>>>(
       "/notifications",
       { params }
     ),
@@ -42,5 +42,5 @@ export const notificationApi = {
 
   // FCM 토큰 등록
   registerFcmToken: (data: TokenRegisterRequest) =>
-    apiClient.post<string>("/notifications/token", data),
+    apiClient.post<ApiResponse<string>>("/notifications/token", data),
 };

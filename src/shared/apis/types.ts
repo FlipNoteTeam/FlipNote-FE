@@ -32,9 +32,20 @@ export interface CursorPagingResponse<T> {
 }
 
 // 공통 enum 타입들
-export type GroupCategory = "IT" | "ENGLISH" | "MATH" | "SCIENCE" | "HISTORY" | "GEOGRAPHY" | "KOREAN";
+export type GroupCategory =
+  | "IT"
+  | "ENGLISH"
+  | "MATH"
+  | "SCIENCE"
+  | "HISTORY"
+  | "GEOGRAPHY"
+  | "KOREAN";
 export type GroupJoinStatus = "ACCEPT" | "PENDING" | "REJECT" | "CANCEL";
-export type GroupInvitationStatus = "PENDING" | "ACCEPTED" | "REJECTED" | "EXPIRED";
+export type GroupInvitationStatus =
+  | "PENDING"
+  | "ACCEPTED"
+  | "REJECTED"
+  | "EXPIRED";
 export type LikeTargetType = "card_set";
 export type BookmarkTargetType = "card_sets";
 

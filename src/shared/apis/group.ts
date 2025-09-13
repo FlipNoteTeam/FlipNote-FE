@@ -1,5 +1,6 @@
 import apiClient from "@/shared/apis/fetch";
 import type {
+  ApiResponse,
   GroupCategory,
   GroupInfo,
   GroupMemberInfo,
@@ -70,28 +71,28 @@ interface GroupListParams {
 export const groupApi = {
   // 그룹 전체 조회 (커서 페이징)
   getGroups: (params?: GroupListParams) =>
-    apiClient.get<CursorPagingResponse<GroupInfo>>("/groups", { params }),
+    apiClient.get<ApiResponse<CursorPagingResponse<GroupInfo>>>("/groups", { params }),
 
   // 내 그룹 전체 조회 (커서 페이징)
   getMyGroups: (params?: GroupListParams) =>
-    apiClient.get<CursorPagingResponse<GroupInfo>>("/groups/me", { params }),
+    apiClient.get<ApiResponse<CursorPagingResponse<GroupInfo>>>("/groups/me", { params }),
 
   // 그룹 상세 조회
   getGroupDetail: (groupId: number) =>
-    apiClient.get<GroupDetailResponse>(`/groups/${groupId}`),
+    apiClient.get<ApiResponse<GroupDetailResponse>>(`/groups/${groupId}`),
 
   // 그룹 생성
   createGroup: (data: GroupCreateRequest) =>
-    apiClient.post<GroupCreateResponse>("/groups", data),
+    apiClient.post<ApiResponse<GroupCreateResponse>>("/groups", data),
 
   // 그룹 수정
   updateGroup: (groupId: number, data: GroupPutRequest) =>
-    apiClient.put<GroupPutResponse>(`/groups/${groupId}`, data),
+    apiClient.put<ApiResponse<GroupPutResponse>>(`/groups/${groupId}`, data),
 
   // 그룹 삭제
   deleteGroup: (groupId: number) => apiClient.delete(`/groups/${groupId}`),
 
   // 그룹 멤버 조회
   getGroupMembers: (groupId: number) =>
-    apiClient.get<FindGroupMemberResponse>(`/groups/${groupId}/members`),
+    apiClient.get<ApiResponse<FindGroupMemberResponse>>(`/groups/${groupId}/members`),
 };

@@ -1,5 +1,6 @@
 import apiClient from "@/shared/apis/fetch";
 import type {
+  ApiResponse,
   LikeTargetType,
   LikeTargetResponse,
   PagingResponse,
@@ -25,7 +26,7 @@ export const likeApi = {
 
   // 좋아요 누른 목록 조회
   getLikes: (targetType: LikeTargetType, params: LikeSearchRequest) =>
-    apiClient.get<PagingResponse<LikeResponseLikeTargetResponse>>(
+    apiClient.get<ApiResponse<PagingResponse<LikeResponseLikeTargetResponse>>>(
       `/likes/${targetType}`,
       { params }
     ),
