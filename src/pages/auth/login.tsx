@@ -12,18 +12,18 @@ import { authApi, type UserLoginRequest } from "@/shared/apis";
 import { useNavigate } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
-import useAuthStore from "@/stores/auth";
+import useAuthStore from "@/stores/useAuthStore";
 
 type FieldState = UserLoginRequest;
 
 const Login = () => {
   const navigate = useNavigate({ from: "/auth/register" });
   const { getValues, register } = useForm<FieldState>({});
-  const { setState } = useAuthStore;
+  const updateAccessToken = useAuthStore((state) => state.updateAccessToken);
   const { mutate: login } = useMutation({
     mutationFn: authApi.login,
     onSuccess: (res) => {
-      setState({ accessToken: res.data.accessToken });
+      updateAccessToken(res.data.data.accessToken);
       navigate({ to: "/" });
     },
   });
