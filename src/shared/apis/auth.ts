@@ -61,7 +61,7 @@ export interface SocialLinksResponse {
 export const authApi = {
   // 로그인
   login: (data: UserLoginRequest) =>
-    apiClient.post<UserLoginResponse>("/auth/login", data),
+    apiClient.post<{ data: UserLoginResponse }>("/auth/login", data),
 
   // 회원가입
   register: (data: UserRegisterRequest) =>
