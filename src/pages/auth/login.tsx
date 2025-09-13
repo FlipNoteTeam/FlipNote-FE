@@ -3,31 +3,57 @@ import {
   CardContent,
   CardFooter,
   CardHeader,
-} from "../../shared/components/card";
-import { Input } from "../../shared/components/input";
+} from "@/shared/components/card";
+import { Input } from "@/shared/components/input";
+import { Button } from "@/shared/components/button";
+import { Label } from "@/shared/components/label";
+import { Separator } from "@/shared/components/separator";
+import { authApi, type UserLoginRequest } from "@/shared/apis";
+import { useNavigate } from "@tanstack/react-router";
+import { useForm } from "react-hook-form";
+import { useMutation } from "@tanstack/react-query";
+import useAuthStore from "@/stores/auth";
 
-import { Button } from "../../shared/components/button";
-import { Label } from "../../shared/components/label";
-import { Separator } from "../../shared/components/separator";
+type FieldState = UserLoginRequest;
 
-// type Props = {};
 const Login = () => {
+  const navigate = useNavigate({ from: "/auth/register" });
+  const { getValues, register } = useForm<FieldState>({});
+  const { setState } = useAuthStore;
+  const { mutate: login } = useMutation({
+    mutationFn: authApi.login,
+    onSuccess: (res) => {
+      setState({ accessToken: res.data.accessToken });
+      navigate({ to: "/" });
+    },
+  });
+
+  const convertToRequestBody = (fieldStates: FieldState): UserLoginRequest => {
+    return {
+      email: fieldStates.email,
+      password: fieldStates.password,
+    };
+  };
+
+  const handleSubmit = () => {
+    const body = convertToRequestBody(getValues());
+    login(body);
+  };
+
   return (
     <Card>
       <CardHeader className="text-center">
-        <h1>FlipNote에 오신 것을 환영합니다!</h1>
+        <h3>FlipNote에 오신 것을 환영합니다!</h3>
       </CardHeader>
       <CardContent>
         <Label htmlFor="email">이메일</Label>
-        <Input id="password"></Input>
-
+        <Input id="email" {...register("email")} />
         <Label htmlFor="password">비밀번호</Label>
-        <Input type="password" id="password"></Input>
-
+        <Input type="password" id="password" {...register("password")}></Input>
         {/* <Link to="/reset-password">비밀번호 찾기</Link> */}
       </CardContent>
       <CardFooter className="flex-col gap-2">
-        <Button type="submit" variant="default">
+        <Button type="submit" variant="default" onClick={handleSubmit}>
           로그인
         </Button>
         <Separator />
