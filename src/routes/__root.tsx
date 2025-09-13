@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Outlet, createRootRouteWithContext } from "@tanstack/react-router";
-import type { AuthState } from "@/stores/auth";
+import type { AuthState } from "@/stores/useAuthStore";
 
 interface RouterContext {
   auth: AuthState;
