@@ -1,4 +1,5 @@
 import apiClient from "@/shared/apis/fetch";
+import type { ApiResponse } from "@/shared/apis/types";
 
 // Auth API 전용 타입들
 export interface UserLoginRequest {
@@ -61,17 +62,17 @@ export interface SocialLinksResponse {
 export const authApi = {
   // 로그인
   login: (data: UserLoginRequest) =>
-    apiClient.post<{ data: UserLoginResponse }>("/auth/login", data),
+    apiClient.post<ApiResponse<UserLoginResponse>>("/auth/login", data),
 
   // 회원가입
   register: (data: UserRegisterRequest) =>
-    apiClient.post<UserRegisterResponse>("/auth/register", data),
+    apiClient.post<ApiResponse<UserRegisterResponse>>("/auth/register", data),
 
   // 로그아웃
   logout: () => apiClient.post("/auth/logout"),
 
   // 토큰 갱신
-  refreshToken: () => apiClient.post<UserLoginResponse>("/auth/token/refresh"),
+  refreshToken: () => apiClient.post<ApiResponse<UserLoginResponse>>("/auth/token/refresh"),
 
   // 내 비밀번호 변경
   updatePassword: (data: ChangePasswordRequest) =>
@@ -95,7 +96,7 @@ export const authApi = {
 
   // 내 소셜 연동 계정 목록 조회
   getSocialLinks: () =>
-    apiClient.get<SocialLinksResponse>("/auth/social-links"),
+    apiClient.get<ApiResponse<SocialLinksResponse>>("/auth/social-links"),
 
   // 소셜 연동 해제
   deleteSocialLink: (socialLinkId: number) =>

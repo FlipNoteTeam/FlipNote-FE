@@ -1,4 +1,5 @@
 import apiClient from "@/shared/apis/fetch";
+import type { ApiResponse } from "@/shared/apis/types";
 
 // Image API 전용 타입들
 export interface ImageUploadRequestDto {
@@ -12,5 +13,5 @@ export interface ImageUploadResponseDto {
 export const imageApi = {
   // 이미지 업로드 URL 생성 (S3 Presigned URL)
   getPresignedUrl: (data: ImageUploadRequestDto) =>
-    apiClient.post<ImageUploadResponseDto>("/images/upload", data),
+    apiClient.post<ApiResponse<ImageUploadResponseDto>>("/images/upload", data),
 };

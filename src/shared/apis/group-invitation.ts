@@ -1,5 +1,6 @@
 import apiClient from "@/shared/apis/fetch";
 import type {
+  ApiResponse,
   GroupInvitationStatus,
   PagingResponse,
   PaginationRequest,
@@ -43,7 +44,7 @@ export const groupInvitationApi = {
     groupId: number,
     data: GroupInvitationCreateRequest
   ) =>
-    apiClient.post<GroupInvitationCreateResponse>(
+    apiClient.post<ApiResponse<GroupInvitationCreateResponse>>(
       `/groups/${groupId}/invitations`,
       data
     ),
@@ -53,14 +54,14 @@ export const groupInvitationApi = {
     groupId: number,
     params: GroupInvitationListRequest
   ) =>
-    apiClient.get<PagingResponse<OutgoingGroupInvitationResponse>>(
+    apiClient.get<ApiResponse<PagingResponse<OutgoingGroupInvitationResponse>>>(
       `/groups/${groupId}/invitations`,
       { params }
     ),
 
   // 그룹 초대 받은 목록 조회
   getIncomingInvitations: (params: GroupInvitationListRequest) =>
-    apiClient.get<PagingResponse<IncomingGroupInvitationResponse>>(
+    apiClient.get<ApiResponse<PagingResponse<IncomingGroupInvitationResponse>>>(
       "/group-invitations",
       { params }
     ),

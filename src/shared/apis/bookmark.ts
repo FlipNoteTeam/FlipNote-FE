@@ -1,5 +1,6 @@
 import apiClient from "@/shared/apis/fetch";
 import type {
+  ApiResponse,
   BookmarkTargetType,
   BookmarkTargetResponse,
   IdResponse,
@@ -18,18 +19,18 @@ export type BookmarkSearchRequest = PaginationRequest;
 export const bookmarkApi = {
   // 즐겨찾기 추가
   addBookmark: (targetType: BookmarkTargetType, targetId: number) =>
-    apiClient.post<IdResponse>(`/bookmarks/${targetType}/${targetId}`),
+    apiClient.post<ApiResponse<IdResponse>>(`/bookmarks/${targetType}/${targetId}`),
 
   // 즐겨찾기 제거
   deleteBookmark: (targetType: BookmarkTargetType, targetId: number) =>
-    apiClient.delete<IdResponse>(`/bookmarks/${targetType}/${targetId}`),
+    apiClient.delete<ApiResponse<IdResponse>>(`/bookmarks/${targetType}/${targetId}`),
 
   // 즐겨찾기 목록 조회
   getBookmarks: (
     targetType: BookmarkTargetType,
     params: BookmarkSearchRequest
   ) =>
-    apiClient.get<PagingResponse<BookmarkResponseBookmarkTargetResponse>>(
+    apiClient.get<ApiResponse<PagingResponse<BookmarkResponseBookmarkTargetResponse>>>(
       `/bookmarks/${targetType}`,
       { params }
     ),

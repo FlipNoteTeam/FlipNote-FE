@@ -1,5 +1,6 @@
 import apiClient from "@/shared/apis/fetch";
 import type {
+  ApiResponse,
   GroupCategory,
   PagingResponse,
   PaginationRequest,
@@ -55,17 +56,17 @@ export interface CardSetSearchRequest extends PaginationRequest {
 export const cardSetApi = {
   // 카드셋 목록 조회(검색)
   getCardSets: (params: CardSetSearchRequest) =>
-    apiClient.get<PagingResponse<CardSetSummaryResponse>>("/card-sets", {
+    apiClient.get<ApiResponse<PagingResponse<CardSetSummaryResponse>>>("/card-sets", {
       params,
     }),
 
   // 카드셋 생성
   createCardSet: (groupId: number, data: CreateCardSetRequest) =>
-    apiClient.post<CreateCardSetResponse>(`/groups/${groupId}/card-sets`, data),
+    apiClient.post<ApiResponse<CreateCardSetResponse>>(`/groups/${groupId}/card-sets`, data),
 
   // 카드셋 상세 조회
   getCardSet: (groupId: number, cardSetId: number) =>
-    apiClient.get<CardSetDetailResponse>(
+    apiClient.get<ApiResponse<CardSetDetailResponse>>(
       `/groups/${groupId}/card-sets/${cardSetId}`
     ),
 
@@ -75,7 +76,7 @@ export const cardSetApi = {
     cardSetId: number,
     data: CardSetUpdateRequest
   ) =>
-    apiClient.put<CardSetDetailResponse>(
+    apiClient.put<ApiResponse<CardSetDetailResponse>>(
       `/groups/${groupId}/card-sets/${cardSetId}`,
       data
     ),
