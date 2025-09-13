@@ -1,7 +1,11 @@
+import { authGuard } from "@/routes/__utils/authGuard";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/can-access-anyone")({
   component: RouteComponent,
+  beforeLoad: ({ context }) => {
+    authGuard({ auth: context.auth, mode: "bypass" });
+  },
 });
 
 function RouteComponent() {

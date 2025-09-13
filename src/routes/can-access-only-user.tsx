@@ -1,7 +1,11 @@
+import { authGuard } from "@/routes/__utils/authGuard";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/can-access-only-user")({
   component: RouteComponent,
+  beforeLoad: ({ context }) => {
+    authGuard({ auth: context.auth, mode: "protected" });
+  },
 });
 
 function RouteComponent() {
