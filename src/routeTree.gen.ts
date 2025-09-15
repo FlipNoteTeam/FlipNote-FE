@@ -14,8 +14,8 @@ import { Route as CannotAccessUserRouteImport } from './routes/cannot-access-use
 import { Route as CanAccessOnlyUserRouteImport } from './routes/can-access-only-user'
 import { Route as CanAccessAnyoneRouteImport } from './routes/can-access-anyone'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AuthRegisterRouteImport } from './routes/auth.register'
-import { Route as AuthLoginRouteImport } from './routes/auth.login'
+import { Route as AuthRegisterRouteImport } from './routes/auth/register'
+import { Route as AuthLoginRouteImport } from './routes/auth/login'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
