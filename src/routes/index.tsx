@@ -13,6 +13,7 @@ function RouteComponent() {
       <Link to="/can-access-anyone">언제든 접근가능 </Link>
       <Link to="/can-access-only-user">인증된 유저만 접근가능</Link>
       <Link to="/cannot-access-user">로그인 안한 사람만 접근가능</Link>
+      <Link to="/group-list">그룹 리스트</Link>
     </div>
   );
 }
