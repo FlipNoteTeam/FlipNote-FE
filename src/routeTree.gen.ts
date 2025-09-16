@@ -10,22 +10,18 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
-import { Route as GroupListRouteImport } from './routes/group-list'
 import { Route as CannotAccessUserRouteImport } from './routes/cannot-access-user'
 import { Route as CanAccessOnlyUserRouteImport } from './routes/can-access-only-user'
 import { Route as CanAccessAnyoneRouteImport } from './routes/can-access-anyone'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as GroupsIndexRouteImport } from './routes/groups/index'
+import { Route as GroupsCreateRouteImport } from './routes/groups/create'
 import { Route as AuthRegisterRouteImport } from './routes/auth/register'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const GroupListRoute = GroupListRouteImport.update({
-  id: '/group-list',
-  path: '/group-list',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CannotAccessUserRoute = CannotAccessUserRouteImport.update({
@@ -48,6 +44,16 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GroupsIndexRoute = GroupsIndexRouteImport.update({
+  id: '/groups/',
+  path: '/groups/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GroupsCreateRoute = GroupsCreateRouteImport.update({
+  id: '/groups/create',
+  path: '/groups/create',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRegisterRoute = AuthRegisterRouteImport.update({
   id: '/auth/register',
   path: '/auth/register',
@@ -64,20 +70,22 @@ export interface FileRoutesByFullPath {
   '/can-access-anyone': typeof CanAccessAnyoneRoute
   '/can-access-only-user': typeof CanAccessOnlyUserRoute
   '/cannot-access-user': typeof CannotAccessUserRoute
-  '/group-list': typeof GroupListRoute
   '/reset-password': typeof ResetPasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
+  '/groups/create': typeof GroupsCreateRoute
+  '/groups': typeof GroupsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/can-access-anyone': typeof CanAccessAnyoneRoute
   '/can-access-only-user': typeof CanAccessOnlyUserRoute
   '/cannot-access-user': typeof CannotAccessUserRoute
-  '/group-list': typeof GroupListRoute
   '/reset-password': typeof ResetPasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
+  '/groups/create': typeof GroupsCreateRoute
+  '/groups': typeof GroupsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -85,10 +93,11 @@ export interface FileRoutesById {
   '/can-access-anyone': typeof CanAccessAnyoneRoute
   '/can-access-only-user': typeof CanAccessOnlyUserRoute
   '/cannot-access-user': typeof CannotAccessUserRoute
-  '/group-list': typeof GroupListRoute
   '/reset-password': typeof ResetPasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
+  '/groups/create': typeof GroupsCreateRoute
+  '/groups/': typeof GroupsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -97,30 +106,33 @@ export interface FileRouteTypes {
     | '/can-access-anyone'
     | '/can-access-only-user'
     | '/cannot-access-user'
-    | '/group-list'
     | '/reset-password'
     | '/auth/login'
     | '/auth/register'
+    | '/groups/create'
+    | '/groups'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/can-access-anyone'
     | '/can-access-only-user'
     | '/cannot-access-user'
-    | '/group-list'
     | '/reset-password'
     | '/auth/login'
     | '/auth/register'
+    | '/groups/create'
+    | '/groups'
   id:
     | '__root__'
     | '/'
     | '/can-access-anyone'
     | '/can-access-only-user'
     | '/cannot-access-user'
-    | '/group-list'
     | '/reset-password'
     | '/auth/login'
     | '/auth/register'
+    | '/groups/create'
+    | '/groups/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -128,10 +140,11 @@ export interface RootRouteChildren {
   CanAccessAnyoneRoute: typeof CanAccessAnyoneRoute
   CanAccessOnlyUserRoute: typeof CanAccessOnlyUserRoute
   CannotAccessUserRoute: typeof CannotAccessUserRoute
-  GroupListRoute: typeof GroupListRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   AuthLoginRoute: typeof AuthLoginRoute
   AuthRegisterRoute: typeof AuthRegisterRoute
+  GroupsCreateRoute: typeof GroupsCreateRoute
+  GroupsIndexRoute: typeof GroupsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -141,13 +154,6 @@ declare module '@tanstack/react-router' {
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/group-list': {
-      id: '/group-list'
-      path: '/group-list'
-      fullPath: '/group-list'
-      preLoaderRoute: typeof GroupListRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cannot-access-user': {
@@ -178,6 +184,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/groups/': {
+      id: '/groups/'
+      path: '/groups'
+      fullPath: '/groups'
+      preLoaderRoute: typeof GroupsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/groups/create': {
+      id: '/groups/create'
+      path: '/groups/create'
+      fullPath: '/groups/create'
+      preLoaderRoute: typeof GroupsCreateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth/register': {
       id: '/auth/register'
       path: '/auth/register'
@@ -200,10 +220,11 @@ const rootRouteChildren: RootRouteChildren = {
   CanAccessAnyoneRoute: CanAccessAnyoneRoute,
   CanAccessOnlyUserRoute: CanAccessOnlyUserRoute,
   CannotAccessUserRoute: CannotAccessUserRoute,
-  GroupListRoute: GroupListRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   AuthLoginRoute: AuthLoginRoute,
   AuthRegisterRoute: AuthRegisterRoute,
+  GroupsCreateRoute: GroupsCreateRoute,
+  GroupsIndexRoute: GroupsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
