@@ -21,6 +21,18 @@ export type GroupDetail = {
   modifiedAt: Date;
 };
 
+export const GROUP_CATEGORY_MAP = {
+  IT: "IT",
+  ENGLISH: "영어",
+  MATH: "수학",
+  SCIENCE: "과학",
+  HISTORY: "역사",
+  GEOGRAPHY: "지리학",
+  KOREAN: "한국어",
+} as const;
+
+export const GROUP_CATEGORY = Object.values(GROUP_CATEGORY_MAP);
+
 export const toGroupBrief = (apiResponse: GroupInfo): GroupBrief => {
   return {
     id: apiResponse.groupId,
