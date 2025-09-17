@@ -1,3 +1,4 @@
+import useAuthStore from "@/stores/useAuthStore";
 import axios from "axios";
 
 const apiClient = axios.create({
@@ -9,21 +10,13 @@ const apiClient = axios.create({
   },
 });
 
-// Cookie 헬퍼 함수
-const getCookie = (name: string): string | null => {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop()?.split(";").shift() || null;
-  return null;
-};
-
 // Request interceptor
 apiClient.interceptors.request.use(
   (config) => {
     // 쿠키에서 토큰을 가져와서 헤더에 추가
-    const token = getCookie("accessToken");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    const { accessToken } = useAuthStore.getState();
+    if (accessToken) {
+      config.headers.Authorization = `Bearer ${accessToken}`;
     }
     return config;
   },
