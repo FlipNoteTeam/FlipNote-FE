@@ -30,12 +30,10 @@ function App() {
   const auth = useAuthStore();
 
   return (
-    <div className="min-w-dvw min-h-dvh p-8 bg-gray-50">
-      <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router} context={{ auth }} />
-        <ReactQueryDevtools initialIsOpen={false} />
-      </QueryClientProvider>
-    </div>
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} context={{ auth }} />
+      <ReactQueryDevtools initialIsOpen={false} />
+    </QueryClientProvider>
   );
 }
 
