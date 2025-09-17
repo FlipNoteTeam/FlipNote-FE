@@ -15,6 +15,7 @@ function RouteComponent() {
       <Link to="/cannot-access-user">로그인 안한 사람만 접근가능</Link>
       <Link to="/groups">그룹 리스트</Link>
       <Link to="/groups/create">그룹 생성</Link>
+      <Link to="/groups/$id" params={{ id: "1" }}>그룹 상세</Link>
     </div>
   );
 }
