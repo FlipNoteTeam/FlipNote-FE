@@ -16,6 +16,7 @@ import { Route as CanAccessAnyoneRouteImport } from './routes/can-access-anyone'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as GroupsIndexRouteImport } from './routes/groups/index'
 import { Route as GroupsCreateRouteImport } from './routes/groups/create'
+import { Route as GroupsIdRouteImport } from './routes/groups/$id'
 import { Route as AuthRegisterRouteImport } from './routes/auth/register'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
 
@@ -54,6 +55,11 @@ const GroupsCreateRoute = GroupsCreateRouteImport.update({
   path: '/groups/create',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GroupsIdRoute = GroupsIdRouteImport.update({
+  id: '/groups/$id',
+  path: '/groups/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRegisterRoute = AuthRegisterRouteImport.update({
   id: '/auth/register',
   path: '/auth/register',
@@ -73,6 +79,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
+  '/groups/$id': typeof GroupsIdRoute
   '/groups/create': typeof GroupsCreateRoute
   '/groups': typeof GroupsIndexRoute
 }
@@ -84,6 +91,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
+  '/groups/$id': typeof GroupsIdRoute
   '/groups/create': typeof GroupsCreateRoute
   '/groups': typeof GroupsIndexRoute
 }
@@ -96,6 +104,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
+  '/groups/$id': typeof GroupsIdRoute
   '/groups/create': typeof GroupsCreateRoute
   '/groups/': typeof GroupsIndexRoute
 }
@@ -109,6 +118,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/auth/login'
     | '/auth/register'
+    | '/groups/$id'
     | '/groups/create'
     | '/groups'
   fileRoutesByTo: FileRoutesByTo
@@ -120,6 +130,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/auth/login'
     | '/auth/register'
+    | '/groups/$id'
     | '/groups/create'
     | '/groups'
   id:
@@ -131,6 +142,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/auth/login'
     | '/auth/register'
+    | '/groups/$id'
     | '/groups/create'
     | '/groups/'
   fileRoutesById: FileRoutesById
@@ -143,6 +155,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   AuthLoginRoute: typeof AuthLoginRoute
   AuthRegisterRoute: typeof AuthRegisterRoute
+  GroupsIdRoute: typeof GroupsIdRoute
   GroupsCreateRoute: typeof GroupsCreateRoute
   GroupsIndexRoute: typeof GroupsIndexRoute
 }
@@ -198,6 +211,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GroupsCreateRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/groups/$id': {
+      id: '/groups/$id'
+      path: '/groups/$id'
+      fullPath: '/groups/$id'
+      preLoaderRoute: typeof GroupsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth/register': {
       id: '/auth/register'
       path: '/auth/register'
@@ -223,6 +243,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   AuthLoginRoute: AuthLoginRoute,
   AuthRegisterRoute: AuthRegisterRoute,
+  GroupsIdRoute: GroupsIdRoute,
   GroupsCreateRoute: GroupsCreateRoute,
   GroupsIndexRoute: GroupsIndexRoute,
 }
