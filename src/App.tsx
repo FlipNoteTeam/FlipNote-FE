@@ -29,14 +29,12 @@ const queryClient = new QueryClient({
 
 function App() {
   const auth = useAuthStore();
-  const isInitialized = useAuthStore((state) => state.isInitialized);
-  const initializeAuth = useAuthStore((state) => state.initializeAuth);
 
   useEffect(() => {
-    if (!isInitialized) {
-      initializeAuth();
+    if (!auth.isInitialized) {
+      auth.initializeAuth();
     }
-  }, [initializeAuth, isInitialized]);
+  }, [auth]);
 
   return (
     <QueryClientProvider client={queryClient}>
