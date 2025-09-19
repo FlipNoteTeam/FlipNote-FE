@@ -1,5 +1,5 @@
 import { GROUP_CATEGORY_MAP } from "@/domain/group";
-import type { GroupCategory } from "@/shared/apis";
+import { groupApi, type GroupCategory } from "@/shared/apis";
 import { Button } from "@/shared/components/button";
 import {
   ButtonCheckbox,
@@ -17,6 +17,7 @@ import { Input } from "@/shared/components/input";
 import { Label } from "@/shared/components/label";
 import { Textarea } from "@/shared/components/textarea";
 import BaseLayout from "@/shared/layouts/base-layout";
+import { useMutation } from "@tanstack/react-query";
 
 import { useController, useForm } from "react-hook-form";
 
@@ -38,6 +39,10 @@ const CreateGroup = () => {
     formState: { errors },
   } = useForm<FormType>();
 
+  const { mutate } = useMutation({
+    mutationFn: groupApi.createGroup,
+  });
+
   const { field: categoryField } = useController({
     name: "category",
     control,
@@ -47,7 +52,13 @@ const CreateGroup = () => {
   });
 
   const onSubmit = (data: FormType) => {
-    console.log(data);
+    mutate({
+      ...data,
+      maxMember: +data.maxMember,
+      applicationRequired: true,
+      publicVisible: true,
+      image: null,
+    });
   };
 
   return (
