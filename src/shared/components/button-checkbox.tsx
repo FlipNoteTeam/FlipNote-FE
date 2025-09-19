@@ -21,24 +21,23 @@ export const ButtonCheckbox = ({
   const id = React.useId();
 
   return (
-    <>
+    <div>
       <input
         type="checkbox"
         id={id}
         checked={checked}
         onChange={(e) => {
-          console.log("실행됨", e.target.checked);
           onChange?.(e.target.checked);
         }}
         disabled={disabled}
         value={value}
-        className="sr-only"
+        className="sr-only peer"
       />
       <label
         htmlFor={id}
         className={cn(
           "inline-flex items-center px-4 py-2 rounded-md border text-sm font-medium transition-colors cursor-pointer",
-          "focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2",
+          "peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2",
           checked
             ? "bg-blue-500 text-white border-blue-500"
             : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50",
@@ -48,7 +47,7 @@ export const ButtonCheckbox = ({
       >
         {children}
       </label>
-    </>
+    </div>
   );
 };
 type ButtonCheckboxGroupProps = {
