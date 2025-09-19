@@ -51,14 +51,20 @@ const CreateGroup = () => {
     },
   });
 
+  const { field: applicationRequiredField } = useController({
+    name: "applicationRequired",
+    defaultValue: false,
+    control,
+  });
+
+  const { field: publicVisibleField } = useController({
+    name: "publicVisible",
+    defaultValue: true,
+    control,
+  });
+
   const onSubmit = (data: FormType) => {
-    mutate({
-      ...data,
-      maxMember: +data.maxMember,
-      applicationRequired: true,
-      publicVisible: true,
-      image: null,
-    });
+    mutate(data);
   };
 
   return (
@@ -107,12 +113,17 @@ const CreateGroup = () => {
             <div className="flex gap-2">
               <Checkbox
                 id="applicationRequired"
-                {...register("applicationRequired")}
+                checked={applicationRequiredField.value}
+                onCheckedChange={applicationRequiredField.onChange}
               />
               <Label htmlFor="applicationRequired">가입신청 여부</Label>
             </div>
             <div className="flex gap-2">
-              <Checkbox id="publicVisible" {...register("publicVisible")} />
+              <Checkbox
+                id="publicVisible"
+                checked={publicVisibleField.value}
+                onCheckedChange={publicVisibleField.onChange}
+              />
               <Label htmlFor="publicVisible">공개</Label>
             </div>
             <div>
@@ -127,6 +138,7 @@ const CreateGroup = () => {
                   {...register("maxMember", {
                     min: { value: 1, message: "최소 인원은 1명입니다." },
                     max: { value: 100, message: "최대 인원은 100명입니다." },
+                    valueAsNumber: true,
                   })}
                 />
                 <span className="text-sm ml-2 ">명</span>
