@@ -5,7 +5,6 @@ export interface YjsMessage {
     | "awareness"
     | "auth"
     | "expired"
-    | "heartbeat"
     | "access-control";
   data?: unknown;
 }
@@ -45,13 +44,6 @@ export interface ExpiredMessage extends YjsMessage {
   type: "expired";
   data: {
     message: string;
-  };
-}
-
-export interface HeartbeatMessage extends YjsMessage {
-  type: "heartbeat";
-  data: {
-    timestamp: number;
   };
 }
 

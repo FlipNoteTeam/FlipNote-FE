@@ -21,7 +21,6 @@ export class YjsProvider {
   private documentId: string;
   private userId: string;
   private hasAccess = false;
-  private heartbeatInterval: NodeJS.Timeout | null = null;
 
   // Y.js 텍스트 타입들
   public questionText: Y.Text;
@@ -62,7 +61,6 @@ export class YjsProvider {
         this.socket.once("access-control", (message: AccessControlMessage) => {
           this.hasAccess = message.data.hasAccess;
           if (this.hasAccess) {
-            this.startHeartbeat();
             resolve(true);
           } else {
             reject(new Error(message.data.message));
@@ -75,11 +73,6 @@ export class YjsProvider {
   }
 
   disconnect(): void {
-    if (this.heartbeatInterval) {
-      clearInterval(this.heartbeatInterval);
-      this.heartbeatInterval = null;
-    }
-
     if (this.socket) {
       socketManager.disconnect();
       this.socket = null;
@@ -190,20 +183,6 @@ export class YjsProvider {
     }
   }
 
-  private startHeartbeat(): void {
-    if (this.heartbeatInterval) {
-      clearInterval(this.heartbeatInterval);
-    }
-
-    this.heartbeatInterval = setInterval(() => {
-      if (this.hasAccess && this.isConnected) {
-        this.sendMessage({
-          type: "heartbeat",
-          data: { timestamp: Date.now() },
-        });
-      }
-    }, 10000); // 10초마다
-  }
 
   // 편의 메서드들
   setQuestionText(text: string): void {
