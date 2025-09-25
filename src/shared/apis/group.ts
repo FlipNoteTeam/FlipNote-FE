@@ -61,6 +61,7 @@ export interface FindGroupMemberResponse {
 }
 
 interface GroupListParams {
+  keyword?: string /** 없는 값임 ㅎ */;
   category?: string;
   cursor?: string;
   size?: number;
@@ -71,11 +72,15 @@ interface GroupListParams {
 export const groupApi = {
   // 그룹 전체 조회 (커서 페이징)
   getGroups: (params?: GroupListParams) =>
-    apiClient.get<ApiResponse<CursorPagingResponse<GroupInfo>>>("/groups", { params }),
+    apiClient.get<ApiResponse<CursorPagingResponse<GroupInfo>>>("/groups", {
+      params,
+    }),
 
   // 내 그룹 전체 조회 (커서 페이징)
   getMyGroups: (params?: GroupListParams) =>
-    apiClient.get<ApiResponse<CursorPagingResponse<GroupInfo>>>("/groups/me", { params }),
+    apiClient.get<ApiResponse<CursorPagingResponse<GroupInfo>>>("/groups/me", {
+      params,
+    }),
 
   // 그룹 상세 조회
   getGroupDetail: (groupId: number) =>
@@ -94,5 +99,7 @@ export const groupApi = {
 
   // 그룹 멤버 조회
   getGroupMembers: (groupId: number) =>
-    apiClient.get<ApiResponse<FindGroupMemberResponse>>(`/groups/${groupId}/members`),
+    apiClient.get<ApiResponse<FindGroupMemberResponse>>(
+      `/groups/${groupId}/members`
+    ),
 };
