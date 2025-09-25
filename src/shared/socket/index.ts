@@ -1,5 +1,4 @@
 import { io, Socket } from "socket.io-client";
-import { SocketEvents } from "@/shared/socket/events";
 
 class SocketManager {
   private socket: Socket | null = null;
@@ -19,6 +18,7 @@ class SocketManager {
       reconnection: true,
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,
+      timeout: 30000, // 연결 타임아웃 30초
       auth: {
         token: token || localStorage.getItem("auth_token"),
       },
