@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/shared/components/card";
 import { Button } from "@/shared/components/button";
 import { Textarea } from "@/shared/components/textarea";
 import { Label } from "@/shared/components/label";
+import { useYjs } from "@/shared/socket/useYjs";
 
 interface CardData {
   id: number;
@@ -20,9 +21,37 @@ export function CardsetEditor() {
     "question" | "answer" | null
   >(null);
 
+  // Yjs 협업 기능
+  const {
+    isConnected,
+    hasAccess,
+    connectionError,
+    questionText,
+    answerText,
+    connect,
+    disconnect,
+    updateQuestion,
+    updateAnswer,
+    setAwareness,
+  } = useYjs({
+    documentId: `cardset-${cards[currentCardIndex]?.id || 1}`,
+    userId: `user-${Math.random().toString(36).substr(2, 9)}`, // 임시 사용자 ID
+    autoConnect: false,
+  });
+
   const currentCard = cards[currentCardIndex];
 
   const updateCard = (field: "question" | "answer", value: string) => {
+    // Yjs로 실시간 동기화
+    if (hasAccess) {
+      if (field === "question") {
+        updateQuestion(value);
+      } else {
+        updateAnswer(value);
+      }
+    }
+
+    // 로컬 상태도 업데이트
     setCards((prev) =>
       prev.map((card, index) =>
         index === currentCardIndex ? { ...card, [field]: value } : card
@@ -48,12 +77,37 @@ export function CardsetEditor() {
     }
   };
 
+  // Yjs 텍스트와 로컬 상태 동기화
+  useEffect(() => {
+    if (hasAccess && isConnected) {
+      setCards((prev) =>
+        prev.map((card, index) =>
+          index === currentCardIndex
+            ? { ...card, question: questionText, answer: answerText }
+            : card
+        )
+      );
+    }
+  }, [questionText, answerText, hasAccess, isConnected, currentCardIndex]);
+
+  // 협업 연결 시도
+  const handleCollaborationConnect = async () => {
+    try {
+      const success = await connect();
+      if (success) {
+        console.log('협업 모드 연결 성공');
+      }
+    } catch (error) {
+      console.error('협업 모드 연결 실패:', error);
+    }
+  };
+
   return (
     <div className="min-h-dvh h-screen flex bg-gray-50">
       {/* Left Sidebar - Card List */}
       <div className="w-96 bg-white border-r border-gray-200 flex flex-col">
         <div className="p-6 border-b border-gray-200">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mb-4">
             <h2 className="text-md font-semibold text-gray-900">카드 목록</h2>
             <Button
               onClick={addCard}
@@ -63,6 +117,28 @@ export function CardsetEditor() {
             >
               + 추가
             </Button>
+          </div>
+
+          {/* 협업 상태 표시 */}
+          <div className="flex items-center gap-2">
+            <div className={`w-2 h-2 rounded-full ${
+              isConnected && hasAccess ? 'bg-green-500' :
+              connectionError ? 'bg-red-500' : 'bg-gray-400'
+            }`} />
+            <span className="text-xs text-gray-500">
+              {isConnected && hasAccess ? '협업 모드 활성' :
+               connectionError ? '연결 실패' : '협업 모드 비활성'}
+            </span>
+            {!isConnected && (
+              <Button
+                onClick={handleCollaborationConnect}
+                size="sm"
+                variant="outline"
+                className="ml-2 px-2 py-1 text-xs"
+              >
+                연결
+              </Button>
+            )}
           </div>
         </div>
 
@@ -155,12 +231,16 @@ export function CardsetEditor() {
                   </Label>
                   <Textarea
                     id="question"
-                    value={currentCard.question}
+                    value={hasAccess && isConnected ? questionText : currentCard.question}
                     onChange={(e) => updateCard("question", e.target.value)}
-                    onFocus={() => setFocusedField("question")}
+                    onFocus={() => {
+                      setFocusedField("question");
+                      if (hasAccess) setAwareness("question");
+                    }}
                     onBlur={() => setFocusedField(null)}
                     className="w-full min-h-56 text-2xl leading-relaxed resize-none border-0 bg-transparent focus:ring-0 focus:outline-none placeholder-gray-400"
                     placeholder="질문을 입력하세요..."
+                    disabled={isConnected && !hasAccess}
                   />
                 </div>
 
@@ -180,12 +260,16 @@ export function CardsetEditor() {
                   </Label>
                   <Textarea
                     id="answer"
-                    value={currentCard.answer}
+                    value={hasAccess && isConnected ? answerText : currentCard.answer}
                     onChange={(e) => updateCard("answer", e.target.value)}
-                    onFocus={() => setFocusedField("answer")}
+                    onFocus={() => {
+                      setFocusedField("answer");
+                      if (hasAccess) setAwareness("answer");
+                    }}
                     onBlur={() => setFocusedField(null)}
                     className="w-full min-h-56 text-2xl leading-relaxed resize-none border-0 bg-transparent focus:ring-0 focus:outline-none placeholder-gray-400"
                     placeholder="답변을 입력하세요..."
+                    disabled={isConnected && !hasAccess}
                   />
                 </div>
               </div>
