@@ -1,38 +1,73 @@
 import { GROUP_CATEGORY, type GroupBrief } from "@/domain/group";
+import { Button } from "@/shared/components/button";
 import { Card, CardContent, CardDescription } from "@/shared/components/card";
 import { Checkbox } from "@/shared/components/checkbox";
 import { Input } from "@/shared/components/input";
 import { Label } from "@/shared/components/label";
 import BaseLayout from "@/shared/layouts/base-layout";
 import { Link } from "@tanstack/react-router";
+import { Plus, Search } from "lucide-react";
 
 const GroupList = () => {
-  /** 내가 참여한 그룹인지도  */
-
   return (
     <BaseLayout>
-      <div className="grid grid-cols-4 gap-4 ">
-        {/* 검색 영역 */}
+      {/* 검색 영역 */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+        <Input
+          placeholder="스터디 그룹을 검색해보세요"
+          className="pl-10 bg-white"
+        />
+      </div>
 
-        <Input value="검색해보세요" placeholder="검색해보세요" />
-        <div>
+      {/* 필터 영역 */}
+      <div className="bg-gray-50 rounded-lg p-4 mt-2">
+        <h3 className="text-sm font-medium text-gray-700 mb-3">카테고리</h3>
+        <div className="flex flex-wrap gap-4">
           {GROUP_CATEGORY.map((category) => (
-            <>
-              <Label>{category}</Label>
-              <Checkbox />
-            </>
+            <div key={category} className="flex items-center space-x-2">
+              <Checkbox id={category} />
+              <Label
+                htmlFor={category}
+                className="text-sm font-normal cursor-pointer"
+              >
+                {category}
+              </Label>
+            </div>
           ))}
         </div>
-        {/* 리스트 영역 */}
+      </div>
+
+      {/* 생성 버튼 */}
+      <div className="flex justify-end mt-2">
+        <Button className="flex items-center gap-2">
+          <Plus className="w-4 h-4" />
+          그룹 생성
+        </Button>
+      </div>
+
+      {/* 그룹 리스트 */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-4">
         {mockData.map((group) => (
           <Link to="/" key={group.id}>
-            <Card className="p-0 overflow-hidden">
-              <div className="w-full h-28">
-                <img src={group.image} alt={`${group.name}의 썸네일`} />
+            <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-200 cursor-pointer">
+              <div className="w-full h-40 bg-gray-100">
+                <img
+                  src={group.image}
+                  alt={`${group.name}의 썸네일`}
+                  className="w-full h-full object-cover"
+                />
               </div>
               <CardContent className="p-4">
-                {group.name}
-                <CardDescription>{group.description}</CardDescription>
+                <h3 className="font-semibold text-gray-900 mb-2 line-clamp-1">
+                  {group.name}
+                </h3>
+                <CardDescription className="line-clamp-2 text-sm">
+                  {group.description}
+                </CardDescription>
+                <div className="mt-3 text-xs text-gray-500">
+                  {group.createdAt.toLocaleDateString()}
+                </div>
               </CardContent>
             </Card>
           </Link>
