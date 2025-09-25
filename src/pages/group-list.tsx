@@ -3,39 +3,42 @@ import { Card, CardContent, CardDescription } from "@/shared/components/card";
 import { Checkbox } from "@/shared/components/checkbox";
 import { Input } from "@/shared/components/input";
 import { Label } from "@/shared/components/label";
+import BaseLayout from "@/shared/layouts/base-layout";
 import { Link } from "@tanstack/react-router";
 
 const GroupList = () => {
   /** 내가 참여한 그룹인지도  */
 
   return (
-    <div className="grid grid-cols-4 gap-4 ">
-      {/* 검색 영역 */}
+    <BaseLayout>
+      <div className="grid grid-cols-4 gap-4 ">
+        {/* 검색 영역 */}
 
-      <Input value="검색해보세요" placeholder="검색해보세요" />
-      <div>
-        {GROUP_CATEGORY.map((category) => (
-          <>
-            <Label>{category}</Label>
-            <Checkbox />
-          </>
+        <Input value="검색해보세요" placeholder="검색해보세요" />
+        <div>
+          {GROUP_CATEGORY.map((category) => (
+            <>
+              <Label>{category}</Label>
+              <Checkbox />
+            </>
+          ))}
+        </div>
+        {/* 리스트 영역 */}
+        {mockData.map((group) => (
+          <Link to="/" key={group.id}>
+            <Card className="p-0 overflow-hidden">
+              <div className="w-full h-28">
+                <img src={group.image} alt={`${group.name}의 썸네일`} />
+              </div>
+              <CardContent className="p-4">
+                {group.name}
+                <CardDescription>{group.description}</CardDescription>
+              </CardContent>
+            </Card>
+          </Link>
         ))}
       </div>
-      {/* 리스트 영역 */}
-      {mockData.map((group) => (
-        <Link to="/" key={group.id}>
-          <Card className="p-0 overflow-hidden">
-            <div className="w-full h-28">
-              <img src={group.image} alt={`${group.name}의 썸네일`} />
-            </div>
-            <CardContent className="p-4">
-              {group.name}
-              <CardDescription>{group.description}</CardDescription>
-            </CardContent>
-          </Card>
-        </Link>
-      ))}
-    </div>
+    </BaseLayout>
   );
 };
 

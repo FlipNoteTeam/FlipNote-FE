@@ -1,9 +1,10 @@
 import type { GroupDetail } from "@/domain/group";
 import type { GroupMemberInfo } from "@/shared/apis";
+import BaseLayout from "@/shared/layouts/base-layout";
 
 type Props = { id: string };
 
-const GroupDetail = ({ id }: Props) => {
+const GroupDetailPage = ({ id }: Props) => {
   const data = mockData;
   const members: GroupMemberInfo[] = [
     {
@@ -26,7 +27,7 @@ const GroupDetail = ({ id }: Props) => {
     },
   ];
   return (
-    <div>
+    <BaseLayout>
       {id}
 
       <div>
@@ -53,7 +54,7 @@ const GroupDetail = ({ id }: Props) => {
       <div>
         <h3>카드셋 자리</h3>
       </div>
-    </div>
+    </BaseLayout>
   );
 };
 
@@ -69,4 +70,4 @@ const mockData: GroupDetail = {
   modifiedAt: new Date("2024-03-10T10:00:00Z"),
 };
 
-export default GroupDetail;
+export default GroupDetailPage;
