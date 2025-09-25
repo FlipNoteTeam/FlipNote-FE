@@ -1,4 +1,4 @@
-import GNB from "@/shared/components/gnb/gnb";
+import GNB from "@/shared/layouts/gnb";
 
 type Props = {
   children: React.ReactNode;
