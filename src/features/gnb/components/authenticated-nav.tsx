@@ -16,7 +16,7 @@ const AuthenticatedNav = () => {
         <Link to="/">마이페이지</Link>
       </li>
       <li>
-        <AlarmSheet alarms={[]} isLoading={false}>
+        <AlarmSheet>
           {({ unreadCount }) => (
             <Button variant="ghost" size="sm" className="relative">
               <Bell className="h-4 w-4" />
