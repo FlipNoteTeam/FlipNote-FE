@@ -1,0 +1,34 @@
+import useAuthStore from "@/stores/useAuthStore";
+import { Link } from "@tanstack/react-router";
+
+const GNB = () => {
+  const isInitilized = useAuthStore((state) => state.isInitialized);
+
+  return (
+    <header className="w-full bg-white shadow-sm border-b">
+      <nav className="mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          <div className="flex items-center">
+            <h1 className="text-xl font-semibold">FlipNote</h1>
+          </div>
+          <ul className="flex items-center space-x-4">
+            {isInitilized ? (
+              <>인증됨</>
+            ) : (
+              <>
+                <li className="text-md">
+                  <Link to="/auth/login">로그인</Link>
+                </li>
+                <li className="text-md">
+                  <Link to="/auth/register">회원가입</Link>
+                </li>
+              </>
+            )}
+          </ul>
+        </div>
+      </nav>
+    </header>
+  );
+};
+
+export default GNB;
