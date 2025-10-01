@@ -31,7 +31,12 @@ export const GROUP_CATEGORY_MAP = {
   KOREAN: "한국어",
 } as const;
 
+export type GroupCategory = keyof typeof GROUP_CATEGORY_MAP;
+
 export const GROUP_CATEGORY = Object.values(GROUP_CATEGORY_MAP);
+
+export const getGroupCategoryKeys = () =>
+  Object.keys(GROUP_CATEGORY_MAP) as GroupCategory[];
 
 export const toGroupBrief = (apiResponse: GroupInfo): GroupBrief => {
   return {

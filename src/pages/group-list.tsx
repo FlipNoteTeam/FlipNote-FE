@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Button } from "@/shared/components/button";
 import { Card, CardContent, CardDescription } from "@/shared/components/card";
 import { Input } from "@/shared/components/input";
@@ -13,8 +14,6 @@ import { Link } from "@tanstack/react-router";
 import { Plus, Search } from "lucide-react";
 import { useGroups } from "@/features/group/hooks/useGroups";
 import { GroupFilterSection } from "@/features/group/components/GroupFilterSection";
-import { GROUP_CATEGORY_MAP } from "@/domain/group";
-import { useState, useEffect } from "react";
 import type { GroupCategory } from "@/shared/apis/types";
 
 const GroupList = () => {
@@ -52,13 +51,8 @@ const GroupList = () => {
   });
 
   // 카테고리 체크박스 핸들러
-  const handleCategoryChange = (displayValue: string, checked: boolean) => {
-    // GROUP_CATEGORY_MAP에서 표시 값에 해당하는 키를 찾음
-    const categoryKey = Object.keys(GROUP_CATEGORY_MAP).find(
-      key => GROUP_CATEGORY_MAP[key as keyof typeof GROUP_CATEGORY_MAP] === displayValue
-    ) as GroupCategory;
-
-    setSelectedCategory(checked ? categoryKey : undefined);
+  const handleCategoryChange = (category: GroupCategory, checked: boolean) => {
+    setSelectedCategory(checked ? category : undefined);
   };
 
   // 정렬 필드 핸들러
