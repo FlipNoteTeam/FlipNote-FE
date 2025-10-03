@@ -1,11 +1,5 @@
 export interface YjsMessage {
-  type:
-    | "sync"
-    | "update"
-    | "awareness"
-    | "auth"
-    | "expired"
-    | "access-control";
+  type: "sync" | "update" | "awareness" | "auth" | "expired" | "access-control";
   data?: unknown;
 }
 
@@ -20,6 +14,7 @@ export interface SyncMessage extends YjsMessage {
 export interface UpdateMessage extends YjsMessage {
   type: "update";
   data: {
+    documentId: string;
     update: Uint8Array;
   };
 }
@@ -27,6 +22,7 @@ export interface UpdateMessage extends YjsMessage {
 export interface AwarenessMessage extends YjsMessage {
   type: "awareness";
   data: {
+    documentId: string;
     awareness: Uint8Array;
   };
 }
