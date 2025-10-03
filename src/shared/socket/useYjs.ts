@@ -25,7 +25,7 @@ export function useYjs(options: UseYjsOptions) {
         providerRef.current = provider;
 
         const success = await provider.connect(authToken || token || "");
-        console.log("!??", success);
+
         if (success) {
           setIsConnected(true);
           setHasAccess(provider.getHasAccess());
@@ -47,7 +47,6 @@ export function useYjs(options: UseYjsOptions) {
         }
         return false;
       } catch (error) {
-        console.log("@");
         setConnectionError(
           error instanceof Error ? error.message : "Connection failed"
         );

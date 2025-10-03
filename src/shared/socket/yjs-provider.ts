@@ -4,7 +4,6 @@ import { Socket } from "socket.io-client";
 import { socketManager } from "./index";
 import type {
   YjsMessage,
-  SyncMessage,
   UpdateMessage,
   AwarenessMessage,
   AuthMessage,
@@ -61,6 +60,14 @@ export class YjsProvider {
         this.socket.once("access-control", (message: AccessControlMessage) => {
           this.hasAccess = message.data.hasAccess;
           if (this.hasAccess) {
+            this.isConnected = true;
+
+            // 룸에 조인
+            this.socket?.emit("joinRoom", {
+              documentId: this.documentId,
+              userId: this.userId,
+            });
+
             resolve(true);
           } else {
             reject(new Error(message.data.message));
@@ -85,10 +92,18 @@ export class YjsProvider {
   private setupDocumentListeners(): void {
     // 문서 업데이트 시 다른 클라이언트에게 전송
     this.doc.on("update", (update: Uint8Array, origin: any) => {
+      console.log("[YJS] Doc update", {
+        origin,
+        originIsThis: origin === this,
+        hasAccess: this.hasAccess,
+        isConnected: this.isConnected,
+      });
+
       if (origin !== this && this.hasAccess && this.isConnected) {
+        console.log("[YJS] Sending update to server");
         this.sendMessage({
           type: "update",
-          data: { update: Array.from(update) },
+          data: { documentId: this.documentId, update: Array.from(update) },
         } as unknown as UpdateMessage);
       }
     });
@@ -105,7 +120,10 @@ export class YjsProvider {
 
         this.sendMessage({
           type: "awareness",
-          data: { awareness: Array.from(awarenessUpdate) },
+          data: {
+            documentId: this.documentId,
+            awareness: Array.from(awarenessUpdate),
+          },
         } as unknown as AwarenessMessage);
       }
     });
@@ -123,35 +141,33 @@ export class YjsProvider {
       this.hasAccess = false;
     });
 
-    // 동기화 메시지 처리
-    this.socket.on("sync", (message: SyncMessage) => {
-      if (!this.hasAccess) return;
-
-      const { syncStep, update } = message.data;
-
-      if (syncStep === 0) {
-        // Step 0: 클라이언트가 현재 상태 벡터 전송
-        const stateVector = Y.encodeStateVector(this.doc);
-        this.sendMessage({
-          type: "sync",
-          data: { syncStep: 1, update: Array.from(stateVector) },
-        } as unknown as SyncMessage);
-      } else if (syncStep === 1 && update) {
-        // Step 1: 서버가 차이점 전송
-        Y.applyUpdate(this.doc, new Uint8Array(update), this);
+    // joinRoom 응답 처리
+    this.socket.on(
+      "joinRoom",
+      (data: { documentId: string; clientId: string; timestamp: string }) => {
+        console.log("[YJS] Joined room", data);
       }
-    });
+    );
 
-    // 업데이트 메시지 처리
-    this.socket.on("update", (message: UpdateMessage) => {
+    // 동기화 메시지 처리 (서버가 초기 문서 상태 전송)
+    this.socket.on("sync", (data: { documentId?: string; syncStep?: number; update: number[] }) => {
       if (!this.hasAccess) return;
 
-      const { update } = message.data;
+      console.log("[YJS❤️] Received sync from server", data);
+      const { update } = data;
       Y.applyUpdate(this.doc, new Uint8Array(update), this);
     });
 
+    // // 업데이트 메시지 처리
+    // this.socket.on("update", (message: UpdateMessage) => {
+    //   if (!this.hasAccess) return;
+
+    //   const { update } = message.data;
+    //   Y.applyUpdate(this.doc, new Uint8Array(update), this);
+    // });
+
     // Awareness 메시지 처리
-    this.socket.on("awareness", (message: AwarenessMessage) => {
+    this.socket.emit("awareness", (message: AwarenessMessage) => {
       if (!this.hasAccess) return;
 
       const { awareness } = message.data;
@@ -177,9 +193,9 @@ export class YjsProvider {
     });
   }
 
-  private sendMessage(message: YjsMessage): void {
+  private sendMessage({ type, data }: YjsMessage): void {
     if (this.socket?.connected) {
-      this.socket.emit("yjs-message", message);
+      this.socket.emit(type, data);
     }
   }
 
