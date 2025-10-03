@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
-import { YjsProvider } from './yjs-provider';
+import { useEffect, useRef, useState, useCallback } from "react";
+import { YjsProvider } from "./yjs-provider";
 
 interface UseYjsOptions {
   documentId: string;
@@ -13,44 +13,51 @@ export function useYjs(options: UseYjsOptions) {
   const [isConnected, setIsConnected] = useState(false);
   const [hasAccess, setHasAccess] = useState(false);
   const [connectionError, setConnectionError] = useState<string | null>(null);
-  const [questionText, setQuestionText] = useState('');
-  const [answerText, setAnswerText] = useState('');
+  const [questionText, setQuestionText] = useState("");
+  const [answerText, setAnswerText] = useState("");
 
   const providerRef = useRef<YjsProvider | null>(null);
 
-  const connect = useCallback(async (authToken?: string) => {
-    try {
-      const provider = new YjsProvider(documentId, userId);
-      providerRef.current = provider;
+  const connect = useCallback(
+    async (authToken?: string) => {
+      try {
+        const provider = new YjsProvider(documentId, userId);
+        providerRef.current = provider;
 
-      const success = await provider.connect(authToken || token || '');
+        const success = await provider.connect(authToken || token || "");
+        console.log("!??", success);
+        if (success) {
+          setIsConnected(true);
+          setHasAccess(provider.getHasAccess());
+          setConnectionError(null);
 
-      if (success) {
-        setIsConnected(true);
-        setHasAccess(provider.getHasAccess());
-        setConnectionError(null);
+          // 텍스트 변경 리스너 설정
+          const updateQuestion = () =>
+            setQuestionText(provider.getQuestionText());
+          const updateAnswer = () => setAnswerText(provider.getAnswerText());
 
-        // 텍스트 변경 리스너 설정
-        const updateQuestion = () => setQuestionText(provider.getQuestionText());
-        const updateAnswer = () => setAnswerText(provider.getAnswerText());
+          provider.questionText.observe(updateQuestion);
+          provider.answerText.observe(updateAnswer);
 
-        provider.questionText.observe(updateQuestion);
-        provider.answerText.observe(updateAnswer);
+          // 초기 값 설정
+          updateQuestion();
+          updateAnswer();
 
-        // 초기 값 설정
-        updateQuestion();
-        updateAnswer();
-
-        return true;
+          return true;
+        }
+        return false;
+      } catch (error) {
+        console.log("@");
+        setConnectionError(
+          error instanceof Error ? error.message : "Connection failed"
+        );
+        setIsConnected(false);
+        setHasAccess(false);
+        return false;
       }
-      return false;
-    } catch (error) {
-      setConnectionError(error instanceof Error ? error.message : 'Connection failed');
-      setIsConnected(false);
-      setHasAccess(false);
-      return false;
-    }
-  }, [documentId, userId, token]);
+    },
+    [documentId, userId, token]
+  );
 
   const disconnect = useCallback(() => {
     if (providerRef.current) {
@@ -74,11 +81,17 @@ export function useYjs(options: UseYjsOptions) {
     }
   }, []);
 
-  const setAwareness = useCallback((field: 'question' | 'answer', cursor?: { index: number; length: number }) => {
-    if (providerRef.current?.getHasAccess()) {
-      providerRef.current.setAwareness(field, cursor);
-    }
-  }, []);
+  const setAwareness = useCallback(
+    (
+      field: "question" | "answer",
+      cursor?: { index: number; length: number }
+    ) => {
+      if (providerRef.current?.getHasAccess()) {
+        providerRef.current.setAwareness(field, cursor);
+      }
+    },
+    []
+  );
 
   useEffect(() => {
     if (autoConnect) {

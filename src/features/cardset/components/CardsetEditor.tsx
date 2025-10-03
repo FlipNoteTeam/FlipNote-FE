@@ -29,14 +29,13 @@ export function CardsetEditor() {
     questionText,
     answerText,
     connect,
-    disconnect,
     updateQuestion,
     updateAnswer,
     setAwareness,
   } = useYjs({
     documentId: `cardset-${cards[currentCardIndex]?.id || 1}`,
-    userId: `user-${Math.random().toString(36).substr(2, 9)}`, // 임시 사용자 ID
-    autoConnect: false,
+    userId: `user-1`, // 임시 사용자 ID
+    autoConnect: true,
   });
 
   const currentCard = cards[currentCardIndex];
@@ -90,15 +89,16 @@ export function CardsetEditor() {
     }
   }, [questionText, answerText, hasAccess, isConnected, currentCardIndex]);
 
+  console.log("?!!", isConnected, hasAccess);
   // 협업 연결 시도
   const handleCollaborationConnect = async () => {
     try {
       const success = await connect();
       if (success) {
-        console.log('협업 모드 연결 성공');
+        console.log("협업 모드 연결 성공");
       }
     } catch (error) {
-      console.error('협업 모드 연결 실패:', error);
+      console.error("협업 모드 연결 실패:", error);
     }
   };
 
@@ -121,13 +121,21 @@ export function CardsetEditor() {
 
           {/* 협업 상태 표시 */}
           <div className="flex items-center gap-2">
-            <div className={`w-2 h-2 rounded-full ${
-              isConnected && hasAccess ? 'bg-green-500' :
-              connectionError ? 'bg-red-500' : 'bg-gray-400'
-            }`} />
+            <div
+              className={`w-2 h-2 rounded-full ${
+                isConnected && hasAccess
+                  ? "bg-green-500"
+                  : connectionError
+                    ? "bg-red-500"
+                    : "bg-gray-400"
+              }`}
+            />
             <span className="text-xs text-gray-500">
-              {isConnected && hasAccess ? '협업 모드 활성' :
-               connectionError ? '연결 실패' : '협업 모드 비활성'}
+              {isConnected && hasAccess
+                ? "협업 모드 활성"
+                : connectionError
+                  ? "연결 실패"
+                  : "협업 모드 비활성"}
             </span>
             {!isConnected && (
               <Button
@@ -231,7 +239,11 @@ export function CardsetEditor() {
                   </Label>
                   <Textarea
                     id="question"
-                    value={hasAccess && isConnected ? questionText : currentCard.question}
+                    value={
+                      hasAccess && isConnected
+                        ? questionText
+                        : currentCard.question
+                    }
                     onChange={(e) => updateCard("question", e.target.value)}
                     onFocus={() => {
                       setFocusedField("question");
@@ -260,7 +272,9 @@ export function CardsetEditor() {
                   </Label>
                   <Textarea
                     id="answer"
-                    value={hasAccess && isConnected ? answerText : currentCard.answer}
+                    value={
+                      hasAccess && isConnected ? answerText : currentCard.answer
+                    }
                     onChange={(e) => updateCard("answer", e.target.value)}
                     onFocus={() => {
                       setFocusedField("answer");

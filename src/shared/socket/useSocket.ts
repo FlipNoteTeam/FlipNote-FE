@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
-import { Socket } from 'socket.io-client';
-import { socketManager } from './index';
-import { ServerToClientEvents, ClientToServerEvents } from './events';
+import { useEffect, useRef, useState } from "react";
+import { Socket } from "socket.io-client";
+import { socketManager } from "./index";
+import { ServerToClientEvents, ClientToServerEvents } from "./events";
 
 interface UseSocketOptions {
   autoConnect?: boolean;
@@ -19,7 +19,9 @@ export function useSocket(options: UseSocketOptions = {}) {
       socketRef.current = socketManager.connect(token);
       setConnectionError(null);
     } catch (error) {
-      setConnectionError(error instanceof Error ? error.message : 'Connection failed');
+      setConnectionError(
+        error instanceof Error ? error.message : "Connection failed"
+      );
     }
   };
 
@@ -67,9 +69,9 @@ export function useSocket(options: UseSocketOptions = {}) {
 
     return () => {
       if (socketRef.current) {
-        socketRef.current.off('connect');
-        socketRef.current.off('disconnect');
-        socketRef.current.off('connect_error');
+        socketRef.current.off("connect");
+        socketRef.current.off("disconnect");
+        socketRef.current.off("connect_error");
       }
     };
   }, [autoConnect, token]);
@@ -83,14 +85,14 @@ export function useSocket(options: UseSocketOptions = {}) {
         setIsConnected(false);
       };
 
-      socketRef.current.on('connect', handleConnect);
-      socketRef.current.on('disconnect', handleDisconnect);
-      socketRef.current.on('connect_error', handleConnectError);
+      socketRef.current.on("connect", handleConnect);
+      socketRef.current.on("disconnect", handleDisconnect);
+      socketRef.current.on("connect_error", handleConnectError);
 
       return () => {
-        socketRef.current?.off('connect', handleConnect);
-        socketRef.current?.off('disconnect', handleDisconnect);
-        socketRef.current?.off('connect_error', handleConnectError);
+        socketRef.current?.off("connect", handleConnect);
+        socketRef.current?.off("disconnect", handleDisconnect);
+        socketRef.current?.off("connect_error", handleConnectError);
       };
     }
   }, [socketRef.current]);

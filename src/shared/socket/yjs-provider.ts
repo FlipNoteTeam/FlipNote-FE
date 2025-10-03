@@ -183,7 +183,6 @@ export class YjsProvider {
     }
   }
 
-
   // 편의 메서드들
   setQuestionText(text: string): void {
     if (!this.hasAccess) return;

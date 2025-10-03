@@ -5,7 +5,7 @@ class SocketManager {
   private url: string;
 
   constructor() {
-    this.url = import.meta.env.VITE_SOCKET_URL || "ws://localhost:3001";
+    this.url = import.meta.env.VITE_SOCKET_URL;
   }
 
   connect(token?: string): Socket {
