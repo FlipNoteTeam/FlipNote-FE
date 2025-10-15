@@ -1,7 +1,12 @@
 #!/bin/sh
 
-# Merge commit이나 commit --amend는 스킵
-if [ "$2" = "merge" ] || [ "$2" = "commit" ]; then
+# Merge commit, commit --amend, rebase, cherry-pick 등은 스킵
+if [ "$2" = "merge" ] || [ "$2" = "commit" ] || [ "$2" = "squash" ] || [ "$2" = "message" ]; then
+    exit
+fi
+
+# rebase나 cherry-pick 진행 중인지 체크
+if [ -d ".git/rebase-merge" ] || [ -d ".git/rebase-apply" ] || [ -d ".git/sequencer" ]; then
     exit
 fi
 
@@ -21,7 +26,7 @@ fi
 FIRST_LINE=$(head -n1 "$1")
 
 # feat: 와 같은 타입이 있는지 체크
-if echo "$FIRST_LINE" | grep -qE '^(feat|fix|chore|docs|refactor|test|style|perf|build|ci|revert):'; then
+if echo "$FIRST_LINE" | grep -qE '^(feat|fix|chore|docs|refactor|test|style|perf|build|ci|revert|design):'; then
     # 타입 뒤에 Jira 키 추가
     NEW_LINE=$(echo "$FIRST_LINE" | sed -E "s/^([a-z]+:)(.*)/\1 [$ISSUE_KEY]\2/")
     # 커밋 메시지 업데이트
