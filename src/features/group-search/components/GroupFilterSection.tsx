@@ -1,4 +1,4 @@
-import { GROUP_CATEGORY_MAP, getGroupCategoryKeys } from "@/domain/group";
+import { GROUP_CATEGORY_MAP, getGroupCategoryKeys } from "@/domain/group/types";
 import { Checkbox } from "@/shared/components/checkbox";
 import { Label } from "@/shared/components/label";
 import type { GroupCategory } from "@/shared/apis/types";

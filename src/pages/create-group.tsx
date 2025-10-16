@@ -1,4 +1,4 @@
-import { GROUP_CATEGORY_MAP } from "@/domain/group";
+import { GROUP_CATEGORY_MAP } from "@/domain/group/types";
 import { groupApi, type GroupCategory } from "@/shared/apis";
 import { Button } from "@/shared/components/button";
 import {
@@ -16,6 +16,7 @@ import {
 import { Input } from "@/shared/components/input";
 import { Label } from "@/shared/components/label";
 import { Textarea } from "@/shared/components/textarea";
+import { uploadImage } from "@/shared/lib/upload-image";
 
 import { useMutation } from "@tanstack/react-query";
 
@@ -28,13 +29,14 @@ type FormType = {
   applicationRequired: boolean;
   publicVisible: boolean;
   maxMember: number;
-  image: string;
+  imageRefId: number;
 };
 
 const CreateGroup = () => {
   const {
     register,
     handleSubmit,
+    setValue,
     control,
     formState: { errors },
   } = useForm<FormType>();
@@ -150,7 +152,16 @@ const CreateGroup = () => {
             <Label htmlFor="image" className="mb-2">
               이미지
             </Label>
-            <Input id="image" type="file" />
+            <Input
+              id="image"
+              type="file"
+              onChange={async (e) => {
+                const file = e.target.files[0];
+                const imageRefId = await uploadImage({ file, type: "GROUP" });
+
+                if (imageRefId) setValue("imageRefId", imageRefId);
+              }}
+            />
           </div>
           <div className="flex gap-2 justify-center">
             <Button
