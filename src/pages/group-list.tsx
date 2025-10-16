@@ -12,8 +12,8 @@ import {
 import BaseLayout from "@/shared/layouts/base-layout";
 import { Link } from "@tanstack/react-router";
 import { Plus, Search } from "lucide-react";
-import { useGroups } from "@/features/group/hooks/useGroups";
-import { GroupFilterSection } from "@/features/group/components/GroupFilterSection";
+import { useGroups } from "@/features/group-search/hooks/useGroups";
+import { GroupFilterSection } from "@/features/group-search/components/GroupFilterSection";
 import type { GroupCategory } from "@/shared/apis/types";
 
 const GroupList = () => {
