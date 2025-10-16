@@ -1,6 +1,4 @@
 import { Plus } from "lucide-react";
-import type { GroupDetailResponse, GroupMemberInfo } from "@/shared/apis";
-import type { CardSetSummaryResponse } from "@/shared/apis/card-set";
 import { Button } from "@/shared/components/button";
 import {
   Carousel,
@@ -13,18 +11,47 @@ import BaseLayout from "@/shared/layouts/base-layout";
 import { GroupInfoCard } from "@/domain/group/components/GroupInfoCard";
 import { MemberCard } from "@/domain/members/components/MemberCard";
 import { CardsetCard } from "@/domain/cardsets/components/CardsetCard";
+import { useGroupDetail } from "@/domain/group/hooks/useGroupDetail";
+import { useGroupMembers } from "@/domain/members/hooks/useGroupMembers";
+import { useGroupCardsets } from "@/domain/cardsets/hooks/useGroupCardsets";
 
 type Props = { id: string };
 
 const GroupDetailPage = ({ id }: Props) => {
-  // TODO: id를 사용해 실제 API 호출로 데이터 가져오기
-  console.log("Group ID:", id);
+  const groupId = Number(id);
 
-  // Mock data - 나중에 실제 API 호출로 교체
-  const groupData = mockGroupData;
-  const members = mockMembers;
-  const cardSets = mockCardSets;
-  const hasManagePermission = true; // 실제로는 사용자 권한 체크
+  const { data: groupData, isLoading: isGroupLoading } =
+    useGroupDetail(groupId);
+  const { data: members = [], isLoading: isMembersLoading } =
+    useGroupMembers(groupId);
+  const { data: cardSets = [], isLoading: isCardsetsLoading } =
+    useGroupCardsets(groupId);
+
+  const hasManagePermission = true; // TODO: 실제로는 사용자 권한 체크
+
+  const isLoading = isGroupLoading || isMembersLoading || isCardsetsLoading;
+
+  if (isLoading) {
+    return (
+      <BaseLayout>
+        <div className="mx-auto max-w-6xl p-6">
+          <p className="text-center text-muted-foreground">로딩 중...</p>
+        </div>
+      </BaseLayout>
+    );
+  }
+
+  if (!groupData) {
+    return (
+      <BaseLayout>
+        <div className="mx-auto max-w-6xl p-6">
+          <p className="text-center text-muted-foreground">
+            그룹을 찾을 수 없습니다.
+          </p>
+        </div>
+      </BaseLayout>
+    );
+  }
 
   return (
     <BaseLayout>
@@ -43,25 +70,31 @@ const GroupDetailPage = ({ id }: Props) => {
               </Button>
             )}
           </div>
-          <Carousel
-            opts={{
-              align: "start",
-            }}
-            className="w-full"
-          >
-            <CarouselContent>
-              {members.map((member) => (
-                <CarouselItem
-                  key={member.id}
-                  className="md:basis-1/3 lg:basis-1/5"
-                >
-                  <MemberCard member={member} />
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious />
-            <CarouselNext />
-          </Carousel>
+          {members.length > 0 ? (
+            <Carousel
+              opts={{
+                align: "start",
+              }}
+              className="w-full"
+            >
+              <CarouselContent>
+                {members.map((member) => (
+                  <CarouselItem
+                    key={member.id}
+                    className="md:basis-1/3 lg:basis-1/5"
+                  >
+                    <MemberCard member={member} />
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious />
+              <CarouselNext />
+            </Carousel>
+          ) : (
+            <p className="text-muted-foreground text-center py-8">
+              멤버가 없습니다.
+            </p>
+          )}
         </section>
 
         {/* 카드셋 목록 섹션 */}
@@ -75,68 +108,27 @@ const GroupDetailPage = ({ id }: Props) => {
               </Button>
             )}
           </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {cardSets.map((cardSet) => (
-              <CardsetCard key={cardSet.cardSetId} cardset={cardSet} />
-            ))}
-          </div>
-          {/* 더보기 버튼 - 커서 기반 페이지네이션 */}
-          <div className="mt-6 text-center">
-            <Button variant="outline">더 보기</Button>
-          </div>
+          {cardSets.length > 0 ? (
+            <>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {cardSets.map((cardSet) => (
+                  <CardsetCard key={cardSet.cardSetId} cardset={cardSet} />
+                ))}
+              </div>
+              {/* 더보기 버튼 - 커서 기반 페이지네이션 */}
+              <div className="mt-6 text-center">
+                <Button variant="outline">더 보기</Button>
+              </div>
+            </>
+          ) : (
+            <p className="text-muted-foreground text-center py-8">
+              카드셋이 없습니다.
+            </p>
+          )}
         </section>
       </div>
     </BaseLayout>
   );
 };
-
-// Mock 데이터
-const mockGroupData: GroupDetailResponse = {
-  name: "React Study Group",
-  category: "IT",
-  description:
-    "A group for learning and discussing React, Next.js, and modern web development.",
-  applicationRequired: true,
-  publicVisible: true,
-  maxMember: 20,
-  imageUrl: "https://picsum.photos/400/300?random=1",
-  createdAt: "2024-03-10T10:00:00Z",
-  modifiedAt: "2024-03-10T10:00:00Z",
-};
-
-const mockMembers: GroupMemberInfo[] = [
-  { id: 1, role: "OWNER", name: "김철수", profile: "" },
-  { id: 2, role: "MANAGER", name: "이영희", profile: "" },
-  { id: 3, role: "MEMBER", name: "박민수", profile: "" },
-  { id: 4, role: "MEMBER", name: "정수진", profile: "" },
-  { id: 5, role: "STAFF", name: "최동욱", profile: "" },
-];
-
-const mockCardSets: CardSetSummaryResponse[] = [
-  {
-    cardSetId: 1,
-    groupId: 1,
-    name: "React Basics",
-    category: "IT",
-    hashtag: "react",
-    imageUrl: "https://picsum.photos/300/200?random=2",
-  },
-  {
-    cardSetId: 2,
-    groupId: 1,
-    name: "JavaScript ES6+",
-    category: "IT",
-    hashtag: "javascript",
-    imageUrl: "https://picsum.photos/300/200?random=3",
-  },
-  {
-    cardSetId: 3,
-    groupId: 1,
-    name: "TypeScript Fundamentals",
-    category: "IT",
-    hashtag: "typescript",
-    imageUrl: "https://picsum.photos/300/200?random=4",
-  },
-];
 
 export default GroupDetailPage;
