@@ -12,7 +12,7 @@ import { Description } from "@radix-ui/react-dialog";
 import type { ChangeEvent } from "react";
 import { useController, useForm } from "react-hook-form";
 
-type FormField = {
+export type CardsetCreateFormField = {
   name: string;
   publicVisible?: boolean;
   category: GroupCategory;
@@ -21,13 +21,13 @@ type FormField = {
 };
 
 type Props = {
-  onSubmit: (form: FormField) => void;
+  onSubmit: (form: CardsetCreateFormField) => void;
   formId?: string;
 };
 
 const CardsetCreateForm = ({ onSubmit, formId = "cardset-form" }: Props) => {
   const { control, formState, register, setValue, handleSubmit } =
-    useForm<FormField>();
+    useForm<CardsetCreateFormField>();
 
   const { errors } = formState;
 
