@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Merge commit, commit --amend, rebase, cherry-pick 등은 스킵
-if [ "$2" = "merge" ] || [ "$2" = "commit" ] || [ "$2" = "squash" ] || [ "$2" = "message" ]; then
+if [ "$2" = "merge" ] || [ "$2" = "commit" ] || [ "$2" = "squash" ]; then
     exit
 fi
 
@@ -30,8 +30,8 @@ if echo "$FIRST_LINE" | grep -qE '^(feat|fix|chore|docs|refactor|test|style|perf
     # 타입 뒤에 Jira 키 추가
     NEW_LINE=$(echo "$FIRST_LINE" | sed -E "s/^([a-z]+:)(.*)/\1 [$ISSUE_KEY]\2/")
     # 커밋 메시지 업데이트
-    sed -i -e "1s/.*/$NEW_LINE/" "$1"
+    sed -i '' "1s/.*/$NEW_LINE/" "$1"
 else
     # 타입이 없으면 그냥 맨 앞에 Jira 키 붙이기
-    sed -i -e "1s/^/[$ISSUE_KEY] /" "$1"
+    sed -i '' "1s/^/[$ISSUE_KEY] /" "$1"
 fi
