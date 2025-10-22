@@ -3,20 +3,22 @@ import {
   ButtonCheckbox,
   ButtonCheckboxGroupField,
 } from "@/shared/components/button-checkbox";
+import { Button } from "@/shared/components/button";
 import { Checkbox } from "@/shared/components/checkbox";
 import { ErrorMessage, RequiredLabel } from "@/shared/components/form";
 import { Input } from "@/shared/components/input";
 import { Label } from "@/shared/components/label";
 import { uploadImage } from "@/shared/lib/upload-image";
 import { Description } from "@radix-ui/react-dialog";
+import { X } from "lucide-react";
 import type { ChangeEvent } from "react";
-import { useController, useForm } from "react-hook-form";
+import { useController, useFieldArray, useForm } from "react-hook-form";
 
 export type CardsetCreateFormField = {
   name: string;
   publicVisible?: boolean;
   category: GroupCategory;
-  hashtag: string[];
+  hashtag: { name: string }[];
   imageRefId: number;
 };
 
@@ -27,7 +29,11 @@ type Props = {
 
 const CardsetCreateForm = ({ onSubmit, formId = "cardset-form" }: Props) => {
   const { control, formState, register, setValue, handleSubmit } =
-    useForm<CardsetCreateFormField>();
+    useForm<CardsetCreateFormField>({
+      defaultValues: {
+        hashtag: [],
+      },
+    });
 
   const { errors } = formState;
 
@@ -41,6 +47,12 @@ const CardsetCreateForm = ({ onSubmit, formId = "cardset-form" }: Props) => {
 
   const { field: publicVisibleField } = useController({
     name: "publicVisible",
+    control,
+  });
+
+  const { fields, append, remove } = useFieldArray<CardsetCreateFormField>({
+    name: "hashtag",
+    control,
   });
 
   return (
@@ -99,6 +111,38 @@ const CardsetCreateForm = ({ onSubmit, formId = "cardset-form" }: Props) => {
             if (imageRefId) setValue("imageRefId", imageRefId);
           }}
         />
+      </div>
+
+      <div>
+        <Label className="mb-2">해시태그</Label>
+        <div className="space-y-2">
+          {fields.map((field, index) => (
+            <div key={field.id} className="flex gap-2 items-center">
+              <Input
+                {...register(`hashtag.${index}.name` as const, {
+                  required: "해시태그를 입력해주세요",
+                })}
+                placeholder="해시태그 입력"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={() => remove(index)}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          ))}
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => append({ name: "" })}
+            className="w-full"
+          >
+            해시태그 추가
+          </Button>
+        </div>
       </div>
     </form>
   );

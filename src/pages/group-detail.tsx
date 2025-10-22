@@ -14,6 +14,7 @@ import { CardsetCard } from "@/domain/cardsets/components/CardsetCard";
 import { useGroupDetail } from "@/domain/group/hooks/useGroupDetail";
 import { useGroupMembers } from "@/domain/members/hooks/useGroupMembers";
 import { useGroupCardsets } from "@/domain/cardsets/hooks/useGroupCardsets";
+import CardsetCreateDialog from "@/features/cardset/components/CardsetCreateDialog";
 
 type Props = { id: string };
 
@@ -102,10 +103,15 @@ const GroupDetailPage = ({ id }: Props) => {
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-2xl font-bold">카드셋</h2>
             {hasManagePermission && (
-              <Button size="sm" variant="outline">
-                <Plus className="size-4" />
-                카드셋 생성
-              </Button>
+              <CardsetCreateDialog
+                groupId={groupId}
+                renderTrigger={
+                  <Button size="sm" variant="outline">
+                    <Plus className="size-4" />
+                    카드셋 생성
+                  </Button>
+                }
+              />
             )}
           </div>
           {cardSets.length > 0 ? (

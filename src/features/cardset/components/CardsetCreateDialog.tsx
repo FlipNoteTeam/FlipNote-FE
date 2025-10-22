@@ -3,14 +3,17 @@ import CardsetCreateForm, {
 } from "@/features/cardset/components/CardsetCreateForm";
 import { cardSetApi, type CreateCardSetRequest } from "@/shared/apis";
 import { Button } from "@/shared/components/button";
-import { Dialog, DialogHeader } from "@/shared/components/dialog";
 import {
+  Dialog,
   DialogContent,
+  DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@radix-ui/react-dialog";
+} from "@/shared/components/dialog";
 import { useMutation } from "@tanstack/react-query";
 import type { ReactNode } from "react";
+
+const FORM_ID = "cardset-create-form";
 
 type Props = {
   groupId: number;
@@ -32,8 +35,9 @@ const CardsetCreateDialog = ({ groupId, renderTrigger }: Props) => {
     const data: CreateCardSetRequest = {
       name: form.name,
       publicVisible: form.publicVisible ?? true,
-      hashtag: form.hashtag,
+      hashtag: form.hashtag?.map((tag) => tag.name) || [],
       category: form.category,
+      imageRefId: form.imageRefId ? String(form.imageRefId) : "",
     };
 
     mutate({ groupId, data });
@@ -42,19 +46,15 @@ const CardsetCreateDialog = ({ groupId, renderTrigger }: Props) => {
   return (
     <Dialog>
       <DialogTrigger>{renderTrigger}</DialogTrigger>
-      <DialogContent>
+      <DialogContent onInteractOutside={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle>카드셋 생성</DialogTitle>
-          {/* <DialogDescription>
-            This action cannot be undone. This will permanently delete your
-            account and remove your data from our servers.
-          </DialogDescription> */}
         </DialogHeader>
-        <CardsetCreateForm formId="cardset-create" onSubmit={handleSubmit} />
-        <Button form="cardset-create" type="reset">
+        <CardsetCreateForm formId={FORM_ID} onSubmit={handleSubmit} />
+        <Button form={FORM_ID} type="reset">
           초기화
         </Button>
-        <Button form="cardset-create" type="submit">
+        <Button form={FORM_ID} type="submit">
           생성
         </Button>
       </DialogContent>
