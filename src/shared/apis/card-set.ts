@@ -33,7 +33,7 @@ export interface CreateCardSetRequest {
   publicVisible: boolean;
   category: GroupCategory;
   hashtag: string[];
-  image?: string;
+  imageRefId: string;
 }
 
 export interface CreateCardSetResponse {
@@ -56,13 +56,19 @@ export interface CardSetSearchRequest extends PaginationRequest {
 export const cardSetApi = {
   // 카드셋 목록 조회(검색)
   getCardSets: (params: CardSetSearchRequest) =>
-    apiClient.get<ApiResponse<PagingResponse<CardSetSummaryResponse>>>("/card-sets", {
-      params,
-    }),
+    apiClient.get<ApiResponse<PagingResponse<CardSetSummaryResponse>>>(
+      "/card-sets",
+      {
+        params,
+      }
+    ),
 
   // 카드셋 생성
   createCardSet: (groupId: number, data: CreateCardSetRequest) =>
-    apiClient.post<ApiResponse<CreateCardSetResponse>>(`/groups/${groupId}/card-sets`, data),
+    apiClient.post<ApiResponse<CreateCardSetResponse>>(
+      `/groups/${groupId}/card-sets`,
+      data
+    ),
 
   // 카드셋 상세 조회
   getCardSet: (groupId: number, cardSetId: number) =>
