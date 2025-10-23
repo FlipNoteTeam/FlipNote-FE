@@ -37,7 +37,7 @@ const CardsetCreateDialog = ({ groupId, renderTrigger }: Props) => {
       publicVisible: form.publicVisible ?? true,
       hashtag: form.hashtag?.map((tag) => tag.name) || [],
       category: form.category,
-      imageRefId: form.imageRefId ? String(form.imageRefId) : "",
+      imageRefId: form.imageRefId ? form.imageRefId : undefined,
     };
 
     mutate({ groupId, data });
