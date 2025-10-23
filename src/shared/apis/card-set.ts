@@ -23,6 +23,7 @@ export interface CardSetDetailResponse {
   category: string;
   hashtag: string;
   imageUrl?: string;
+  imageRefId?: number;
   publicVisible: boolean;
   createdAt: string;
   modifiedAt: string;
