@@ -33,7 +33,7 @@ export interface CreateCardSetRequest {
   publicVisible: boolean;
   category: GroupCategory;
   hashtag: string[];
-  imageRefId: string;
+  imageRefId?: number;
 }
 
 export interface CreateCardSetResponse {

@@ -5,11 +5,15 @@ import {
 } from "@/shared/components/button-checkbox";
 import { Button } from "@/shared/components/button";
 import { Checkbox } from "@/shared/components/checkbox";
-import { ErrorMessage, RequiredLabel } from "@/shared/components/form";
+import {
+  Description,
+  ErrorMessage,
+  RequiredLabel,
+} from "@/shared/components/form";
 import { Input } from "@/shared/components/input";
 import { Label } from "@/shared/components/label";
 import { uploadImage } from "@/shared/lib/upload-image";
-import { Description } from "@radix-ui/react-dialog";
+
 import { X } from "lucide-react";
 import type { ChangeEvent } from "react";
 import { useController, useFieldArray, useForm } from "react-hook-form";
@@ -55,6 +59,20 @@ const CardsetCreateForm = ({ onSubmit, formId = "cardset-form" }: Props) => {
     control,
   });
 
+  const handleChangeImage = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+
+    if (!file) return;
+    try {
+      const imageRefId = await uploadImage({ file, type: "GROUP" });
+      if (imageRefId) setValue("imageRefId", imageRefId);
+    } catch (e) {
+      console.error(e);
+      /** @todo 커스텀 에러 다이얼로그로 변경 */
+      window.alert("이미지 업로드를 실패했습니다. 재시도해주세요.");
+    }
+  };
+
   return (
     <form id={formId} className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
       <div>
@@ -99,18 +117,7 @@ const CardsetCreateForm = ({ onSubmit, formId = "cardset-form" }: Props) => {
         <Label htmlFor="image" className="mb-2">
           이미지
         </Label>
-        <Input
-          id="image"
-          type="file"
-          onChange={async (e: ChangeEvent<HTMLInputElement>) => {
-            const file = e.target.files?.[0];
-
-            if (!file) return;
-
-            const imageRefId = await uploadImage({ file, type: "GROUP" });
-            if (imageRefId) setValue("imageRefId", imageRefId);
-          }}
-        />
+        <Input id="image" type="file" onChange={handleChangeImage} />
       </div>
 
       <div>
