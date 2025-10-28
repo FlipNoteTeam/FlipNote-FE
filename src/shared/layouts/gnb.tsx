@@ -3,7 +3,7 @@ import UnauthenticatedNav from "@/features/gnb/components/unauthenticated-nav";
 import useAuthStore from "@/stores/useAuthStore";
 
 const GNB = () => {
-  const isInitilized = useAuthStore((state) => state.isInitialized);
+  const user = useAuthStore((state) => state.user);
 
   return (
     <header className="w-full bg-white shadow-sm border-b">
@@ -13,7 +13,7 @@ const GNB = () => {
             <h1 className="text-xl font-semibold">FlipNote</h1>
           </div>
           <ul className="flex items-center space-x-4">
-            {isInitilized ? <AuthenticatedNav /> : <UnauthenticatedNav />}
+            {user ? <AuthenticatedNav /> : <UnauthenticatedNav />}
           </ul>
         </div>
       </nav>

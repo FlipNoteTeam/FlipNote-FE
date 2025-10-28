@@ -2,8 +2,19 @@ import { Button } from "@/shared/components/button";
 import { Link } from "@tanstack/react-router";
 import { Bell } from "lucide-react";
 import AlarmSheet from "@/features/gnb/components/alarm-sheet";
+import useAuthStore from "@/stores/useAuthStore";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/shared/components/dropdown-menu";
 
 const AuthenticatedNav = () => {
+  const { user, unauthenticate } = useAuthStore();
+
+  if (!user) return null;
   return (
     <ul className="flex items-center space-x-4">
       <li className="text-md">
@@ -29,7 +40,21 @@ const AuthenticatedNav = () => {
           )}
         </AlarmSheet>
       </li>
-      <li>유저이름</li>
+      <li>
+        <DropdownMenu>
+          <DropdownMenuTrigger>{user.name}</DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuGroup>
+              <DropdownMenuItem asChild>
+                <Link to="/">내 정보</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={unauthenticate}>
+                로그아웃
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </li>
     </ul>
   );
 };
