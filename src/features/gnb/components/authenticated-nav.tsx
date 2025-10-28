@@ -23,9 +23,6 @@ const AuthenticatedNav = () => {
       <li className="text-md">
         <Link to="/">내 스터디</Link>
       </li>
-      <li className="text-md">
-        <Link to="/">마이페이지</Link>
-      </li>
       <li>
         <AlarmSheet>
           {({ unreadCount }) => (
@@ -46,7 +43,12 @@ const AuthenticatedNav = () => {
           <DropdownMenuContent>
             <DropdownMenuGroup>
               <DropdownMenuItem asChild>
-                <Link to="/">내 정보</Link>
+                <Link
+                  to="/user/$userId"
+                  params={{ userId: user.userId.toString() }}
+                >
+                  내 정보
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuItem onClick={unauthenticate}>
                 로그아웃
