@@ -12,9 +12,10 @@ export interface AuthState {
 export interface AuthAction {
   hasAccessToken: () => boolean;
   removeAccessToken: () => void;
-  updateAccessToken: (accessToken: string) => void;
+  updateAccessToken: (accessToken: string) => Promise<void>;
   setUser: (user: User | null) => void;
   initializeAuth: () => Promise<void>;
+  unauthenticate: () => Promise<void>;
 }
 
 const useAuthStore = create<AuthState & AuthAction>()(
@@ -25,7 +26,18 @@ const useAuthStore = create<AuthState & AuthAction>()(
     isInitializing: false,
     hasAccessToken: () => !!get().accessToken,
     removeAccessToken: () => set({ accessToken: null, user: null }),
-    updateAccessToken: (accessToken) => set({ accessToken }),
+    updateAccessToken: async (accessToken) => {
+      set({ accessToken });
+
+      try {
+        const { userApi } = await import("@/shared/apis/user");
+        const userResponse = await userApi.getMyInfo();
+        const user = userResponse.data?.data || null;
+        set({ user });
+      } catch (error) {
+        console.log("사용자 정보 조회 실패:", error);
+      }
+    },
     setUser: (user) => set({ user }),
     initializeAuth: async () => {
       if (get().isInitialized || get().isInitializing) return;
@@ -38,20 +50,35 @@ const useAuthStore = create<AuthState & AuthAction>()(
         const accessToken = response.data?.data?.accessToken;
 
         if (!accessToken) {
-          set({ accessToken: null, user: null, isInitialized: true, isInitializing: false });
+          set({
+            accessToken: null,
+            user: null,
+            isInitialized: true,
+            isInitializing: false,
+          });
           return;
         }
 
-        set({ accessToken });
-
-        const { userApi } = await import("@/shared/apis/user");
-        const userResponse = await userApi.getMyInfo();
-        const user = userResponse.data?.data || null;
-
-        set({ user, isInitialized: true, isInitializing: false });
+        await get().updateAccessToken(accessToken);
+        set({ isInitialized: true, isInitializing: false });
       } catch (error) {
         console.log("인증 초기화 실패:", error);
-        set({ accessToken: null, user: null, isInitialized: true, isInitializing: false });
+        set({
+          accessToken: null,
+          user: null,
+          isInitialized: true,
+          isInitializing: false,
+        });
+      }
+    },
+    unauthenticate: async () => {
+      const { authApi } = await import("@/shared/apis/auth");
+
+      try {
+        await authApi.logout();
+        get().removeAccessToken();
+      } catch (error) {
+        console.log("로그아웃 실패:", error);
       }
     },
   }))
