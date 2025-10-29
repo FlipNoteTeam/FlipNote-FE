@@ -6,6 +6,7 @@ export interface UserInfoResponse {
   userId: number;
   nickname: string;
   profileImageUrl?: string;
+  imageRefId: number;
 }
 
 export interface MyInfoResponse {
