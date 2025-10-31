@@ -3,59 +3,62 @@ export interface ServerToClientEvents {
   connect: () => void;
   disconnect: () => void;
 
-  // 사용자 이벤트
-  userJoined: (data: { userId: string; username: string }) => void;
-  userLeft: (data: { userId: string; username: string }) => void;
-
-  // 메시지 이벤트
-  messageReceived: (data: {
-    id: string;
-    content: string;
-    userId: string;
-    timestamp: string;
-  }) => void;
-
-  // 알림 이벤트
-  notificationReceived: (data: {
-    id: string;
-    type: string;
+  // 인증 및 권한
+  "access-control": (data: {
+    hasAccess: boolean;
+    currentEditor?: string;
     message: string;
-    timestamp: string;
   }) => void;
 
-  // 에러 이벤트
+  // 카드셋 상태
+  "cardset-state": (data: { cardsetId: string; cards: any[] }) => void;
+
+  // Yjs 동기화
+  sync: (data: {
+    documentId?: string;
+    syncStep?: number;
+    update: number[];
+  }) => void;
+
+  // Awareness (커서 위치 등)
+  awareness: (data: { documentId: string; awareness: number[] }) => void;
+
+  // 토큰 만료
+  expired: (data?: { message?: string }) => void;
+
+  // 에러
   error: (data: { message: string; code?: string }) => void;
 }
 
 export interface ClientToServerEvents {
-  // 룸 관리
-  joinRoom: (roomId: string) => void;
-  leaveRoom: (roomId: string) => void;
-
-  // 메시지 전송
-  sendMessage: (data: { roomId: string; content: string }) => void;
-
-  // 상태 업데이트
-  updateStatus: (status: "online" | "away" | "busy") => void;
-
   // 인증
-  authenticate: (token: string) => void;
+  auth: (data: { token: string; userId: string; documentId: string }) => void;
+
+  // 카드셋 룸 관리
+  "join-cardset": (data: { cardsetId: string }) => void;
+  "leave-cardset": (data: { cardsetId: string }) => void;
+
+  // Yjs 업데이트 전송
+  update: (data: { documentId: string; update: number[] }) => void;
+
+  // Awareness (커서 위치 등) 전송
+  awareness: (data: { documentId: string; awareness: number[] }) => void;
 }
 
 export const SocketEvents = {
   // Server to Client
   CONNECT: "connect",
   DISCONNECT: "disconnect",
-  USER_JOINED: "userJoined",
-  USER_LEFT: "userLeft",
-  MESSAGE_RECEIVED: "messageReceived",
-  NOTIFICATION_RECEIVED: "notificationReceived",
+  ACCESS_CONTROL: "access-control",
+  CARDSET_STATE: "cardset-state",
+  SYNC: "sync",
+  AWARENESS: "awareness",
+  EXPIRED: "expired",
   ERROR: "error",
 
   // Client to Server
-  JOIN_ROOM: "joinRoom",
-  LEAVE_ROOM: "leaveRoom",
-  SEND_MESSAGE: "sendMessage",
-  UPDATE_STATUS: "updateStatus",
-  AUTHENTICATE: "authenticate",
+  AUTH: "auth",
+  JOIN_CARDSET: "join-cardset",
+  LEAVE_CARDSET: "leave-cardset",
+  UPDATE: "update",
 } as const;
