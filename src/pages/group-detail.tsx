@@ -180,7 +180,15 @@ const GroupDetailPage = ({ id }: Props) => {
             <>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {cardSets.map((cardSet) => (
-                  <CardsetCard key={cardSet.cardSetId} cardset={cardSet} />
+                  <Link
+                    to="/groups/$groupId/cardsets/$cardsetId"
+                    params={{
+                      groupId: String(cardSet.groupId),
+                      cardsetId: String(cardSet.cardSetId),
+                    }}
+                  >
+                    <CardsetCard key={cardSet.cardSetId} cardset={cardSet} />
+                  </Link>
                 ))}
               </div>
               {/* 더보기 버튼 */}
