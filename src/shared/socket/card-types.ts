@@ -5,8 +5,8 @@ import type * as Y from "yjs";
  */
 export interface CardData {
   id: string;
-  question: string;
-  answer: string;
+  title: string;
+  content: string;
   createdAt: number;
 }
 
@@ -15,8 +15,8 @@ export interface CardData {
  */
 export interface YCardMap {
   id: string;
-  question: Y.Text;
-  answer: Y.Text;
+  title: Y.Text;
+  content: Y.Text;
   createdAt: number;
 }
 

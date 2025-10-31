@@ -9,6 +9,7 @@ import type {
   AuthMessage,
   AccessControlMessage,
 } from "./yjs-types";
+import type { CardData } from "./card-types";
 
 import * as awarenessProtocol from "y-protocols/awareness";
 
@@ -21,9 +22,11 @@ export class YjsProvider {
   private userId: string;
   private hasAccess = false;
 
-  // Y.js 텍스트 타입들
-  public questionText: Y.Text;
-  public answerText: Y.Text;
+  // Y.js 카드 배열
+  public cardsArray: Y.Array<Y.Map<any>>;
+
+  // 카드 변경 콜백
+  private onCardsChangeCallback?: (cards: CardData[]) => void;
 
   constructor(documentId: string, userId: string) {
     this.documentId = documentId;
@@ -32,9 +35,8 @@ export class YjsProvider {
     this.doc = new Y.Doc();
     this.awareness = new Awareness(this.doc);
 
-    // 질문/답변 텍스트 생성
-    this.questionText = this.doc.getText("question");
-    this.answerText = this.doc.getText("answer");
+    // 카드 배열 생성
+    this.cardsArray = this.doc.getArray("cards");
 
     this.setupDocumentListeners();
     this.setupAwarenessListeners();
@@ -107,6 +109,14 @@ export class YjsProvider {
         } as unknown as UpdateMessage);
       }
     });
+
+    // 카드 배열 변경 감지
+    this.cardsArray.observe(() => {
+      console.log("[YJS] Cards array changed");
+      if (this.onCardsChangeCallback) {
+        this.onCardsChangeCallback(this.getCards());
+      }
+    });
   }
 
   private setupAwarenessListeners(): void {
@@ -158,16 +168,8 @@ export class YjsProvider {
       Y.applyUpdate(this.doc, new Uint8Array(update), this);
     });
 
-    // // 업데이트 메시지 처리
-    // this.socket.on("update", (message: UpdateMessage) => {
-    //   if (!this.hasAccess) return;
-
-    //   const { update } = message.data;
-    //   Y.applyUpdate(this.doc, new Uint8Array(update), this);
-    // });
-
     // Awareness 메시지 처리
-    this.socket.emit("awareness", (message: AwarenessMessage) => {
+    this.socket.on("awareness", (message: AwarenessMessage) => {
       if (!this.hasAccess) return;
 
       const { awareness } = message.data;
@@ -199,27 +201,118 @@ export class YjsProvider {
     }
   }
 
-  // 편의 메서드들
-  setQuestionText(text: string): void {
+  // 카드 관련 메서드들
+
+  /**
+   * 카드 배열을 CardData[]로 변환
+   */
+  getCards(): CardData[] {
+    const cards: CardData[] = [];
+
+    this.cardsArray.forEach((cardMap) => {
+      const id = cardMap.get("id") as string;
+      const titleText = cardMap.get("title") as Y.Text;
+      const contentText = cardMap.get("content") as Y.Text;
+      const createdAt = cardMap.get("createdAt") as number;
+
+      cards.push({
+        id,
+        title: titleText?.toString() || "",
+        content: contentText?.toString() || "",
+        createdAt,
+      });
+    });
+
+    return cards;
+  }
+
+  /**
+   * 새 카드 추가
+   */
+  addCard(card: Omit<CardData, "id" | "createdAt">): string {
+    if (!this.hasAccess) return "";
+
+    const id = `card-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const createdAt = Date.now();
+
+    const cardMap = new Y.Map();
+    cardMap.set("id", id);
+    cardMap.set("title", new Y.Text(card.title));
+    cardMap.set("content", new Y.Text(card.content));
+    cardMap.set("createdAt", createdAt);
+
+    this.cardsArray.push([cardMap]);
+
+    return id;
+  }
+
+  /**
+   * 카드 삭제
+   */
+  deleteCard(index: number): void {
     if (!this.hasAccess) return;
+    if (index < 0 || index >= this.cardsArray.length) return;
 
-    this.questionText.delete(0, this.questionText.length);
-    this.questionText.insert(0, text);
+    this.cardsArray.delete(index, 1);
   }
 
-  setAnswerText(text: string): void {
+  /**
+   * 카드의 title 업데이트
+   */
+  updateCardTitle(index: number, title: string): void {
     if (!this.hasAccess) return;
+    if (index < 0 || index >= this.cardsArray.length) return;
 
-    this.answerText.delete(0, this.answerText.length);
-    this.answerText.insert(0, text);
+    const cardMap = this.cardsArray.get(index);
+    const titleText = cardMap.get("title") as Y.Text;
+
+    if (titleText) {
+      titleText.delete(0, titleText.length);
+      titleText.insert(0, title);
+    }
   }
 
-  getQuestionText(): string {
-    return this.questionText.toString();
+  /**
+   * 카드의 content 업데이트
+   */
+  updateCardContent(index: number, content: string): void {
+    if (!this.hasAccess) return;
+    if (index < 0 || index >= this.cardsArray.length) return;
+
+    const cardMap = this.cardsArray.get(index);
+    const contentText = cardMap.get("content") as Y.Text;
+
+    if (contentText) {
+      contentText.delete(0, contentText.length);
+      contentText.insert(0, content);
+    }
   }
 
-  getAnswerText(): string {
-    return this.answerText.toString();
+  /**
+   * 특정 카드의 title Y.Text 가져오기
+   */
+  getCardTitleText(index: number): Y.Text | null {
+    if (index < 0 || index >= this.cardsArray.length) return null;
+
+    const cardMap = this.cardsArray.get(index);
+    return cardMap.get("title") as Y.Text;
+  }
+
+  /**
+   * 특정 카드의 content Y.Text 가져오기
+   */
+  getCardContentText(index: number): Y.Text | null {
+    if (index < 0 || index >= this.cardsArray.length) return null;
+
+    const cardMap = this.cardsArray.get(index);
+    return cardMap.get("content") as Y.Text;
+  }
+
+  /**
+   * 카드 변경 리스너 등록
+   */
+  onCardsChange(callback: (cards: CardData[]) => void): void {
+    this.onCardsChangeCallback = callback;
   }
 
   getHasAccess(): boolean {
@@ -227,12 +320,14 @@ export class YjsProvider {
   }
 
   setAwareness(
-    field: "question" | "answer",
+    field: "title" | "content",
+    cardIndex: number,
     cursor?: { index: number; length: number }
   ): void {
     if (!this.hasAccess) return;
 
     this.awareness.setLocalStateField("field", field);
+    this.awareness.setLocalStateField("cardIndex", cardIndex);
     if (cursor) {
       this.awareness.setLocalStateField("cursor", cursor);
     }

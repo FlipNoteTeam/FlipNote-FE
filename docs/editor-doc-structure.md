@@ -5,6 +5,28 @@
 
 ## 작업 내역
 
+### 2025-10-31: Yjs 구조 변경 구현
+
+#### YjsProvider 수정 (commit: 진행중)
+- questionText, answerText → cardsArray: Y.Array<Y.Map> 변경
+- 카드 관련 메서드 추가:
+  - `getCards()`: Y.Array → CardData[] 변환
+  - `addCard()`: 새 카드 추가 (Y.Map 생성 및 Y.Array.push)
+  - `deleteCard()`: 카드 삭제 (Y.Array.delete)
+  - `updateCardTitle()`, `updateCardContent()`: 카드 필드 업데이트
+  - `getCardTitleText()`, `getCardContentText()`: Y.Text 직접 접근
+- Y.Array 변경 감지 및 콜백 등록 (`onCardsChange`)
+
+#### useYjs 훅 수정 (commit: 진행중)
+- cards 상태 반환 (CardData[])
+- 함수 제공:
+  - `addCard()`
+  - `deleteCard()`
+  - `updateCardTitle()`
+  - `updateCardContent()`
+  - `getCardTitleText()`, `getCardContentText()`: 실시간 동기화용
+- setAwareness 시그니처 변경: cardIndex 추가
+
 ### 2025-10-31: 문서 구조 재설계
 
 #### 문제점 (이전 구조)
