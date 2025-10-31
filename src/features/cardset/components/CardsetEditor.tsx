@@ -12,7 +12,7 @@ type CardsetEditorProps = {
 export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [focusedField, setFocusedField] = useState<
-    "title" | "content" | null
+    "question" | "answer" | null
   >(null);
 
   // Yjs 협업 기능 - 카드셋 전체를 하나의 Doc으로 관리
@@ -24,8 +24,8 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
     connect,
     addCard,
     deleteCard,
-    updateCardTitle,
-    updateCardContent,
+    updateCardQuestion,
+    updateCardAnswer,
     setAwareness,
   } = useYjs({
     documentId: cardsetId,
@@ -38,12 +38,12 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
   // 카드가 없으면 초기 카드 추가
   useEffect(() => {
     if (hasAccess && cards.length === 0) {
-      addCard({ title: "", content: "" });
+      addCard({ question: "", answer: "" });
     }
   }, [hasAccess, cards.length, addCard]);
 
   const handleAddCard = () => {
-    addCard({ title: "새 질문을 입력하세요", content: "새 답변을 입력하세요" });
+    addCard({ question: "새 질문을 입력하세요", answer: "새 답변을 입력하세요" });
     setCurrentCardIndex(cards.length);
   };
 
@@ -150,18 +150,18 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
                 <div className="space-y-3">
                   <div>
                     <p className="text-xs font-medium text-gray-500 mb-1">
-                      제목
+                      질문
                     </p>
                     <p className="text-sm text-gray-900 line-clamp-2 leading-relaxed">
-                      {card.title || "제목을 입력하세요"}
+                      {card.question || "질문을 입력하세요"}
                     </p>
                   </div>
                   <div>
                     <p className="text-xs font-medium text-gray-500 mb-1">
-                      내용
+                      답변
                     </p>
                     <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed">
-                      {card.content || "내용을 입력하세요"}
+                      {card.answer || "답변을 입력하세요"}
                     </p>
                   </div>
                 </div>
@@ -191,65 +191,65 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
             {currentCard && (
               <Card className="p-12 bg-white shadow-xl rounded-2xl border-0">
                 <div className="space-y-16">
-                  {/* Title Section */}
+                  {/* Question Section */}
                   <div
                     className={`p-10 rounded-2xl border-3 transition-all duration-200 ${
-                      focusedField === "title"
+                      focusedField === "question"
                         ? "border-blue-500 bg-blue-50 shadow-2xl"
                         : "border-gray-200 bg-gray-50 hover:border-gray-300 hover:shadow-lg"
                     }`}
                   >
                     <Label
-                      htmlFor="title"
+                      htmlFor="question"
                       className="text-3xl font-bold mb-8 block text-gray-800"
                     >
-                      제목
+                      질문
                     </Label>
                     <Textarea
-                      id="title"
-                      value={currentCard.title}
+                      id="question"
+                      value={currentCard.question}
                       onChange={(e) =>
-                        updateCardTitle(currentCardIndex, e.target.value)
+                        updateCardQuestion(currentCardIndex, e.target.value)
                       }
                       onFocus={() => {
-                        setFocusedField("title");
-                        if (hasAccess) setAwareness("title", currentCardIndex);
+                        setFocusedField("question");
+                        if (hasAccess) setAwareness("question", currentCardIndex);
                       }}
                       onBlur={() => setFocusedField(null)}
                       className="w-full min-h-56 text-2xl leading-relaxed resize-none border-0 bg-transparent focus:ring-0 focus:outline-none placeholder-gray-400"
-                      placeholder="제목을 입력하세요..."
+                      placeholder="질문을 입력하세요..."
                       disabled={!hasAccess}
                     />
                   </div>
 
-                  {/* Content Section */}
+                  {/* Answer Section */}
                   <div
                     className={`p-10 rounded-2xl border-3 transition-all duration-200 ${
-                      focusedField === "content"
+                      focusedField === "answer"
                         ? "border-blue-500 bg-blue-50 shadow-2xl"
                         : "border-gray-200 bg-gray-50 hover:border-gray-300 hover:shadow-lg"
                     }`}
                   >
                     <Label
-                      htmlFor="content"
+                      htmlFor="answer"
                       className="text-3xl font-bold mb-8 block text-gray-800"
                     >
-                      내용
+                      답변
                     </Label>
                     <Textarea
-                      id="content"
-                      value={currentCard.content}
+                      id="answer"
+                      value={currentCard.answer}
                       onChange={(e) =>
-                        updateCardContent(currentCardIndex, e.target.value)
+                        updateCardAnswer(currentCardIndex, e.target.value)
                       }
                       onFocus={() => {
-                        setFocusedField("content");
+                        setFocusedField("answer");
                         if (hasAccess)
-                          setAwareness("content", currentCardIndex);
+                          setAwareness("answer", currentCardIndex);
                       }}
                       onBlur={() => setFocusedField(null)}
                       className="w-full min-h-56 text-2xl leading-relaxed resize-none border-0 bg-transparent focus:ring-0 focus:outline-none placeholder-gray-400"
-                      placeholder="내용을 입력하세요..."
+                      placeholder="답변을 입력하세요..."
                       disabled={!hasAccess}
                     />
                   </div>

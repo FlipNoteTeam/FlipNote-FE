@@ -57,7 +57,7 @@
 Doc {
   "cards": Y.Array<Y.Map> [
     Y.Map {
-      "id": string,           // 고유 ID (UUID)
+      "id": string,           // 고유 ID
       "question": Y.Text,     // 질문 텍스트
       "answer": Y.Text,       // 답변 텍스트
       "createdAt": number,    // 생성 시간 (timestamp)
@@ -66,6 +66,10 @@ Doc {
   ]
 }
 ```
+
+### 필드 네이밍
+- `question`: 카드의 앞면 (질문)
+- `answer`: 카드의 뒷면 (답변)
 
 ### 데이터 흐름
 
