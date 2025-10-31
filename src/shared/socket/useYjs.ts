@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { YjsProvider } from "./yjs-provider";
+import type { CardData } from "./card-types";
 
 interface UseYjsOptions {
   documentId: string;
@@ -13,8 +14,7 @@ export function useYjs(options: UseYjsOptions) {
   const [isConnected, setIsConnected] = useState(false);
   const [hasAccess, setHasAccess] = useState(false);
   const [connectionError, setConnectionError] = useState<string | null>(null);
-  const [questionText, setQuestionText] = useState("");
-  const [answerText, setAnswerText] = useState("");
+  const [cards, setCards] = useState<CardData[]>([]);
 
   const providerRef = useRef<YjsProvider | null>(null);
 
@@ -31,17 +31,13 @@ export function useYjs(options: UseYjsOptions) {
           setHasAccess(provider.getHasAccess());
           setConnectionError(null);
 
-          // 텍스트 변경 리스너 설정
-          const updateQuestion = () =>
-            setQuestionText(provider.getQuestionText());
-          const updateAnswer = () => setAnswerText(provider.getAnswerText());
+          // 카드 변경 리스너 설정
+          provider.onCardsChange((updatedCards) => {
+            setCards(updatedCards);
+          });
 
-          provider.questionText.observe(updateQuestion);
-          provider.answerText.observe(updateAnswer);
-
-          // 초기 값 설정
-          updateQuestion();
-          updateAnswer();
+          // 초기 카드 로드
+          setCards(provider.getCards());
 
           return true;
         }
@@ -68,29 +64,54 @@ export function useYjs(options: UseYjsOptions) {
     setConnectionError(null);
   }, []);
 
-  const updateQuestion = useCallback((text: string) => {
+  const addCard = useCallback(
+    (card: Omit<CardData, "id" | "createdAt">): string => {
+      if (providerRef.current?.getHasAccess()) {
+        return providerRef.current.addCard(card);
+      }
+      return "";
+    },
+    []
+  );
+
+  const deleteCard = useCallback((index: number) => {
     if (providerRef.current?.getHasAccess()) {
-      providerRef.current.setQuestionText(text);
+      providerRef.current.deleteCard(index);
     }
   }, []);
 
-  const updateAnswer = useCallback((text: string) => {
+  const updateCardTitle = useCallback((index: number, title: string) => {
     if (providerRef.current?.getHasAccess()) {
-      providerRef.current.setAnswerText(text);
+      providerRef.current.updateCardTitle(index, title);
+    }
+  }, []);
+
+  const updateCardContent = useCallback((index: number, content: string) => {
+    if (providerRef.current?.getHasAccess()) {
+      providerRef.current.updateCardContent(index, content);
     }
   }, []);
 
   const setAwareness = useCallback(
     (
-      field: "question" | "answer",
+      field: "title" | "content",
+      cardIndex: number,
       cursor?: { index: number; length: number }
     ) => {
       if (providerRef.current?.getHasAccess()) {
-        providerRef.current.setAwareness(field, cursor);
+        providerRef.current.setAwareness(field, cardIndex, cursor);
       }
     },
     []
   );
+
+  const getCardTitleText = useCallback((index: number) => {
+    return providerRef.current?.getCardTitleText(index) || null;
+  }, []);
+
+  const getCardContentText = useCallback((index: number) => {
+    return providerRef.current?.getCardContentText(index) || null;
+  }, []);
 
   useEffect(() => {
     if (autoConnect) {
@@ -106,13 +127,16 @@ export function useYjs(options: UseYjsOptions) {
     isConnected,
     hasAccess,
     connectionError,
-    questionText,
-    answerText,
+    cards,
     connect,
     disconnect,
-    updateQuestion,
-    updateAnswer,
+    addCard,
+    deleteCard,
+    updateCardTitle,
+    updateCardContent,
     setAwareness,
+    getCardTitleText,
+    getCardContentText,
     provider: providerRef.current,
   };
 }
