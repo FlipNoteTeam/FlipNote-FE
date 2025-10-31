@@ -11,11 +11,15 @@ interface CardData {
   answer: string;
 }
 
-export function CardsetEditor() {
+type CardsetEditorProps = {
+  cardsetId: string;
+};
+
+export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
   const [cards, setCards] = useState<CardData[]>([
-    { id: 1, question: "질문을 입력하세요", answer: "답변을 입력하세요" },
-    { id: 2, question: "두 번째 질문", answer: "두 번째 답변" },
+    { id: 1, question: "", answer: "" },
   ]);
+
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [focusedField, setFocusedField] = useState<
     "question" | "answer" | null
@@ -33,7 +37,7 @@ export function CardsetEditor() {
     updateAnswer,
     setAwareness,
   } = useYjs({
-    documentId: `cardset-${cards[currentCardIndex]?.id || 1}`,
+    documentId: cardsetId,
     userId: `user-1`, // 임시 사용자 ID
     autoConnect: true,
   });
