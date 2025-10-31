@@ -5,6 +5,75 @@
 
 ## 작업 내역
 
+### 2025-10-31: 로컬 Fallback 모드 및 실시간 텍스트 동기화 구현
+
+#### 로컬 Fallback 모드 추가 (commit: d88bd31)
+- **문제점**: 소켓 연결 전 빈 화면 표시 (hasAccess가 false면 초기 카드도 없음)
+- **해결**:
+  - `localCards` 상태 추가 (초기 빈 카드 1개 포함)
+  - 소켓 연결 전: localCards 사용 (로컬 편집 가능)
+  - 소켓 연결 후: yjsCards 사용 (실시간 동기화)
+  - 로컬/Yjs 모드 모두 카드 추가/삭제/편집 지원
+- **UI 개선**:
+  - disabled 속성 제거 (소켓 연결 여부와 무관하게 편집 가능)
+  - 협업 상태 표시 유지 (green: 협업 활성, gray: 로컬 모드)
+
+#### 실시간 텍스트 동기화 구현 (commit: d88bd31)
+- **문제점**:
+  - 기존 `updateCardQuestion/Answer`는 전체 텍스트 삭제 후 재삽입
+  - Y.Text의 CRDT 이점 상실 (문자 단위 충돌 해결 불가)
+  - 커서 위치 초기화 문제
+  - 실시간 협업 시 텍스트 수정이 즉시 반영되지 않음
+
+- **해결**:
+  - **Y.Text.observe() 직접 사용**: 다른 클라이언트의 변경 감지
+  - **Delta 기반 업데이트**:
+    - `getDelta()`: 두 문자열의 차이 계산 (공통 prefix/suffix 제외)
+    - `applyDelta()`: Y.Text에 변경된 부분만 적용
+    - 예: "hello" → "hello world" 시 " world"만 insert
+  - **isUpdatingRef**: observe 콜백에서 발생한 업데이트 구분 (무한 루프 방지)
+  - **카드 전환 시**:
+    - Yjs 모드: questionText/answerText observe 설정
+    - 로컬 모드: currentCard 값으로 초기화
+
+- **구현 상세**:
+  ```typescript
+  // Yjs 모드
+  const questionObserver = () => {
+    if (!isUpdatingRef.current) {
+      setQuestionValue(questionText.toString());
+    }
+  };
+  questionText.observe(questionObserver);
+
+  // 로컬 변경 시
+  const delta = getDelta(oldValue, newValue);
+  applyDelta(questionTextRef.current, delta);
+
+  // Delta 계산 (앞뒤 공통 부분 제외)
+  function getDelta(oldStr, newStr) {
+    // 앞에서부터 같은 부분 찾기
+    let i = 0;
+    while (i < minLen && oldStr[i] === newStr[i]) i++;
+
+    // 뒤에서부터 같은 부분 찾기
+    let j = 0;
+    while (j < minLen - i && ...) j++;
+
+    return {
+      index: i,
+      delete: oldStr.length - i - j,
+      insert: newStr.slice(i, newStr.length - j),
+    };
+  }
+  ```
+
+- **이점**:
+  - ✅ 문자 단위 실시간 동기화
+  - ✅ 커서 위치 유지
+  - ✅ CRDT 충돌 해결 보장
+  - ✅ 네트워크 효율성 (변경된 부분만 전송)
+
 ### 2025-10-31: Yjs 구조 변경 구현
 
 #### YjsProvider 수정 (commit: caac245, 80c26c3)
