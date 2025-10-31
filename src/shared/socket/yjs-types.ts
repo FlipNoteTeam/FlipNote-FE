@@ -15,7 +15,7 @@ export interface SyncMessage extends YjsMessage {
   data: {
     documentId?: string;
     syncStep?: number;
-    update: number[];
+    update: Uint8Array;
   };
 }
 
@@ -24,7 +24,7 @@ export interface UpdateMessage extends YjsMessage {
   type: "update";
   data: {
     documentId: string;
-    update: number[];
+    update: Uint8Array;
   };
 }
 
@@ -33,7 +33,7 @@ export interface AwarenessMessage extends YjsMessage {
   type: "awareness";
   data: {
     documentId: string;
-    awareness: number[];
+    awareness: Uint8Array;
   };
 }
 
