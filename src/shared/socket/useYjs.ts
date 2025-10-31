@@ -80,21 +80,21 @@ export function useYjs(options: UseYjsOptions) {
     }
   }, []);
 
-  const updateCardTitle = useCallback((index: number, title: string) => {
+  const updateCardQuestion = useCallback((index: number, question: string) => {
     if (providerRef.current?.getHasAccess()) {
-      providerRef.current.updateCardTitle(index, title);
+      providerRef.current.updateCardQuestion(index, question);
     }
   }, []);
 
-  const updateCardContent = useCallback((index: number, content: string) => {
+  const updateCardAnswer = useCallback((index: number, answer: string) => {
     if (providerRef.current?.getHasAccess()) {
-      providerRef.current.updateCardContent(index, content);
+      providerRef.current.updateCardAnswer(index, answer);
     }
   }, []);
 
   const setAwareness = useCallback(
     (
-      field: "title" | "content",
+      field: "question" | "answer",
       cardIndex: number,
       cursor?: { index: number; length: number }
     ) => {
@@ -105,12 +105,12 @@ export function useYjs(options: UseYjsOptions) {
     []
   );
 
-  const getCardTitleText = useCallback((index: number) => {
-    return providerRef.current?.getCardTitleText(index) || null;
+  const getCardQuestionText = useCallback((index: number) => {
+    return providerRef.current?.getCardQuestionText(index) || null;
   }, []);
 
-  const getCardContentText = useCallback((index: number) => {
-    return providerRef.current?.getCardContentText(index) || null;
+  const getCardAnswerText = useCallback((index: number) => {
+    return providerRef.current?.getCardAnswerText(index) || null;
   }, []);
 
   useEffect(() => {
@@ -132,11 +132,11 @@ export function useYjs(options: UseYjsOptions) {
     disconnect,
     addCard,
     deleteCard,
-    updateCardTitle,
-    updateCardContent,
+    updateCardQuestion,
+    updateCardAnswer,
     setAwareness,
-    getCardTitleText,
-    getCardContentText,
+    getCardQuestionText,
+    getCardAnswerText,
     provider: providerRef.current,
   };
 }

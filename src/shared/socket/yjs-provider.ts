@@ -23,7 +23,7 @@ export class YjsProvider {
   private hasAccess = false;
 
   // Y.js 카드 배열
-  public cardsArray: Y.Array<Y.Map<any>>;
+  public cardsArray: Y.Array<Y.Map<{ question: string; answer: string }>>;
 
   // 카드 변경 콜백
   private onCardsChangeCallback?: (cards: CardData[]) => void;
@@ -160,13 +160,16 @@ export class YjsProvider {
     );
 
     // 동기화 메시지 처리 (서버가 초기 문서 상태 전송)
-    this.socket.on("sync", (data: { documentId?: string; syncStep?: number; update: number[] }) => {
-      if (!this.hasAccess) return;
+    this.socket.on(
+      "sync",
+      (data: { documentId?: string; syncStep?: number; update: number[] }) => {
+        if (!this.hasAccess) return;
 
-      console.log("[YJS❤️] Received sync from server", data);
-      const { update } = data;
-      Y.applyUpdate(this.doc, new Uint8Array(update), this);
-    });
+        console.log("[YJS❤️] Received sync from server", data);
+        const { update } = data;
+        Y.applyUpdate(this.doc, new Uint8Array(update), this);
+      }
+    );
 
     // Awareness 메시지 처리
     this.socket.on("awareness", (message: AwarenessMessage) => {
@@ -211,14 +214,14 @@ export class YjsProvider {
 
     this.cardsArray.forEach((cardMap) => {
       const id = cardMap.get("id") as string;
-      const titleText = cardMap.get("title") as Y.Text;
-      const contentText = cardMap.get("content") as Y.Text;
+      const questionText = cardMap.get("question") as Y.Text;
+      const answerText = cardMap.get("answer") as Y.Text;
       const createdAt = cardMap.get("createdAt") as number;
 
       cards.push({
         id,
-        title: titleText?.toString() || "",
-        content: contentText?.toString() || "",
+        question: questionText?.toString() || "",
+        answer: answerText?.toString() || "",
         createdAt,
       });
     });
@@ -237,8 +240,8 @@ export class YjsProvider {
 
     const cardMap = new Y.Map();
     cardMap.set("id", id);
-    cardMap.set("title", new Y.Text(card.title));
-    cardMap.set("content", new Y.Text(card.content));
+    cardMap.set("question", new Y.Text(card.question));
+    cardMap.set("answer", new Y.Text(card.answer));
     cardMap.set("createdAt", createdAt);
 
     this.cardsArray.push([cardMap]);
@@ -257,55 +260,55 @@ export class YjsProvider {
   }
 
   /**
-   * 카드의 title 업데이트
+   * 카드의 question 업데이트
    */
-  updateCardTitle(index: number, title: string): void {
+  updateCardQuestion(index: number, question: string): void {
     if (!this.hasAccess) return;
     if (index < 0 || index >= this.cardsArray.length) return;
 
     const cardMap = this.cardsArray.get(index);
-    const titleText = cardMap.get("title") as Y.Text;
+    const questionText = cardMap.get("question") as Y.Text;
 
-    if (titleText) {
-      titleText.delete(0, titleText.length);
-      titleText.insert(0, title);
+    if (questionText) {
+      questionText.delete(0, questionText.length);
+      questionText.insert(0, question);
     }
   }
 
   /**
-   * 카드의 content 업데이트
+   * 카드의 answer 업데이트
    */
-  updateCardContent(index: number, content: string): void {
+  updateCardAnswer(index: number, answer: string): void {
     if (!this.hasAccess) return;
     if (index < 0 || index >= this.cardsArray.length) return;
 
     const cardMap = this.cardsArray.get(index);
-    const contentText = cardMap.get("content") as Y.Text;
+    const answerText = cardMap.get("answer") as Y.Text;
 
-    if (contentText) {
-      contentText.delete(0, contentText.length);
-      contentText.insert(0, content);
+    if (answerText) {
+      answerText.delete(0, answerText.length);
+      answerText.insert(0, answer);
     }
   }
 
   /**
-   * 특정 카드의 title Y.Text 가져오기
+   * 특정 카드의 question Y.Text 가져오기
    */
-  getCardTitleText(index: number): Y.Text | null {
+  getCardQuestionText(index: number): Y.Text | null {
     if (index < 0 || index >= this.cardsArray.length) return null;
 
     const cardMap = this.cardsArray.get(index);
-    return cardMap.get("title") as Y.Text;
+    return cardMap.get("question") as Y.Text;
   }
 
   /**
-   * 특정 카드의 content Y.Text 가져오기
+   * 특정 카드의 answer Y.Text 가져오기
    */
-  getCardContentText(index: number): Y.Text | null {
+  getCardAnswerText(index: number): Y.Text | null {
     if (index < 0 || index >= this.cardsArray.length) return null;
 
     const cardMap = this.cardsArray.get(index);
-    return cardMap.get("content") as Y.Text;
+    return cardMap.get("answer") as Y.Text;
   }
 
   /**
@@ -320,7 +323,7 @@ export class YjsProvider {
   }
 
   setAwareness(
-    field: "title" | "content",
+    field: "question" | "answer",
     cardIndex: number,
     cursor?: { index: number; length: number }
   ): void {
