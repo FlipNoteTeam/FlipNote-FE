@@ -27,7 +27,7 @@
   - `getCardTitleText()`, `getCardContentText()`: 실시간 동기화용
 - setAwareness 시그니처 변경: cardIndex 추가
 
-#### CardsetEditor 컴포넌트 리팩토링 (commit: 진행중)
+#### CardsetEditor 컴포넌트 리팩토링 (commit: 5d645bf)
 - 로컬 cards 상태 제거 → useYjs의 cards 사용
 - question/answer → title/content 변경
 - documentId를 카드셋 ID로 변경 (이전: 카드마다 별도 ID)
