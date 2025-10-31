@@ -2,6 +2,7 @@ import { useState } from "react";
 import BaseLayout from "@/shared/layouts/base-layout";
 import { GroupJoinManagement } from "@/domain/group/components/GroupJoinManagement";
 import { GroupInvitationManagement } from "@/domain/group/components/GroupInvitationManagement";
+import { GroupUpdateManagement } from "@/domain/group/components/GroupUpdateManagement";
 import { useGroupDetail } from "@/domain/group/hooks/useGroupDetail";
 import { useGroupMembers } from "@/domain/members/hooks/useGroupMembers";
 import useAuthStore from "@/stores/useAuthStore";
@@ -13,13 +14,13 @@ type Props = {
   groupId: string;
 };
 
-type MenuTab = "join-requests" | "invitations";
+type MenuTab = "join-requests" | "invitations" | "group-settings";
 
 const GroupManagePage = ({ groupId }: Props) => {
   const navigate = useNavigate();
   const groupIdNum = Number(groupId);
   const user = useAuthStore((state) => state.user);
-  const [activeTab, setActiveTab] = useState<MenuTab>("join-requests");
+  const [activeTab, setActiveTab] = useState<MenuTab>("group-settings");
 
   const { data: groupData, isLoading: isGroupLoading } =
     useGroupDetail(groupIdNum);
@@ -83,6 +84,16 @@ const GroupManagePage = ({ groupId }: Props) => {
           <aside className="w-64 flex-shrink-0">
             <nav className="space-y-1">
               <button
+                onClick={() => setActiveTab("group-settings")}
+                className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${
+                  activeTab === "group-settings"
+                    ? "bg-primary text-primary-foreground"
+                    : "hover:bg-gray-100"
+                }`}
+              >
+                그룹 정보 수정
+              </button>
+              <button
                 onClick={() => setActiveTab("join-requests")}
                 className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${
                   activeTab === "join-requests"
@@ -107,6 +118,9 @@ const GroupManagePage = ({ groupId }: Props) => {
 
           {/* 우측 콘텐츠 */}
           <main className="flex-1">
+            {activeTab === "group-settings" && (
+              <GroupUpdateManagement groupId={groupIdNum} />
+            )}
             {activeTab === "join-requests" && (
               <GroupJoinManagement groupId={groupIdNum} />
             )}
