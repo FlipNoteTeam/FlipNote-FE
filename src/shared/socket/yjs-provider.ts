@@ -8,6 +8,9 @@ import type {
   AwarenessMessage,
   AuthMessage,
   AccessControlMessage,
+  JoinCardsetMessage,
+  LeaveCardsetMessage,
+  SyncMessage,
 } from "./yjs-types";
 import type { CardData } from "./card-types";
 
@@ -65,10 +68,12 @@ export class YjsProvider {
             this.isConnected = true;
 
             // 룸에 조인
-            this.socket?.emit("joinRoom", {
-              documentId: this.documentId,
-              userId: this.userId,
-            });
+            this.sendMessage({
+              type: "join-cardset",
+              data: {
+                cardsetId: this.documentId,
+              },
+            } as JoinCardsetMessage);
 
             resolve(true);
           } else {
@@ -83,6 +88,14 @@ export class YjsProvider {
 
   disconnect(): void {
     if (this.socket) {
+      // 카드셋에서 나가기
+      this.sendMessage({
+        type: "leave-cardset",
+        data: {
+          cardsetId: this.documentId,
+        },
+      } as LeaveCardsetMessage);
+
       socketManager.disconnect();
       this.socket = null;
     }
@@ -151,25 +164,23 @@ export class YjsProvider {
       this.hasAccess = false;
     });
 
-    // joinRoom 응답 처리
+    // join-cardset 응답 처리
     this.socket.on(
-      "joinRoom",
-      (data: { documentId: string; clientId: string; timestamp: string }) => {
-        console.log("[YJS] Joined room", data);
+      "cardset-state",
+      (data: { cardsetId: string; cards: any[] }) => {
+        console.log("[YJS] Received cardset state", data);
+        // 서버에서 보낸 초기 상태는 무시 (Yjs sync로 받을 것)
       }
     );
 
-    // 동기화 메시지 처리 (서버가 초기 문서 상태 전송)
-    this.socket.on(
-      "sync",
-      (data: { documentId?: string; syncStep?: number; update: number[] }) => {
-        if (!this.hasAccess) return;
+    // 동기화 메시지 처리 (서버가 업데이트를 브로드캐스트)
+    this.socket.on("sync", (message: SyncMessage) => {
+      if (!this.hasAccess) return;
 
-        console.log("[YJS❤️] Received sync from server", data);
-        const { update } = data;
-        Y.applyUpdate(this.doc, new Uint8Array(update), this);
-      }
-    );
+      console.log("[YJS❤️] Received sync from server", message);
+      const { update } = message.data;
+      Y.applyUpdate(this.doc, new Uint8Array(update), this);
+    });
 
     // Awareness 메시지 처리
     this.socket.on("awareness", (message: AwarenessMessage) => {
