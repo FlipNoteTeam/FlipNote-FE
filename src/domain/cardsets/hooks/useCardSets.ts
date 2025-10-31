@@ -18,7 +18,7 @@ export const useCardSets = (params?: UseCardSetsParams) => {
     queryFn: async ({ pageParam = 0 }) => {
       const response = await cardSetApi.getCardSets({
         ...params,
-        page: pageParam,
+        page: pageParam || 1,
         size: params?.size || 20,
       });
       return response.data;
