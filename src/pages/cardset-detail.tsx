@@ -1,8 +1,13 @@
 import { GROUP_CATEGORY_MAP } from "@/domain/group/types";
-import { cardSetApi } from "@/shared/apis";
+import { cardSetApi, groupApi } from "@/shared/apis";
 import { Button } from "@/shared/components/button";
 import { Label } from "@/shared/components/label";
 import { useQuery } from "@tanstack/react-query";
+import { useGroupMembers } from "@/domain/members/hooks/useGroupMembers";
+import useAuthStore from "@/stores/useAuthStore";
+import { useToast } from "@/shared/hooks/use-toast";
+import { useEffect } from "react";
+import { useNavigate } from "@tanstack/react-router";
 
 type Props = {
   groupId: number;
@@ -10,12 +15,39 @@ type Props = {
 };
 
 const CardsetDetail = ({ groupId, cardsetId }: Props) => {
+  const user = useAuthStore((state) => state.user);
+  const { toast } = useToast();
+  const navigate = useNavigate();
+
   const { data } = useQuery({
     queryKey: ["cardset", groupId, cardsetId],
     queryFn: () => cardSetApi.getCardSet(groupId, cardsetId),
   });
 
+  const { data: groupData } = useQuery({
+    queryKey: ["group", groupId],
+    queryFn: () => groupApi.getGroupDetail(groupId),
+  });
+
+  const { data: members = [] } = useGroupMembers(groupId);
+
   const cardset = data?.data.data;
+  const group = groupData?.data.data;
+
+  // 현재 사용자가 그룹 멤버인지 확인
+  const isMember = members.some((member) => member.id === user?.userId);
+
+  // 카드셋 접근 제어: 공개 + 가입 승인 필수인 그룹의 경우 멤버가 아니면 접근 불가
+  useEffect(() => {
+    if (group && !isMember && group.publicVisible && group.applicationRequired) {
+      toast({
+        title: "그룹 가입이 필요합니다",
+        description: "이 카드셋을 보려면 그룹에 가입 신청을 해주세요.",
+        variant: "destructive",
+      });
+      navigate({ to: `/groups/${groupId}` });
+    }
+  }, [group, isMember, groupId, navigate, toast]);
 
   if (!cardset) return null;
 
