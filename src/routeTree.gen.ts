@@ -19,6 +19,7 @@ import { Route as AuthRegisterRouteImport } from './routes/auth/register'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
 import { Route as UserUserIdIndexRouteImport } from './routes/user/$userId/index'
 import { Route as GroupsGroupIdIndexRouteImport } from './routes/groups/$groupId/index'
+import { Route as GroupsGroupIdManageRouteImport } from './routes/groups/$groupId/manage'
 import { Route as GroupsGroupIdCardsetsCardsetIdRouteImport } from './routes/groups/$groupId/cardsets/$cardsetId'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -71,6 +72,11 @@ const GroupsGroupIdIndexRoute = GroupsGroupIdIndexRouteImport.update({
   path: '/groups/$groupId/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GroupsGroupIdManageRoute = GroupsGroupIdManageRouteImport.update({
+  id: '/groups/$groupId/manage',
+  path: '/groups/$groupId/manage',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GroupsGroupIdCardsetsCardsetIdRoute =
   GroupsGroupIdCardsetsCardsetIdRouteImport.update({
     id: '/groups/$groupId/cardsets/$cardsetId',
@@ -87,6 +93,7 @@ export interface FileRoutesByFullPath {
   '/cardsets/editor': typeof CardsetsEditorRoute
   '/groups/create': typeof GroupsCreateRoute
   '/groups': typeof GroupsIndexRoute
+  '/groups/$groupId/manage': typeof GroupsGroupIdManageRoute
   '/groups/$groupId': typeof GroupsGroupIdIndexRoute
   '/user/$userId': typeof UserUserIdIndexRoute
   '/groups/$groupId/cardsets/$cardsetId': typeof GroupsGroupIdCardsetsCardsetIdRoute
@@ -100,6 +107,7 @@ export interface FileRoutesByTo {
   '/cardsets/editor': typeof CardsetsEditorRoute
   '/groups/create': typeof GroupsCreateRoute
   '/groups': typeof GroupsIndexRoute
+  '/groups/$groupId/manage': typeof GroupsGroupIdManageRoute
   '/groups/$groupId': typeof GroupsGroupIdIndexRoute
   '/user/$userId': typeof UserUserIdIndexRoute
   '/groups/$groupId/cardsets/$cardsetId': typeof GroupsGroupIdCardsetsCardsetIdRoute
@@ -114,6 +122,7 @@ export interface FileRoutesById {
   '/cardsets/editor': typeof CardsetsEditorRoute
   '/groups/create': typeof GroupsCreateRoute
   '/groups/': typeof GroupsIndexRoute
+  '/groups/$groupId/manage': typeof GroupsGroupIdManageRoute
   '/groups/$groupId/': typeof GroupsGroupIdIndexRoute
   '/user/$userId/': typeof UserUserIdIndexRoute
   '/groups/$groupId/cardsets/$cardsetId': typeof GroupsGroupIdCardsetsCardsetIdRoute
@@ -129,6 +138,7 @@ export interface FileRouteTypes {
     | '/cardsets/editor'
     | '/groups/create'
     | '/groups'
+    | '/groups/$groupId/manage'
     | '/groups/$groupId'
     | '/user/$userId'
     | '/groups/$groupId/cardsets/$cardsetId'
@@ -142,6 +152,7 @@ export interface FileRouteTypes {
     | '/cardsets/editor'
     | '/groups/create'
     | '/groups'
+    | '/groups/$groupId/manage'
     | '/groups/$groupId'
     | '/user/$userId'
     | '/groups/$groupId/cardsets/$cardsetId'
@@ -155,6 +166,7 @@ export interface FileRouteTypes {
     | '/cardsets/editor'
     | '/groups/create'
     | '/groups/'
+    | '/groups/$groupId/manage'
     | '/groups/$groupId/'
     | '/user/$userId/'
     | '/groups/$groupId/cardsets/$cardsetId'
@@ -169,6 +181,7 @@ export interface RootRouteChildren {
   CardsetsEditorRoute: typeof CardsetsEditorRoute
   GroupsCreateRoute: typeof GroupsCreateRoute
   GroupsIndexRoute: typeof GroupsIndexRoute
+  GroupsGroupIdManageRoute: typeof GroupsGroupIdManageRoute
   GroupsGroupIdIndexRoute: typeof GroupsGroupIdIndexRoute
   UserUserIdIndexRoute: typeof UserUserIdIndexRoute
   GroupsGroupIdCardsetsCardsetIdRoute: typeof GroupsGroupIdCardsetsCardsetIdRoute
@@ -246,6 +259,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GroupsGroupIdIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/groups/$groupId/manage': {
+      id: '/groups/$groupId/manage'
+      path: '/groups/$groupId/manage'
+      fullPath: '/groups/$groupId/manage'
+      preLoaderRoute: typeof GroupsGroupIdManageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/groups/$groupId/cardsets/$cardsetId': {
       id: '/groups/$groupId/cardsets/$cardsetId'
       path: '/groups/$groupId/cardsets/$cardsetId'
@@ -265,6 +285,7 @@ const rootRouteChildren: RootRouteChildren = {
   CardsetsEditorRoute: CardsetsEditorRoute,
   GroupsCreateRoute: GroupsCreateRoute,
   GroupsIndexRoute: GroupsIndexRoute,
+  GroupsGroupIdManageRoute: GroupsGroupIdManageRoute,
   GroupsGroupIdIndexRoute: GroupsGroupIdIndexRoute,
   UserUserIdIndexRoute: UserUserIdIndexRoute,
   GroupsGroupIdCardsetsCardsetIdRoute: GroupsGroupIdCardsetsCardsetIdRoute,
