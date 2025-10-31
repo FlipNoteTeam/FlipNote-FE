@@ -113,7 +113,12 @@ const CardsetDetail = ({ groupId, cardsetId }: Props) => {
             </div>
             <div>
               <Button asChild>
-                <Link to="/cardsets/editor">카드셋 수정하기</Link>
+                <Link
+                  to="/cardsets/editor/$id"
+                  params={{ id: String(cardsetId) }}
+                >
+                  카드셋 수정하기
+                </Link>
               </Button>
             </div>
           </div>
