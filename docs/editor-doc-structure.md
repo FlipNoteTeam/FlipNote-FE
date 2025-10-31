@@ -7,7 +7,7 @@
 
 ### 2025-10-31: Yjs 구조 변경 구현
 
-#### YjsProvider 수정 (commit: 진행중)
+#### YjsProvider 수정 (commit: caac245)
 - questionText, answerText → cardsArray: Y.Array<Y.Map> 변경
 - 카드 관련 메서드 추가:
   - `getCards()`: Y.Array → CardData[] 변환
@@ -17,7 +17,7 @@
   - `getCardTitleText()`, `getCardContentText()`: Y.Text 직접 접근
 - Y.Array 변경 감지 및 콜백 등록 (`onCardsChange`)
 
-#### useYjs 훅 수정 (commit: 진행중)
+#### useYjs 훅 수정 (commit: caac245)
 - cards 상태 반환 (CardData[])
 - 함수 제공:
   - `addCard()`
@@ -26,6 +26,14 @@
   - `updateCardContent()`
   - `getCardTitleText()`, `getCardContentText()`: 실시간 동기화용
 - setAwareness 시그니처 변경: cardIndex 추가
+
+#### CardsetEditor 컴포넌트 리팩토링 (commit: 진행중)
+- 로컬 cards 상태 제거 → useYjs의 cards 사용
+- question/answer → title/content 변경
+- documentId를 카드셋 ID로 변경 (이전: 카드마다 별도 ID)
+- 카드 추가/삭제 시 Yjs 자동 동기화
+- 초기 카드 없으면 빈 카드 자동 추가
+- 버튼 비활성화 상태 hasAccess 체크 추가
 
 ### 2025-10-31: 문서 구조 재설계
 
