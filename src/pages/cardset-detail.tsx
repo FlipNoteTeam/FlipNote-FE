@@ -7,6 +7,7 @@ import { useGroupMembers } from "@/domain/members/hooks/useGroupMembers";
 import useAuthStore from "@/stores/useAuthStore";
 import { useEffect } from "react";
 import { useNavigate } from "@tanstack/react-router";
+import CardsetUpdateDialog from "@/features/cardset/components/CardsetUpdateDialog";
 
 type Props = {
   groupId: number;
@@ -116,7 +117,12 @@ const CardsetDetail = ({ groupId, cardsetId }: Props) => {
         </div>
 
         <div className="flex gap-2">
-          <Button variant="outline">수정</Button>
+          <CardsetUpdateDialog
+            groupId={groupId}
+            cardsetId={cardsetId}
+            cardset={cardset}
+            renderTrigger={<Button variant="outline">수정</Button>}
+          />
           <Button variant="outline">삭제</Button>
         </div>
       </div>
