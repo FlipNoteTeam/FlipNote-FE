@@ -9,7 +9,7 @@ export const useOutgoingInvitations = (groupId: number) => {
     queryFn: async () => {
       const response = await groupInvitationApi.getOutgoingInvitations(
         groupId,
-        { page: 1, size: 100 }
+        { page: 1, size: 10 }
       );
       return response.data.data.content;
     },
