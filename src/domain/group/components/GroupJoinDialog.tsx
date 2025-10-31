@@ -12,6 +12,8 @@ import { Button } from "@/shared/components/button";
 import { Textarea } from "@/shared/components/textarea";
 import { Label } from "@/shared/components/label";
 import { useGroupJoin } from "@/domain/group/hooks/useGroupJoin";
+import useAuthStore from "@/stores/useAuthStore";
+import { useNavigate } from "@tanstack/react-router";
 
 type GroupJoinDialogProps = {
   groupId: number;
@@ -26,7 +28,22 @@ export const GroupJoinDialog = ({
 }: GroupJoinDialogProps) => {
   const [open, setOpen] = useState(false);
   const [joinIntro, setJoinIntro] = useState("");
+  const user = useAuthStore((state) => state.user);
+  const navigate = useNavigate();
   const { mutate: joinGroup, isPending } = useGroupJoin();
+
+  const handleOpenChange = (newOpen: boolean) => {
+    // 로그인 체크: 모달을 열려고 할 때 로그인되지 않았으면 로그인 페이지로
+    if (newOpen && !user) {
+      const currentUrl = window.location.href;
+      navigate({
+        to: "/auth/login",
+        search: { redirect: currentUrl },
+      });
+      return;
+    }
+    setOpen(newOpen);
+  };
 
   const handleSubmit = () => {
     joinGroup(
@@ -50,7 +67,7 @@ export const GroupJoinDialog = ({
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>

@@ -9,7 +9,7 @@ import { Button } from "@/shared/components/button";
 import { Label } from "@/shared/components/label";
 import { Separator } from "@/shared/components/separator";
 import { authApi, type UserLoginRequest } from "@/shared/apis";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useSearch } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
 import useAuthStore from "@/stores/useAuthStore";
@@ -18,13 +18,21 @@ type FieldState = UserLoginRequest;
 
 const Login = () => {
   const navigate = useNavigate({ from: "/auth/register" });
+  const search = useSearch({ from: "/auth/login" });
+  const redirectUrl = search.redirect as string | undefined;
+
   const { getValues, register } = useForm<FieldState>({});
   const updateAccessToken = useAuthStore((state) => state.updateAccessToken);
   const { mutate: login } = useMutation({
     mutationFn: authApi.login,
-    onSuccess: (res) => {
-      updateAccessToken(res.data.data.accessToken);
-      navigate({ to: "/" });
+    onSuccess: async (res) => {
+      await updateAccessToken(res.data.data.accessToken);
+      // redirect 파라미터가 있으면 해당 페이지로, 없으면 홈으로
+      if (redirectUrl) {
+        window.location.href = redirectUrl;
+      } else {
+        navigate({ to: "/" });
+      }
     },
   });
 
