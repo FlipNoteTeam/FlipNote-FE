@@ -23,7 +23,7 @@ export class YjsProvider {
   private hasAccess = false;
 
   // Y.js 카드 배열
-  public cardsArray: Y.Array<Y.Map<{ question: string; answer: string }>>;
+  public cardsArray: Y.Array<Y.Map<any>>;
 
   // 카드 변경 콜백
   private onCardsChangeCallback?: (cards: CardData[]) => void;
