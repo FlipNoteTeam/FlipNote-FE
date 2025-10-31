@@ -64,6 +64,13 @@ export const cardSetApi = {
       }
     ),
 
+  // 그룹의 카드셋 목록 조회
+  getGroupCardSets: (groupId: number, params?: PaginationRequest) =>
+    apiClient.get<ApiResponse<PagingResponse<CardSetSummaryResponse>>>(
+      `/groups/${groupId}/card-sets`,
+      { params }
+    ),
+
   // 카드셋 생성
   createCardSet: (groupId: number, data: CreateCardSetRequest) =>
     apiClient.post<ApiResponse<CreateCardSetResponse>>(

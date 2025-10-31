@@ -29,8 +29,16 @@ const GroupDetailPage = ({ id }: Props) => {
     useGroupDetail(groupId);
   const { data: members = [], isLoading: isMembersLoading } =
     useGroupMembers(groupId);
-  const { data: cardSets = [], isLoading: isCardsetsLoading } =
-    useGroupCardsets(groupId);
+  const {
+    data: cardSetsData,
+    isLoading: isCardsetsLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useGroupCardsets(groupId);
+
+  // 모든 페이지의 카드셋을 하나의 배열로 합치기
+  const cardSets = cardSetsData?.pages.flatMap((page) => page.content) ?? [];
 
   // 현재 사용자가 그룹 멤버인지 확인 및 역할 체크
   const currentMember = members.find((member) => member.id === user?.userId);
@@ -175,10 +183,18 @@ const GroupDetailPage = ({ id }: Props) => {
                   <CardsetCard key={cardSet.cardSetId} cardset={cardSet} />
                 ))}
               </div>
-              {/* 더보기 버튼 - 커서 기반 페이지네이션 */}
-              <div className="mt-6 text-center">
-                <Button variant="outline">더 보기</Button>
-              </div>
+              {/* 더보기 버튼 */}
+              {hasNextPage && (
+                <div className="mt-6 text-center">
+                  <Button
+                    variant="outline"
+                    onClick={() => fetchNextPage()}
+                    disabled={isFetchingNextPage}
+                  >
+                    {isFetchingNextPage ? "로딩 중..." : "더 보기"}
+                  </Button>
+                </div>
+              )}
             </>
           ) : (
             <p className="text-muted-foreground text-center py-8">
