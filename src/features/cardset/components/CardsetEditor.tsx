@@ -5,36 +5,27 @@ import { Textarea } from "@/shared/components/textarea";
 import { Label } from "@/shared/components/label";
 import { useYjs } from "@/shared/socket/useYjs";
 
-interface CardData {
-  id: number;
-  question: string;
-  answer: string;
-}
-
 type CardsetEditorProps = {
   cardsetId: string;
 };
 
 export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
-  const [cards, setCards] = useState<CardData[]>([
-    { id: 1, question: "", answer: "" },
-  ]);
-
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [focusedField, setFocusedField] = useState<
-    "question" | "answer" | null
+    "title" | "content" | null
   >(null);
 
-  // Yjs 협업 기능
+  // Yjs 협업 기능 - 카드셋 전체를 하나의 Doc으로 관리
   const {
     isConnected,
     hasAccess,
     connectionError,
-    questionText,
-    answerText,
+    cards,
     connect,
-    updateQuestion,
-    updateAnswer,
+    addCard,
+    deleteCard,
+    updateCardTitle,
+    updateCardContent,
     setAwareness,
   } = useYjs({
     documentId: cardsetId,
@@ -44,56 +35,26 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
 
   const currentCard = cards[currentCardIndex];
 
-  const updateCard = (field: "question" | "answer", value: string) => {
-    // Yjs로 실시간 동기화
-    if (hasAccess) {
-      if (field === "question") {
-        updateQuestion(value);
-      } else {
-        updateAnswer(value);
-      }
+  // 카드가 없으면 초기 카드 추가
+  useEffect(() => {
+    if (hasAccess && cards.length === 0) {
+      addCard({ title: "", content: "" });
     }
+  }, [hasAccess, cards.length, addCard]);
 
-    // 로컬 상태도 업데이트
-    setCards((prev) =>
-      prev.map((card, index) =>
-        index === currentCardIndex ? { ...card, [field]: value } : card
-      )
-    );
-  };
-
-  const addCard = () => {
-    const newCard: CardData = {
-      id: Date.now(),
-      question: "새 질문을 입력하세요",
-      answer: "새 답변을 입력하세요",
-    };
-    setCards((prev) => [...prev, newCard]);
+  const handleAddCard = () => {
+    addCard({ title: "새 질문을 입력하세요", content: "새 답변을 입력하세요" });
     setCurrentCardIndex(cards.length);
   };
 
-  const deleteCard = (index: number) => {
+  const handleDeleteCard = (index: number) => {
     if (cards.length <= 1) return;
-    setCards((prev) => prev.filter((_, i) => i !== index));
+    deleteCard(index);
     if (currentCardIndex >= cards.length - 1) {
-      setCurrentCardIndex(cards.length - 2);
+      setCurrentCardIndex(Math.max(0, cards.length - 2));
     }
   };
 
-  // Yjs 텍스트와 로컬 상태 동기화
-  useEffect(() => {
-    if (hasAccess && isConnected) {
-      setCards((prev) =>
-        prev.map((card, index) =>
-          index === currentCardIndex
-            ? { ...card, question: questionText, answer: answerText }
-            : card
-        )
-      );
-    }
-  }, [questionText, answerText, hasAccess, isConnected, currentCardIndex]);
-
-  console.log("?!!", isConnected, hasAccess);
   // 협업 연결 시도
   const handleCollaborationConnect = async () => {
     try {
@@ -114,10 +75,11 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-md font-semibold text-gray-900">카드 목록</h2>
             <Button
-              onClick={addCard}
+              onClick={handleAddCard}
               size="sm"
               variant="ghost"
               className="px-4 py-2"
+              disabled={!hasAccess}
             >
               + 추가
             </Button>
@@ -176,9 +138,10 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
                       size="sm"
                       onClick={(e) => {
                         e.stopPropagation();
-                        deleteCard(index);
+                        handleDeleteCard(index);
                       }}
                       className="text-gray-400 hover:text-red-500 h-6 w-6 p-0"
+                      disabled={!hasAccess}
                     >
                       ×
                     </Button>
@@ -187,18 +150,18 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
                 <div className="space-y-3">
                   <div>
                     <p className="text-xs font-medium text-gray-500 mb-1">
-                      질문
+                      제목
                     </p>
                     <p className="text-sm text-gray-900 line-clamp-2 leading-relaxed">
-                      {card.question}
+                      {card.title || "제목을 입력하세요"}
                     </p>
                   </div>
                   <div>
                     <p className="text-xs font-medium text-gray-500 mb-1">
-                      답변
+                      내용
                     </p>
                     <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed">
-                      {card.answer}
+                      {card.content || "내용을 입력하세요"}
                     </p>
                   </div>
                 </div>
@@ -225,73 +188,74 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
         {/* Editor Content */}
         <div className="flex-1 p-16 bg-gray-50">
           <div className="max-w-6xl mx-auto">
-            <Card className="p-12 bg-white shadow-xl rounded-2xl border-0">
-              <div className="space-y-16">
-                {/* Question Section */}
-                <div
-                  className={`p-10 rounded-2xl border-3 transition-all duration-200 ${
-                    focusedField === "question"
-                      ? "border-blue-500 bg-blue-50 shadow-2xl"
-                      : "border-gray-200 bg-gray-50 hover:border-gray-300 hover:shadow-lg"
-                  }`}
-                >
-                  <Label
-                    htmlFor="question"
-                    className="text-3xl font-bold mb-8 block text-gray-800"
+            {currentCard && (
+              <Card className="p-12 bg-white shadow-xl rounded-2xl border-0">
+                <div className="space-y-16">
+                  {/* Title Section */}
+                  <div
+                    className={`p-10 rounded-2xl border-3 transition-all duration-200 ${
+                      focusedField === "title"
+                        ? "border-blue-500 bg-blue-50 shadow-2xl"
+                        : "border-gray-200 bg-gray-50 hover:border-gray-300 hover:shadow-lg"
+                    }`}
                   >
-                    질문
-                  </Label>
-                  <Textarea
-                    id="question"
-                    value={
-                      hasAccess && isConnected
-                        ? questionText
-                        : currentCard.question
-                    }
-                    onChange={(e) => updateCard("question", e.target.value)}
-                    onFocus={() => {
-                      setFocusedField("question");
-                      if (hasAccess) setAwareness("question");
-                    }}
-                    onBlur={() => setFocusedField(null)}
-                    className="w-full min-h-56 text-2xl leading-relaxed resize-none border-0 bg-transparent focus:ring-0 focus:outline-none placeholder-gray-400"
-                    placeholder="질문을 입력하세요..."
-                    disabled={isConnected && !hasAccess}
-                  />
-                </div>
+                    <Label
+                      htmlFor="title"
+                      className="text-3xl font-bold mb-8 block text-gray-800"
+                    >
+                      제목
+                    </Label>
+                    <Textarea
+                      id="title"
+                      value={currentCard.title}
+                      onChange={(e) =>
+                        updateCardTitle(currentCardIndex, e.target.value)
+                      }
+                      onFocus={() => {
+                        setFocusedField("title");
+                        if (hasAccess) setAwareness("title", currentCardIndex);
+                      }}
+                      onBlur={() => setFocusedField(null)}
+                      className="w-full min-h-56 text-2xl leading-relaxed resize-none border-0 bg-transparent focus:ring-0 focus:outline-none placeholder-gray-400"
+                      placeholder="제목을 입력하세요..."
+                      disabled={!hasAccess}
+                    />
+                  </div>
 
-                {/* Answer Section */}
-                <div
-                  className={`p-10 rounded-2xl border-3 transition-all duration-200 ${
-                    focusedField === "answer"
-                      ? "border-blue-500 bg-blue-50 shadow-2xl"
-                      : "border-gray-200 bg-gray-50 hover:border-gray-300 hover:shadow-lg"
-                  }`}
-                >
-                  <Label
-                    htmlFor="answer"
-                    className="text-3xl font-bold mb-8 block text-gray-800"
+                  {/* Content Section */}
+                  <div
+                    className={`p-10 rounded-2xl border-3 transition-all duration-200 ${
+                      focusedField === "content"
+                        ? "border-blue-500 bg-blue-50 shadow-2xl"
+                        : "border-gray-200 bg-gray-50 hover:border-gray-300 hover:shadow-lg"
+                    }`}
                   >
-                    답변
-                  </Label>
-                  <Textarea
-                    id="answer"
-                    value={
-                      hasAccess && isConnected ? answerText : currentCard.answer
-                    }
-                    onChange={(e) => updateCard("answer", e.target.value)}
-                    onFocus={() => {
-                      setFocusedField("answer");
-                      if (hasAccess) setAwareness("answer");
-                    }}
-                    onBlur={() => setFocusedField(null)}
-                    className="w-full min-h-56 text-2xl leading-relaxed resize-none border-0 bg-transparent focus:ring-0 focus:outline-none placeholder-gray-400"
-                    placeholder="답변을 입력하세요..."
-                    disabled={isConnected && !hasAccess}
-                  />
+                    <Label
+                      htmlFor="content"
+                      className="text-3xl font-bold mb-8 block text-gray-800"
+                    >
+                      내용
+                    </Label>
+                    <Textarea
+                      id="content"
+                      value={currentCard.content}
+                      onChange={(e) =>
+                        updateCardContent(currentCardIndex, e.target.value)
+                      }
+                      onFocus={() => {
+                        setFocusedField("content");
+                        if (hasAccess)
+                          setAwareness("content", currentCardIndex);
+                      }}
+                      onBlur={() => setFocusedField(null)}
+                      className="w-full min-h-56 text-2xl leading-relaxed resize-none border-0 bg-transparent focus:ring-0 focus:outline-none placeholder-gray-400"
+                      placeholder="내용을 입력하세요..."
+                      disabled={!hasAccess}
+                    />
+                  </div>
                 </div>
-              </div>
-            </Card>
+              </Card>
+            )}
           </div>
         </div>
       </div>
