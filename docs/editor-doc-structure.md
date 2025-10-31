@@ -37,6 +37,11 @@
 - title/content → question/answer로 되돌림
 - 플래시카드의 본질에 맞게 question(질문), answer(답변) 사용
 
+#### 타입 수정 (commit: 2de9780)
+- Y.Array 타입 선언 수정
+- `Y.Array<Y.Map<{ question: string; answer: string }>>` → `Y.Array<Y.Map<any>>`
+- Y.Text 객체를 올바르게 처리하기 위한 수정
+
 ### 2025-10-31: 문서 구조 재설계
 
 #### 문제점 (이전 구조)
