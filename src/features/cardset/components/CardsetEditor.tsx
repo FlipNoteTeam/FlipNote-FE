@@ -1,9 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card } from "@/shared/components/card";
 import { Button } from "@/shared/components/button";
 import { Textarea } from "@/shared/components/textarea";
 import { Label } from "@/shared/components/label";
 import { useYjs } from "@/shared/socket/useYjs";
+import type { CardData } from "@/shared/socket/card-types";
+import * as Y from "yjs";
 
 type CardsetEditorProps = {
   cardsetId: string;
@@ -15,41 +17,175 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
     "question" | "answer" | null
   >(null);
 
+  // Y.Text 동기화를 위한 로컬 상태
+  const [questionValue, setQuestionValue] = useState("");
+  const [answerValue, setAnswerValue] = useState("");
+  const questionTextRef = useRef<Y.Text | null>(null);
+  const answerTextRef = useRef<Y.Text | null>(null);
+  const isUpdatingRef = useRef(false);
+
+  // 소켓 연결 전 fallback용 로컬 카드
+  const [localCards, setLocalCards] = useState<CardData[]>([
+    {
+      id: "local-initial",
+      question: "",
+      answer: "",
+      createdAt: Date.now(),
+    },
+  ]);
+
   // Yjs 협업 기능 - 카드셋 전체를 하나의 Doc으로 관리
   const {
     isConnected,
     hasAccess,
     connectionError,
-    cards,
+    cards: yjsCards,
     connect,
     addCard,
     deleteCard,
-    updateCardQuestion,
-    updateCardAnswer,
     setAwareness,
+    getCardQuestionText,
+    getCardAnswerText,
   } = useYjs({
     documentId: cardsetId,
     userId: `user-1`, // 임시 사용자 ID
     autoConnect: true,
   });
 
+  // 연결된 경우 Yjs 카드 사용, 아니면 로컬 카드 사용
+  const cards = hasAccess && yjsCards.length > 0 ? yjsCards : localCards;
   const currentCard = cards[currentCardIndex];
 
-  // 카드가 없으면 초기 카드 추가
+  // Yjs 연결 시 초기 카드가 없으면 추가
   useEffect(() => {
-    if (hasAccess && cards.length === 0) {
+    if (hasAccess && yjsCards.length === 0) {
       addCard({ question: "", answer: "" });
     }
-  }, [hasAccess, cards.length, addCard]);
+  }, [hasAccess, yjsCards.length, addCard]);
+
+  // 카드 전환 시 값 로드 및 Y.Text observe 설정
+  useEffect(() => {
+    if (!currentCard) return;
+
+    if (hasAccess) {
+      // Yjs 모드: Y.Text observe 설정
+      const questionText = getCardQuestionText(currentCardIndex);
+      const answerText = getCardAnswerText(currentCardIndex);
+
+      if (!questionText || !answerText) return;
+
+      questionTextRef.current = questionText;
+      answerTextRef.current = answerText;
+
+      // 초기 값 설정
+      setQuestionValue(questionText.toString());
+      setAnswerValue(answerText.toString());
+
+      // Y.Text 변경 감지
+      const questionObserver = () => {
+        if (!isUpdatingRef.current) {
+          setQuestionValue(questionText.toString());
+        }
+      };
+
+      const answerObserver = () => {
+        if (!isUpdatingRef.current) {
+          setAnswerValue(answerText.toString());
+        }
+      };
+
+      questionText.observe(questionObserver);
+      answerText.observe(answerObserver);
+
+      return () => {
+        questionText.unobserve(questionObserver);
+        answerText.unobserve(answerObserver);
+      };
+    } else {
+      // 로컬 모드: 로컬 카드 값 로드
+      setQuestionValue(currentCard.question);
+      setAnswerValue(currentCard.answer);
+    }
+  }, [currentCardIndex, hasAccess, currentCard, getCardQuestionText, getCardAnswerText]);
+
+  const handleQuestionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newValue = e.target.value;
+
+    if (hasAccess && questionTextRef.current) {
+      // Yjs 연결 시: Y.Text 업데이트
+      const oldValue = questionValue;
+      isUpdatingRef.current = true;
+
+      const delta = getDelta(oldValue, newValue);
+      applyDelta(questionTextRef.current, delta);
+
+      setQuestionValue(newValue);
+      isUpdatingRef.current = false;
+    } else {
+      // 로컬 모드: localCards 상태 업데이트
+      setQuestionValue(newValue);
+      setLocalCards((prev) =>
+        prev.map((card, idx) =>
+          idx === currentCardIndex ? { ...card, question: newValue } : card
+        )
+      );
+    }
+  };
+
+  const handleAnswerChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newValue = e.target.value;
+
+    if (hasAccess && answerTextRef.current) {
+      // Yjs 연결 시: Y.Text 업데이트
+      const oldValue = answerValue;
+      isUpdatingRef.current = true;
+
+      const delta = getDelta(oldValue, newValue);
+      applyDelta(answerTextRef.current, delta);
+
+      setAnswerValue(newValue);
+      isUpdatingRef.current = false;
+    } else {
+      // 로컬 모드: localCards 상태 업데이트
+      setAnswerValue(newValue);
+      setLocalCards((prev) =>
+        prev.map((card, idx) =>
+          idx === currentCardIndex ? { ...card, answer: newValue } : card
+        )
+      );
+    }
+  };
 
   const handleAddCard = () => {
-    addCard({ question: "새 질문을 입력하세요", answer: "새 답변을 입력하세요" });
+    if (hasAccess) {
+      // Yjs 모드: Yjs에 카드 추가
+      addCard({ question: "새 질문을 입력하세요", answer: "새 답변을 입력하세요" });
+    } else {
+      // 로컬 모드: localCards에 카드 추가
+      setLocalCards((prev) => [
+        ...prev,
+        {
+          id: `local-${Date.now()}`,
+          question: "새 질문을 입력하세요",
+          answer: "새 답변을 입력하세요",
+          createdAt: Date.now(),
+        },
+      ]);
+    }
     setCurrentCardIndex(cards.length);
   };
 
   const handleDeleteCard = (index: number) => {
     if (cards.length <= 1) return;
-    deleteCard(index);
+
+    if (hasAccess) {
+      // Yjs 모드: Yjs에서 카드 삭제
+      deleteCard(index);
+    } else {
+      // 로컬 모드: localCards에서 카드 삭제
+      setLocalCards((prev) => prev.filter((_, i) => i !== index));
+    }
+
     if (currentCardIndex >= cards.length - 1) {
       setCurrentCardIndex(Math.max(0, cards.length - 2));
     }
@@ -79,7 +215,6 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
               size="sm"
               variant="ghost"
               className="px-4 py-2"
-              disabled={!hasAccess}
             >
               + 추가
             </Button>
@@ -141,7 +276,6 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
                         handleDeleteCard(index);
                       }}
                       className="text-gray-400 hover:text-red-500 h-6 w-6 p-0"
-                      disabled={!hasAccess}
                     >
                       ×
                     </Button>
@@ -207,10 +341,8 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
                     </Label>
                     <Textarea
                       id="question"
-                      value={currentCard.question}
-                      onChange={(e) =>
-                        updateCardQuestion(currentCardIndex, e.target.value)
-                      }
+                      value={questionValue}
+                      onChange={handleQuestionChange}
                       onFocus={() => {
                         setFocusedField("question");
                         if (hasAccess) setAwareness("question", currentCardIndex);
@@ -218,7 +350,6 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
                       onBlur={() => setFocusedField(null)}
                       className="w-full min-h-56 text-2xl leading-relaxed resize-none border-0 bg-transparent focus:ring-0 focus:outline-none placeholder-gray-400"
                       placeholder="질문을 입력하세요..."
-                      disabled={!hasAccess}
                     />
                   </div>
 
@@ -238,10 +369,8 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
                     </Label>
                     <Textarea
                       id="answer"
-                      value={currentCard.answer}
-                      onChange={(e) =>
-                        updateCardAnswer(currentCardIndex, e.target.value)
-                      }
+                      value={answerValue}
+                      onChange={handleAnswerChange}
                       onFocus={() => {
                         setFocusedField("answer");
                         if (hasAccess)
@@ -250,7 +379,6 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
                       onBlur={() => setFocusedField(null)}
                       className="w-full min-h-56 text-2xl leading-relaxed resize-none border-0 bg-transparent focus:ring-0 focus:outline-none placeholder-gray-400"
                       placeholder="답변을 입력하세요..."
-                      disabled={!hasAccess}
                     />
                   </div>
                 </div>
@@ -261,4 +389,40 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
       </div>
     </div>
   );
+}
+
+// 두 문자열의 차이를 계산
+function getDelta(oldStr: string, newStr: string): { index: number; delete: number; insert: string } {
+  let i = 0;
+  const minLen = Math.min(oldStr.length, newStr.length);
+
+  // 앞에서부터 같은 부분 찾기
+  while (i < minLen && oldStr[i] === newStr[i]) {
+    i++;
+  }
+
+  let j = 0;
+  // 뒤에서부터 같은 부분 찾기
+  while (
+    j < minLen - i &&
+    oldStr[oldStr.length - 1 - j] === newStr[newStr.length - 1 - j]
+  ) {
+    j++;
+  }
+
+  return {
+    index: i,
+    delete: oldStr.length - i - j,
+    insert: newStr.slice(i, newStr.length - j),
+  };
+}
+
+// Y.Text에 delta 적용
+function applyDelta(ytext: Y.Text, delta: { index: number; delete: number; insert: string }) {
+  if (delta.delete > 0) {
+    ytext.delete(delta.index, delta.delete);
+  }
+  if (delta.insert.length > 0) {
+    ytext.insert(delta.index, delta.insert);
+  }
 }
