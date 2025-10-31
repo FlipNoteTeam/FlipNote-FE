@@ -15,17 +15,17 @@ interface UseCardSetsParams {
 export const useCardSets = (params?: UseCardSetsParams) => {
   return useInfiniteQuery({
     queryKey: [...CARDSETS_QUERY_KEY, params],
-    queryFn: async ({ pageParam }) => {
+    queryFn: async ({ pageParam = 0 }) => {
       const response = await cardSetApi.getCardSets({
         ...params,
-        cursor: pageParam,
+        page: pageParam,
         size: params?.size || 20,
       });
       return response.data;
     },
-    initialPageParam: undefined as string | undefined,
+    initialPageParam: 0,
     getNextPageParam: (lastPage) => {
-      return lastPage.data.hasNext ? lastPage.data.nextCursor : undefined;
+      return lastPage.data.hasNext ? lastPage.data.page + 1 : undefined;
     },
     select: (data) => ({
       pages: data.pages,
