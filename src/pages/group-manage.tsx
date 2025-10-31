@@ -1,6 +1,7 @@
 import { useState } from "react";
 import BaseLayout from "@/shared/layouts/base-layout";
 import { GroupJoinManagement } from "@/domain/group/components/GroupJoinManagement";
+import { GroupInvitationManagement } from "@/domain/group/components/GroupInvitationManagement";
 import { useGroupDetail } from "@/domain/group/hooks/useGroupDetail";
 import { useGroupMembers } from "@/domain/members/hooks/useGroupMembers";
 import useAuthStore from "@/stores/useAuthStore";
@@ -12,7 +13,7 @@ type Props = {
   groupId: string;
 };
 
-type MenuTab = "join-requests";
+type MenuTab = "join-requests" | "invitations";
 
 const GroupManagePage = ({ groupId }: Props) => {
   const navigate = useNavigate();
@@ -91,6 +92,16 @@ const GroupManagePage = ({ groupId }: Props) => {
               >
                 가입 신청 관리
               </button>
+              <button
+                onClick={() => setActiveTab("invitations")}
+                className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${
+                  activeTab === "invitations"
+                    ? "bg-primary text-primary-foreground"
+                    : "hover:bg-gray-100"
+                }`}
+              >
+                초대 관리
+              </button>
             </nav>
           </aside>
 
@@ -98,6 +109,9 @@ const GroupManagePage = ({ groupId }: Props) => {
           <main className="flex-1">
             {activeTab === "join-requests" && (
               <GroupJoinManagement groupId={groupIdNum} />
+            )}
+            {activeTab === "invitations" && (
+              <GroupInvitationManagement groupId={groupIdNum} />
             )}
           </main>
         </div>
