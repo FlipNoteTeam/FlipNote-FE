@@ -1,4 +1,4 @@
-import { Plus } from "lucide-react";
+import { Plus, UserPlus } from "lucide-react";
 import { Button } from "@/shared/components/button";
 import {
   Carousel,
@@ -15,11 +15,14 @@ import { useGroupDetail } from "@/domain/group/hooks/useGroupDetail";
 import { useGroupMembers } from "@/domain/members/hooks/useGroupMembers";
 import { useGroupCardsets } from "@/domain/cardsets/hooks/useGroupCardsets";
 import CardsetCreateDialog from "@/features/cardset/components/CardsetCreateDialog";
+import { GroupJoinDialog } from "@/domain/group/components/GroupJoinDialog";
+import useAuthStore from "@/stores/useAuthStore";
 
 type Props = { id: string };
 
 const GroupDetailPage = ({ id }: Props) => {
   const groupId = Number(id);
+  const user = useAuthStore((state) => state.user);
 
   const { data: groupData, isLoading: isGroupLoading } =
     useGroupDetail(groupId);
@@ -28,7 +31,12 @@ const GroupDetailPage = ({ id }: Props) => {
   const { data: cardSets = [], isLoading: isCardsetsLoading } =
     useGroupCardsets(groupId);
 
+  // 현재 사용자가 그룹 멤버인지 확인
+  const isMember = members.some((member) => member.id === user?.userId);
   const hasManagePermission = true; // TODO: 실제로는 사용자 권한 체크
+
+  // 가입 신청 버튼 표시 여부 (멤버가 아니고 가입 승인이 필요한 그룹)
+  const showJoinButton = !isMember && groupData?.applicationRequired;
 
   const isLoading = isGroupLoading || isMembersLoading || isCardsetsLoading;
 
@@ -64,12 +72,22 @@ const GroupDetailPage = ({ id }: Props) => {
         <section>
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-2xl font-bold">멤버</h2>
-            {hasManagePermission && (
-              <Button size="sm" variant="outline">
-                <Plus className="size-4" />
-                멤버 초대
-              </Button>
-            )}
+            <div className="flex gap-2">
+              {showJoinButton && (
+                <GroupJoinDialog groupId={groupId} groupName={groupData.name}>
+                  <Button size="sm" variant="default">
+                    <UserPlus className="size-4" />
+                    가입신청
+                  </Button>
+                </GroupJoinDialog>
+              )}
+              {hasManagePermission && (
+                <Button size="sm" variant="outline">
+                  <Plus className="size-4" />
+                  멤버 초대
+                </Button>
+              )}
+            </div>
           </div>
           {members.length > 0 ? (
             <Carousel
