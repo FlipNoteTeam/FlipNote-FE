@@ -5,7 +5,6 @@ import { Label } from "@/shared/components/label";
 import { useQuery } from "@tanstack/react-query";
 import { useGroupMembers } from "@/domain/members/hooks/useGroupMembers";
 import useAuthStore from "@/stores/useAuthStore";
-import { useToast } from "@/shared/hooks/use-toast";
 import { useEffect } from "react";
 import { useNavigate } from "@tanstack/react-router";
 
@@ -16,7 +15,6 @@ type Props = {
 
 const CardsetDetail = ({ groupId, cardsetId }: Props) => {
   const user = useAuthStore((state) => state.user);
-  const { toast } = useToast();
   const navigate = useNavigate();
 
   const { data } = useQuery({
@@ -40,14 +38,10 @@ const CardsetDetail = ({ groupId, cardsetId }: Props) => {
   // 카드셋 접근 제어: 공개 + 가입 승인 필수인 그룹의 경우 멤버가 아니면 접근 불가
   useEffect(() => {
     if (group && !isMember && group.publicVisible && group.applicationRequired) {
-      toast({
-        title: "그룹 가입이 필요합니다",
-        description: "이 카드셋을 보려면 그룹에 가입 신청을 해주세요.",
-        variant: "destructive",
-      });
+      window.alert("이 카드셋을 보려면 그룹에 가입 신청을 해주세요.");
       navigate({ to: `/groups/${groupId}` });
     }
-  }, [group, isMember, groupId, navigate, toast]);
+  }, [group, isMember, groupId, navigate]);
 
   if (!cardset) return null;
 

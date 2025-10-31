@@ -12,7 +12,6 @@ import { Button } from "@/shared/components/button";
 import { Textarea } from "@/shared/components/textarea";
 import { Label } from "@/shared/components/label";
 import { useGroupJoin } from "@/domain/group/hooks/useGroupJoin";
-import { useToast } from "@/shared/hooks/use-toast";
 
 type GroupJoinDialogProps = {
   groupId: number;
@@ -28,7 +27,6 @@ export const GroupJoinDialog = ({
   const [open, setOpen] = useState(false);
   const [joinIntro, setJoinIntro] = useState("");
   const { mutate: joinGroup, isPending } = useGroupJoin();
-  const { toast } = useToast();
 
   const handleSubmit = () => {
     joinGroup(
@@ -38,19 +36,14 @@ export const GroupJoinDialog = ({
       },
       {
         onSuccess: () => {
-          toast({
-            title: "가입 신청 완료",
-            description: `${groupName} 그룹에 가입 신청했습니다.`,
-          });
+          window.alert(`${groupName} 그룹에 가입 신청했습니다.`);
           setOpen(false);
           setJoinIntro("");
         },
         onError: (error: any) => {
-          toast({
-            title: "가입 신청 실패",
-            description: error?.response?.data?.message || "가입 신청에 실패했습니다.",
-            variant: "destructive",
-          });
+          window.alert(
+            error?.response?.data?.message || "가입 신청에 실패했습니다."
+          );
         },
       }
     );
