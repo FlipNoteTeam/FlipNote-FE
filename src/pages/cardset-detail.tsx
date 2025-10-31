@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useGroupMembers } from "@/domain/members/hooks/useGroupMembers";
 import useAuthStore from "@/stores/useAuthStore";
 import { useEffect } from "react";
-import { useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import CardsetUpdateDialog from "@/features/cardset/components/CardsetUpdateDialog";
 import BaseLayout from "@/shared/layouts/base-layout";
 
@@ -39,7 +39,12 @@ const CardsetDetail = ({ groupId, cardsetId }: Props) => {
 
   // 카드셋 접근 제어: 공개 + 가입 승인 필수인 그룹의 경우 멤버가 아니면 접근 불가
   useEffect(() => {
-    if (group && !isMember && group.publicVisible && group.applicationRequired) {
+    if (
+      group &&
+      !isMember &&
+      group.publicVisible &&
+      group.applicationRequired
+    ) {
       window.alert("이 카드셋을 보려면 그룹에 가입 신청을 해주세요.");
       navigate({ to: `/groups/${groupId}` });
     }
@@ -53,81 +58,86 @@ const CardsetDetail = ({ groupId, cardsetId }: Props) => {
   return (
     <BaseLayout>
       <div className="max-w-4xl mx-auto p-6">
-      <div className="flex gap-6">
-        <div className="w-1/3">
-          <div className="aspect-square bg-gray-200 rounded-lg overflow-hidden">
-            {cardset.imageUrl ? (
-              <img
-                src={cardset.imageUrl}
-                alt={cardset.name}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-gray-400">
-                t��
+        <div className="flex gap-6">
+          <div className="w-1/3">
+            <div className="aspect-square bg-gray-200 rounded-lg overflow-hidden">
+              {cardset.imageUrl ? (
+                <img
+                  src={cardset.imageUrl}
+                  alt={cardset.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-gray-400">
+                  t��
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* $x�: � */}
+          <div className="flex-1 space-y-4">
+            {/* t�K� */}
+            <div>
+              <p className="text-lg font-medium mt-1">{cardset.name}</p>
+            </div>
+
+            <div>
+              <Label className="text-sm text-gray-600">카테고리</Label>
+              <div className="flex flex-wrap gap-2 mt-1">
+                {categories.map((category) => (
+                  <span
+                    key={category}
+                    className="px-3 py-1 bg-gray-100 rounded-full text-sm"
+                  >
+                    {GROUP_CATEGORY_MAP[
+                      category as keyof typeof GROUP_CATEGORY_MAP
+                    ] || category}
+                  </span>
+                ))}
               </div>
+            </div>
+
+            <div>
+              <Label className="text-sm text-gray-600">해시태그</Label>
+              <div className="flex flex-wrap gap-2 mt-1">
+                {hashtags.map((tag, index) => (
+                  <span
+                    key={index}
+                    className="px-3 py-1 bg-gray-100 rounded-full text-sm"
+                  >
+                    #{tag.trim()}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div>
+              <Button asChild>
+                <Link to="/cardsets/editor">카드셋 수정하기</Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-6 flex items-center justify-between border-t pt-4">
+          <div className="text-sm text-gray-600">
+            {cardset.publicVisible ? (
+              <p>공개</p>
+            ) : (
+              <span className="text-red-500">비공개</span>
             )}
           </div>
-        </div>
 
-        {/* $x�: � */}
-        <div className="flex-1 space-y-4">
-          {/* t�K� */}
-          <div>
-            <p className="text-lg font-medium mt-1">{cardset.name}</p>
-          </div>
-
-          <div>
-            <Label className="text-sm text-gray-600">카테고리</Label>
-            <div className="flex flex-wrap gap-2 mt-1">
-              {categories.map((category) => (
-                <span
-                  key={category}
-                  className="px-3 py-1 bg-gray-100 rounded-full text-sm"
-                >
-                  {GROUP_CATEGORY_MAP[
-                    category as keyof typeof GROUP_CATEGORY_MAP
-                  ] || category}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <Label className="text-sm text-gray-600">해시태그</Label>
-            <div className="flex flex-wrap gap-2 mt-1">
-              {hashtags.map((tag, index) => (
-                <span
-                  key={index}
-                  className="px-3 py-1 bg-gray-100 rounded-full text-sm"
-                >
-                  #{tag.trim()}
-                </span>
-              ))}
-            </div>
+          <div className="flex gap-2">
+            <CardsetUpdateDialog
+              groupId={groupId}
+              cardsetId={cardsetId}
+              cardset={cardset}
+              renderTrigger={<Button variant="outline">수정</Button>}
+            />
+            <Button variant="outline">삭제</Button>
           </div>
         </div>
-      </div>
-
-      <div className="mt-6 flex items-center justify-between border-t pt-4">
-        <div className="text-sm text-gray-600">
-          {cardset.publicVisible ? (
-            <p>공개</p>
-          ) : (
-            <span className="text-red-500">비공개</span>
-          )}
-        </div>
-
-        <div className="flex gap-2">
-          <CardsetUpdateDialog
-            groupId={groupId}
-            cardsetId={cardsetId}
-            cardset={cardset}
-            renderTrigger={<Button variant="outline">수정</Button>}
-          />
-          <Button variant="outline">삭제</Button>
-        </div>
-      </div>
       </div>
     </BaseLayout>
   );
