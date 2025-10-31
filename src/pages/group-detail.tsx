@@ -62,6 +62,27 @@ const GroupDetailPage = ({ id }: Props) => {
     );
   }
 
+  // 비공개 그룹 접근 제어: 멤버가 아니면 접근 불가
+  if (!groupData.publicVisible && !isMember) {
+    return (
+      <BaseLayout>
+        <div className="mx-auto max-w-6xl p-6">
+          <div className="text-center space-y-4">
+            <h2 className="text-2xl font-bold text-gray-900">
+              비공개 그룹입니다
+            </h2>
+            <p className="text-muted-foreground">
+              이 그룹은 비공개 그룹으로 멤버만 접근할 수 있습니다.
+            </p>
+            <Button onClick={() => window.history.back()} variant="outline">
+              돌아가기
+            </Button>
+          </div>
+        </div>
+      </BaseLayout>
+    );
+  }
+
   return (
     <BaseLayout>
       <div className="mx-auto max-w-6xl space-y-8 p-6">
