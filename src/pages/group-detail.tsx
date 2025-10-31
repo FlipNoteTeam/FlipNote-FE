@@ -1,4 +1,4 @@
-import { Plus, UserPlus } from "lucide-react";
+import { Plus, UserPlus, Settings } from "lucide-react";
 import { Button } from "@/shared/components/button";
 import {
   Carousel,
@@ -17,6 +17,7 @@ import { useGroupCardsets } from "@/domain/cardsets/hooks/useGroupCardsets";
 import CardsetCreateDialog from "@/features/cardset/components/CardsetCreateDialog";
 import { GroupJoinDialog } from "@/domain/group/components/GroupJoinDialog";
 import useAuthStore from "@/stores/useAuthStore";
+import { Link } from "@tanstack/react-router";
 
 type Props = { id: string };
 
@@ -31,9 +32,11 @@ const GroupDetailPage = ({ id }: Props) => {
   const { data: cardSets = [], isLoading: isCardsetsLoading } =
     useGroupCardsets(groupId);
 
-  // 현재 사용자가 그룹 멤버인지 확인
-  const isMember = members.some((member) => member.id === user?.userId);
-  const hasManagePermission = true; // TODO: 실제로는 사용자 권한 체크
+  // 현재 사용자가 그룹 멤버인지 확인 및 역할 체크
+  const currentMember = members.find((member) => member.id === user?.userId);
+  const isMember = !!currentMember;
+  const isOwner = currentMember?.role === "OWNER";
+  const hasManagePermission = isOwner; // OWNER만 관리 권한
 
   // 가입 신청 버튼 표시 여부 (멤버가 아니고 가입 승인이 필요한 그룹)
   const showJoinButton = !isMember && groupData?.applicationRequired;
@@ -88,6 +91,18 @@ const GroupDetailPage = ({ id }: Props) => {
       <div className="mx-auto max-w-6xl space-y-8 p-6">
         {/* 그룹 정보 섹션 */}
         <GroupInfoCard group={groupData} />
+
+        {/* 그룹 관리 버튼 (OWNER만) */}
+        {isOwner && (
+          <div className="flex justify-end">
+            <Link to="/groups/$groupId/manage" params={{ groupId: id }}>
+              <Button variant="outline" size="sm">
+                <Settings className="size-4 mr-2" />
+                그룹 관리
+              </Button>
+            </Link>
+          </div>
+        )}
 
         {/* 멤버 섹션 */}
         <section>
