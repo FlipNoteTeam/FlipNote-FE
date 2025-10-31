@@ -118,8 +118,8 @@ export class YjsProvider {
         console.log("[YJS] Sending update to server");
         this.sendMessage({
           type: "update",
-          data: { documentId: this.documentId, update: Array.from(update) },
-        } as unknown as UpdateMessage);
+          data: { documentId: this.documentId, update },
+        } as UpdateMessage);
       }
     });
 
@@ -145,9 +145,9 @@ export class YjsProvider {
           type: "awareness",
           data: {
             documentId: this.documentId,
-            awareness: Array.from(awarenessUpdate),
+            awareness: awarenessUpdate,
           },
-        } as unknown as AwarenessMessage);
+        } as AwarenessMessage);
       }
     });
   }
@@ -179,7 +179,7 @@ export class YjsProvider {
 
       console.log("[YJS❤️] Received sync from server", message);
       const { update } = message.data;
-      Y.applyUpdate(this.doc, new Uint8Array(update), this);
+      Y.applyUpdate(this.doc, update, this);
     });
 
     // Awareness 메시지 처리
@@ -189,7 +189,7 @@ export class YjsProvider {
       const { awareness } = message.data;
       awarenessProtocol.applyAwarenessUpdate(
         this.awareness,
-        new Uint8Array(awareness),
+        awareness,
         this
       );
     });

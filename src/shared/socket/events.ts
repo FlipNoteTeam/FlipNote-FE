@@ -17,11 +17,11 @@ export interface ServerToClientEvents {
   sync: (data: {
     documentId?: string;
     syncStep?: number;
-    update: number[];
+    update: Uint8Array;
   }) => void;
 
   // Awareness (커서 위치 등)
-  awareness: (data: { documentId: string; awareness: number[] }) => void;
+  awareness: (data: { documentId: string; awareness: Uint8Array }) => void;
 
   // 토큰 만료
   expired: (data?: { message?: string }) => void;
@@ -39,10 +39,10 @@ export interface ClientToServerEvents {
   "leave-cardset": (data: { cardsetId: string }) => void;
 
   // Yjs 업데이트 전송
-  update: (data: { documentId: string; update: number[] }) => void;
+  update: (data: { documentId: string; update: Uint8Array }) => void;
 
   // Awareness (커서 위치 등) 전송
-  awareness: (data: { documentId: string; awareness: number[] }) => void;
+  awareness: (data: { documentId: string; awareness: Uint8Array }) => void;
 }
 
 export const SocketEvents = {
