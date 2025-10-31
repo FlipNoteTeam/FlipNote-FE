@@ -106,7 +106,13 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
       setQuestionValue(currentCard.question);
       setAnswerValue(currentCard.answer);
     }
-  }, [currentCardIndex, hasAccess, currentCard, getCardQuestionText, getCardAnswerText]);
+  }, [
+    currentCardIndex,
+    hasAccess,
+    currentCard,
+    getCardQuestionText,
+    getCardAnswerText,
+  ]);
 
   const handleQuestionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newValue = e.target.value;
@@ -159,7 +165,10 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
   const handleAddCard = () => {
     if (hasAccess) {
       // Yjs 모드: Yjs에 카드 추가
-      addCard({ question: "새 질문을 입력하세요", answer: "새 답변을 입력하세요" });
+      addCard({
+        question: "새 질문을 입력하세요",
+        answer: "새 답변을 입력하세요",
+      });
     } else {
       // 로컬 모드: localCards에 카드 추가
       setLocalCards((prev) => [
@@ -206,7 +215,7 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
   return (
     <div className="min-h-dvh h-screen flex bg-gray-50">
       {/* Left Sidebar - Card List */}
-      <div className="w-96 bg-white border-r border-gray-200 flex flex-col">
+      <div className="w-96 bg-white border-r border-gray-200 flex flex-col fixed top-0 left-0 h-screen">
         <div className="p-6 border-b border-gray-200">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-md font-semibold text-gray-900">카드 목록</h2>
@@ -306,7 +315,7 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
       </div>
 
       {/* Main Editor Area */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col ml-96">
         {/* Header */}
         <div className="bg-white border-b border-gray-200 px-8 py-6">
           <div className="flex items-center justify-between">
@@ -345,7 +354,8 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
                       onChange={handleQuestionChange}
                       onFocus={() => {
                         setFocusedField("question");
-                        if (hasAccess) setAwareness("question", currentCardIndex);
+                        if (hasAccess)
+                          setAwareness("question", currentCardIndex);
                       }}
                       onBlur={() => setFocusedField(null)}
                       className="w-full min-h-56 text-2xl leading-relaxed resize-none border-0 bg-transparent focus:ring-0 focus:outline-none placeholder-gray-400"
@@ -373,8 +383,7 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
                       onChange={handleAnswerChange}
                       onFocus={() => {
                         setFocusedField("answer");
-                        if (hasAccess)
-                          setAwareness("answer", currentCardIndex);
+                        if (hasAccess) setAwareness("answer", currentCardIndex);
                       }}
                       onBlur={() => setFocusedField(null)}
                       className="w-full min-h-56 text-2xl leading-relaxed resize-none border-0 bg-transparent focus:ring-0 focus:outline-none placeholder-gray-400"
@@ -392,7 +401,10 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
 }
 
 // 두 문자열의 차이를 계산
-function getDelta(oldStr: string, newStr: string): { index: number; delete: number; insert: string } {
+function getDelta(
+  oldStr: string,
+  newStr: string
+): { index: number; delete: number; insert: string } {
   let i = 0;
   const minLen = Math.min(oldStr.length, newStr.length);
 
@@ -418,7 +430,10 @@ function getDelta(oldStr: string, newStr: string): { index: number; delete: numb
 }
 
 // Y.Text에 delta 적용
-function applyDelta(ytext: Y.Text, delta: { index: number; delete: number; insert: string }) {
+function applyDelta(
+  ytext: Y.Text,
+  delta: { index: number; delete: number; insert: string }
+) {
   if (delta.delete > 0) {
     ytext.delete(delta.index, delta.delete);
   }
