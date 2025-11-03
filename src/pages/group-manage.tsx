@@ -9,6 +9,7 @@ import useAuthStore from "@/stores/useAuthStore";
 import { Button } from "@/shared/components/button";
 import { ChevronLeft } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
+import { SidebarTabLayout } from "@/shared/layouts/sidebar-tab-layout";
 
 type Props = {
   groupId: string;
@@ -79,45 +80,29 @@ const GroupManagePage = ({ groupId }: Props) => {
         </div>
 
         {/* 레이아웃: 좌측 메뉴 + 우측 콘텐츠 */}
-        <div className="flex gap-6">
-          {/* 좌측 메뉴 */}
-          <aside className="w-64 flex-shrink-0">
-            <nav className="space-y-1">
-              <button
-                onClick={() => setActiveTab("group-settings")}
-                className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${
-                  activeTab === "group-settings"
-                    ? "bg-primary text-primary-foreground"
-                    : "hover:bg-gray-100"
-                }`}
-              >
-                그룹 정보 수정
-              </button>
-              <button
-                onClick={() => setActiveTab("join-requests")}
-                className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${
-                  activeTab === "join-requests"
-                    ? "bg-primary text-primary-foreground"
-                    : "hover:bg-gray-100"
-                }`}
-              >
-                가입 신청 관리
-              </button>
-              <button
-                onClick={() => setActiveTab("invitations")}
-                className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${
-                  activeTab === "invitations"
-                    ? "bg-primary text-primary-foreground"
-                    : "hover:bg-gray-100"
-                }`}
-              >
-                초대 관리
-              </button>
-            </nav>
-          </aside>
+        <SidebarTabLayout>
+          <SidebarTabLayout.Sidebar>
+            <SidebarTabLayout.Tab
+              active={activeTab === "group-settings"}
+              onClick={() => setActiveTab("group-settings")}
+            >
+              그룹 정보 수정
+            </SidebarTabLayout.Tab>
+            <SidebarTabLayout.Tab
+              active={activeTab === "join-requests"}
+              onClick={() => setActiveTab("join-requests")}
+            >
+              가입 신청 관리
+            </SidebarTabLayout.Tab>
+            <SidebarTabLayout.Tab
+              active={activeTab === "invitations"}
+              onClick={() => setActiveTab("invitations")}
+            >
+              초대 관리
+            </SidebarTabLayout.Tab>
+          </SidebarTabLayout.Sidebar>
 
-          {/* 우측 콘텐츠 */}
-          <main className="flex-1">
+          <SidebarTabLayout.Content>
             {activeTab === "group-settings" && (
               <GroupUpdateManagement groupId={groupIdNum} />
             )}
@@ -127,8 +112,8 @@ const GroupManagePage = ({ groupId }: Props) => {
             {activeTab === "invitations" && (
               <GroupInvitationManagement groupId={groupIdNum} />
             )}
-          </main>
-        </div>
+          </SidebarTabLayout.Content>
+        </SidebarTabLayout>
       </div>
     </BaseLayout>
   );
