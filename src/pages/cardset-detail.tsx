@@ -9,8 +9,9 @@ import { useEffect } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import CardsetUpdateDialog from "@/features/cardset/components/CardsetUpdateDialog";
 import BaseLayout from "@/shared/layouts/base-layout";
-import { Heart } from "lucide-react";
+import { Heart, Star } from "lucide-react";
 import { useCardSetLike } from "@/domain/cardsets/hooks/useCardSetLike";
+import { useCardSetBookmark } from "@/domain/cardsets/hooks/useCardSetBookmark";
 
 type Props = {
   groupId: number;
@@ -39,6 +40,16 @@ const CardsetDetail = ({ groupId, cardsetId }: Props) => {
     toggleLike,
     isLoading: isLikeLoading,
   } = useCardSetLike({
+    cardsetId,
+    groupId,
+  });
+
+  // 카드셋 즐겨찾기 훅
+  const {
+    isBookmarked,
+    toggleBookmark,
+    isLoading: isBookmarkLoading,
+  } = useCardSetBookmark({
     cardsetId,
     groupId,
   });
@@ -81,7 +92,7 @@ const CardsetDetail = ({ groupId, cardsetId }: Props) => {
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-gray-400">
-                  t��
+                  썸네일
                 </div>
               )}
 
@@ -102,12 +113,27 @@ const CardsetDetail = ({ groupId, cardsetId }: Props) => {
                   />
                 </button>
               )}
+              {/* 즐겨찾기 버튼 */}
+              {user && (
+                <button
+                  onClick={toggleBookmark}
+                  disabled={isBookmarkLoading}
+                  className="absolute top-3 right-16 p-2 rounded-full bg-white/80 hover:bg-white shadow-md transition-all duration-200 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
+                  aria-label={isBookmarked ? "즐겨찾기 취소" : "즐겨찾기"}
+                >
+                  <Star
+                    className={`w-5 h-5 transition-colors ${
+                      isBookmarked
+                        ? "fill-yellow-500 text-yellow-500"
+                        : "text-gray-600 hover:text-yellow-500"
+                    }`}
+                  />
+                </button>
+              )}
             </div>
           </div>
 
-          {/* $x�: � */}
           <div className="flex-1 space-y-4">
-            {/* t�K� */}
             <div>
               <p className="text-lg font-medium mt-1">{cardset.name}</p>
             </div>
