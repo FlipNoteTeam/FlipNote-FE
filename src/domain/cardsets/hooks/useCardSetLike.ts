@@ -26,6 +26,9 @@ export const useCardSetLike = ({
       // Optimistic update: 즉시 UI 업데이트
       setIsLiked(true);
     },
+    onSuccess: () => {
+      previousStateRef.current = true;
+    },
     onError: (error: ApiError) => {
       // 409 에러는 이미 좋아요가 눌린 상태이므로 롤백하지 않음
       if (error?.response?.status === 409) {
@@ -51,6 +54,9 @@ export const useCardSetLike = ({
       previousStateRef.current = isLiked;
       // Optimistic update: 즉시 UI 업데이트
       setIsLiked(false);
+    },
+    onSuccess: () => {
+      previousStateRef.current = false;
     },
     onError: (error: ApiError) => {
       // 404/409 에러는 이미 좋아요가 취소된 상태이므로 롤백하지 않음
