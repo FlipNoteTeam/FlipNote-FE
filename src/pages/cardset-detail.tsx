@@ -9,6 +9,8 @@ import { useEffect } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import CardsetUpdateDialog from "@/features/cardset/components/CardsetUpdateDialog";
 import BaseLayout from "@/shared/layouts/base-layout";
+import { Heart } from "lucide-react";
+import { useCardSetLike } from "@/domain/cardsets/hooks/useCardSetLike";
 
 type Props = {
   groupId: number;
@@ -30,6 +32,12 @@ const CardsetDetail = ({ groupId, cardsetId }: Props) => {
   });
 
   const { data: members = [] } = useGroupMembers(groupId);
+
+  // 카드셋 좋아요 훅
+  const { isLiked, toggleLike, isLoading: isLikeLoading } = useCardSetLike({
+    cardsetId,
+    groupId,
+  });
 
   const cardset = data?.data.data;
   const group = groupData?.data.data;
@@ -60,7 +68,7 @@ const CardsetDetail = ({ groupId, cardsetId }: Props) => {
       <div className="max-w-4xl mx-auto p-6">
         <div className="flex gap-6">
           <div className="w-1/3">
-            <div className="aspect-square bg-gray-200 rounded-lg overflow-hidden">
+            <div className="relative aspect-square bg-gray-200 rounded-lg overflow-hidden group">
               {cardset.imageUrl ? (
                 <img
                   src={cardset.imageUrl}
@@ -72,6 +80,22 @@ const CardsetDetail = ({ groupId, cardsetId }: Props) => {
                   t��
                 </div>
               )}
+
+              {/* 좋아요 버튼 */}
+              <button
+                onClick={toggleLike}
+                disabled={isLikeLoading}
+                className="absolute top-3 right-3 p-2 rounded-full bg-white/80 hover:bg-white shadow-md transition-all duration-200 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label={isLiked ? "좋아요 취소" : "좋아요"}
+              >
+                <Heart
+                  className={`w-5 h-5 transition-colors ${
+                    isLiked
+                      ? "fill-red-500 text-red-500"
+                      : "text-gray-600 hover:text-red-500"
+                  }`}
+                />
+              </button>
             </div>
           </div>
 

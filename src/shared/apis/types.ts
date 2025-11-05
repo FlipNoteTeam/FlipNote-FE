@@ -5,6 +5,17 @@ export interface ApiResponse<T = unknown> {
   message?: string;
 }
 
+// 공통 에러 타입
+export interface ApiError extends Error {
+  response?: {
+    status: number;
+    data?: {
+      message?: string;
+      [key: string]: unknown;
+    };
+  };
+}
+
 export interface PaginationRequest {
   page?: number;
   size?: number;
