@@ -34,7 +34,11 @@ const CardsetDetail = ({ groupId, cardsetId }: Props) => {
   const { data: members = [] } = useGroupMembers(groupId);
 
   // 카드셋 좋아요 훅
-  const { isLiked, toggleLike, isLoading: isLikeLoading } = useCardSetLike({
+  const {
+    isLiked,
+    toggleLike,
+    isLoading: isLikeLoading,
+  } = useCardSetLike({
     cardsetId,
     groupId,
   });
@@ -82,20 +86,22 @@ const CardsetDetail = ({ groupId, cardsetId }: Props) => {
               )}
 
               {/* 좋아요 버튼 */}
-              <button
-                onClick={toggleLike}
-                disabled={isLikeLoading}
-                className="absolute top-3 right-3 p-2 rounded-full bg-white/80 hover:bg-white shadow-md transition-all duration-200 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
-                aria-label={isLiked ? "좋아요 취소" : "좋아요"}
-              >
-                <Heart
-                  className={`w-5 h-5 transition-colors ${
-                    isLiked
-                      ? "fill-red-500 text-red-500"
-                      : "text-gray-600 hover:text-red-500"
-                  }`}
-                />
-              </button>
+              {user && (
+                <button
+                  onClick={toggleLike}
+                  disabled={isLikeLoading}
+                  className="absolute top-3 right-3 p-2 rounded-full bg-white/80 hover:bg-white shadow-md transition-all duration-200 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
+                  aria-label={isLiked ? "좋아요 취소" : "좋아요"}
+                >
+                  <Heart
+                    className={`w-5 h-5 transition-colors ${
+                      isLiked
+                        ? "fill-red-500 text-red-500"
+                        : "text-gray-600 hover:text-red-500"
+                    }`}
+                  />
+                </button>
+              )}
             </div>
           </div>
 
