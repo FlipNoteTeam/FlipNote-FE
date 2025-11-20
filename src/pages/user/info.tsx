@@ -11,6 +11,7 @@ import {
 import { IncomingInvitationList } from "@/features/group-invitation-management";
 import { MyGroupJoinList } from "@/features/group-join-management";
 import { NotificationList } from "@/features/notification-management";
+import { MyStudyPage } from "@/features/my-study";
 import { useState } from "react";
 
 type Props = {
@@ -69,7 +70,17 @@ const UserInfoPage = ({ userId }: Props) => {
           </div>
         );
       case "study":
-        return <div className="p-6">나의 학습 (준비 중)</div>;
+        return (
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <h2 className="text-2xl font-bold">나의 학습</h2>
+              <p className="text-gray-600">
+                즐겨찾기한 카드셋과 좋아요한 카드셋을 확인할 수 있습니다.
+              </p>
+            </div>
+            <MyStudyPage />
+          </div>
+        );
       default:
         return <MyUserProfilePage />;
     }
