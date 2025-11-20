@@ -1,4 +1,5 @@
-import GroupList from "@/pages/group-list";
+import Home from "@/pages/home";
+import BaseLayout from "@/shared/layouts/base-layout";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/")({
@@ -6,5 +7,9 @@ export const Route = createFileRoute("/")({
 });
 
 function RouteComponent() {
-  return <GroupList />;
+  return (
+    <BaseLayout>
+      <Home />
+    </BaseLayout>
+  );
 }
