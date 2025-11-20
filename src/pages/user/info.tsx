@@ -8,6 +8,7 @@ import {
   MyPageSidebar,
   type TabMenu,
 } from "@/features/mypage/components/MyPageSidebar";
+import { IncomingInvitationList } from "@/features/group-invitation-management";
 import { useState } from "react";
 
 type Props = {
@@ -30,7 +31,15 @@ const UserInfoPage = ({ userId }: Props) => {
       case "dashboard":
         return <Dashboard />;
       case "group-management":
-        return <div className="p-6">그룹 가입 관리 (준비 중)</div>;
+        return (
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <h2 className="text-2xl font-bold">그룹 초대 관리</h2>
+              <p className="text-gray-600">받은 그룹 초대를 확인하고 수락하거나 거절할 수 있습니다.</p>
+            </div>
+            <IncomingInvitationList />
+          </div>
+        );
       case "alarm-management":
         return <div className="p-6">알림 (준비 중)</div>;
       case "study":
