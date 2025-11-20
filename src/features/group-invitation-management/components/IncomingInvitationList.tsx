@@ -1,9 +1,16 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/card";
 import { Button } from "@/shared/components/button";
-import { useIncomingInvitations, useRespondToInvitation } from "@/domain/group/invitation";
+import {
+  useIncomingInvitations,
+  useRespondToInvitation,
+} from "@/domain/group/invitation";
 import { Mail, Check, X, Calendar } from "lucide-react";
 import { useState } from "react";
-import { useToast } from "@/shared/hooks/use-toast";
 
 const STATUS_MAP = {
   PENDING: "대기 중",
@@ -15,7 +22,7 @@ const STATUS_MAP = {
 export const IncomingInvitationList = () => {
   const { data: invitations, isLoading, error } = useIncomingInvitations();
   const respondToInvitation = useRespondToInvitation();
-  const { toast } = useToast();
+
   const [respondingId, setRespondingId] = useState<number | null>(null);
 
   const handleRespond = async (
@@ -30,12 +37,16 @@ export const IncomingInvitationList = () => {
         invitationId,
         status,
       });
-      toast({
-        title: status === "ACCEPTED" ? "초대를 수락했습니다" : "초대를 거절했습니다",
-        description: status === "ACCEPTED" ? "그룹에 가입되었습니다." : "초대를 거절했습니다.",
+      window.alert({
+        title:
+          status === "ACCEPTED" ? "초대를 수락했습니다" : "초대를 거절했습니다",
+        description:
+          status === "ACCEPTED"
+            ? "그룹에 가입되었습니다."
+            : "초대를 거절했습니다.",
       });
     } catch (error) {
-      toast({
+      window.alert({
         title: "오류가 발생했습니다",
         description: "초대 응답에 실패했습니다. 다시 시도해주세요.",
         variant: "destructive",
@@ -61,7 +72,8 @@ export const IncomingInvitationList = () => {
     );
   }
 
-  const pendingInvitations = invitations?.filter((inv) => inv.status === "PENDING") || [];
+  const pendingInvitations =
+    invitations?.filter((inv) => inv.status === "PENDING") || [];
 
   if (pendingInvitations.length === 0) {
     return (
@@ -93,14 +105,21 @@ export const IncomingInvitationList = () => {
           <CardContent className="space-y-4">
             <div className="flex items-center gap-2 text-sm text-gray-600">
               <Calendar className="w-4 h-4" />
-              <span>초대 받은 날짜: {new Date(invitation.createdAt).toLocaleDateString()}</span>
+              <span>
+                초대 받은 날짜:{" "}
+                {new Date(invitation.createdAt).toLocaleDateString()}
+              </span>
             </div>
 
             {invitation.status === "PENDING" && (
               <div className="flex gap-2">
                 <Button
                   onClick={() =>
-                    handleRespond(invitation.groupId, invitation.invitationId, "ACCEPTED")
+                    handleRespond(
+                      invitation.groupId,
+                      invitation.invitationId,
+                      "ACCEPTED"
+                    )
                   }
                   disabled={respondingId === invitation.invitationId}
                   className="flex items-center gap-2"
@@ -110,7 +129,11 @@ export const IncomingInvitationList = () => {
                 </Button>
                 <Button
                   onClick={() =>
-                    handleRespond(invitation.groupId, invitation.invitationId, "REJECTED")
+                    handleRespond(
+                      invitation.groupId,
+                      invitation.invitationId,
+                      "REJECTED"
+                    )
                   }
                   disabled={respondingId === invitation.invitationId}
                   variant="outline"
