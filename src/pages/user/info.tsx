@@ -10,6 +10,7 @@ import {
 } from "@/features/mypage/components/MyPageSidebar";
 import { IncomingInvitationList } from "@/features/group-invitation-management";
 import { MyGroupJoinList } from "@/features/group-join-management";
+import { NotificationList } from "@/features/notification-management";
 import { useState } from "react";
 
 type Props = {
@@ -56,7 +57,17 @@ const UserInfoPage = ({ userId }: Props) => {
           </div>
         );
       case "alarm-management":
-        return <div className="p-6">알림 (준비 중)</div>;
+        return (
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <h2 className="text-2xl font-bold">알림</h2>
+              <p className="text-gray-600">
+                모든 알림을 확인하고 관리할 수 있습니다.
+              </p>
+            </div>
+            <NotificationList />
+          </div>
+        );
       case "study":
         return <div className="p-6">나의 학습 (준비 중)</div>;
       default:
