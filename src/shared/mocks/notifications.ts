@@ -1,0 +1,73 @@
+import type { NotificationResponse } from "@/shared/apis/notification";
+
+// 알림 Mock 데이터
+export const mockNotifications: NotificationResponse[] = [
+  {
+    notificationId: 1,
+    groupId: 101,
+    message: "React 스터디 그룹에 새로운 멤버가 가입했습니다.",
+    metadata: { userId: 123, userName: "김철수" },
+    isRead: false,
+    createdAt: "2025-11-20T09:30:00Z",
+  },
+  {
+    notificationId: 2,
+    groupId: 102,
+    message: "알고리즘 코딩테스트 준비반에서 새로운 카드셋이 공유되었습니다.",
+    metadata: { cardSetId: 456, cardSetName: "BFS/DFS 문제 모음" },
+    isRead: false,
+    createdAt: "2025-11-20T08:15:00Z",
+  },
+  {
+    notificationId: 3,
+    groupId: 103,
+    message: "TypeScript 마스터 그룹의 가입 신청이 승인되었습니다.",
+    metadata: { action: "approved" },
+    isRead: true,
+    readAt: "2025-11-20T07:00:00Z",
+    createdAt: "2025-11-19T18:30:00Z",
+  },
+  {
+    notificationId: 4,
+    groupId: 101,
+    message: "React 스터디 그룹에서 새로운 학습 세션이 시작되었습니다.",
+    metadata: { sessionId: 789 },
+    isRead: true,
+    readAt: "2025-11-19T16:00:00Z",
+    createdAt: "2025-11-19T15:45:00Z",
+  },
+  {
+    notificationId: 5,
+    groupId: 104,
+    message: "데이터베이스 스터디 그룹에 초대되었습니다.",
+    metadata: { inviterId: 234, inviterName: "이영희" },
+    isRead: false,
+    createdAt: "2025-11-19T14:20:00Z",
+  },
+  {
+    notificationId: 6,
+    groupId: 102,
+    message: "알고리즘 코딩테스트 준비반에서 스터디 일정이 변경되었습니다.",
+    metadata: { oldDate: "2025-11-25", newDate: "2025-11-27" },
+    isRead: true,
+    readAt: "2025-11-19T10:00:00Z",
+    createdAt: "2025-11-19T09:30:00Z",
+  },
+  {
+    notificationId: 7,
+    groupId: 105,
+    message: "Node.js 백엔드 스터디 그룹에서 회원님을 멘션했습니다.",
+    metadata: { postId: 567, mentionedBy: "박민수" },
+    isRead: false,
+    createdAt: "2025-11-18T22:10:00Z",
+  },
+  {
+    notificationId: 8,
+    groupId: 103,
+    message: "TypeScript 마스터 그룹에서 새로운 공지사항이 작성되었습니다.",
+    metadata: { noticeId: 890, title: "다음 주 세션 준비사항" },
+    isRead: true,
+    readAt: "2025-11-18T20:00:00Z",
+    createdAt: "2025-11-18T19:45:00Z",
+  },
+];
