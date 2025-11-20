@@ -10,22 +10,37 @@ import {
   useMarkNotificationAsRead,
   useMarkAllNotificationsAsRead,
 } from "@/domain/notification";
-import { Bell, CheckCheck, Calendar, Users } from "lucide-react";
+import { Bell, CheckCheck, Calendar, Users, ChevronLeft, ChevronRight } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ko } from "date-fns/locale";
+import { mockNotifications } from "@/shared/mocks/notifications";
+import { useState } from "react";
+
+const ITEMS_PER_PAGE = 5;
 
 export const NotificationList = () => {
-  const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    isLoading,
-    error,
-  } = useNotifications();
+  // TODO: 실제 API 연동 시 주석 해제
+  // const {
+  //   data,
+  //   isLoading,
+  //   error,
+  // } = useNotifications();
+
+  // Mock 데이터 사용 (개발용)
+  const notifications = mockNotifications;
+  const isLoading = false;
+  const error = null;
+
+  const [currentPage, setCurrentPage] = useState(1);
 
   const markAsRead = useMarkNotificationAsRead();
   const markAllAsRead = useMarkAllNotificationsAsRead();
+
+  // 페이지네이션 계산
+  const totalPages = Math.ceil(notifications.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const currentNotifications = notifications.slice(startIndex, endIndex);
 
   const handleNotificationClick = (notificationId: number, isRead: boolean) => {
     if (!isRead) {
@@ -53,9 +68,7 @@ export const NotificationList = () => {
     );
   }
 
-  const notifications = data?.notifications || [];
-  const unreadCount =
-    notifications.filter((notification) => !notification.isRead).length;
+  const unreadCount = notifications.filter((n) => !n.isRead).length;
 
   if (notifications.length === 0) {
     return (
@@ -89,7 +102,7 @@ export const NotificationList = () => {
 
       {/* 알림 리스트 */}
       <div className="space-y-3">
-        {notifications.map((notification) => (
+        {currentNotifications.map((notification) => (
           <Card
             key={notification.notificationId}
             className={`cursor-pointer transition-colors ${
@@ -149,15 +162,41 @@ export const NotificationList = () => {
         ))}
       </div>
 
-      {/* 더 보기 버튼 */}
-      {hasNextPage && (
-        <div className="flex justify-center pt-4">
+      {/* 페이지네이션 */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2 pt-4">
           <Button
-            onClick={() => fetchNextPage()}
-            disabled={isFetchingNextPage}
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
             variant="outline"
+            size="sm"
+            className="flex items-center gap-1"
           >
-            {isFetchingNextPage ? "로딩 중..." : "더 보기"}
+            <ChevronLeft className="w-4 h-4" />
+            이전
+          </Button>
+          <div className="flex items-center gap-1">
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <Button
+                key={page}
+                onClick={() => setCurrentPage(page)}
+                variant={currentPage === page ? "default" : "outline"}
+                size="sm"
+                className="w-8 h-8 p-0"
+              >
+                {page}
+              </Button>
+            ))}
+          </div>
+          <Button
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-1"
+          >
+            다음
+            <ChevronRight className="w-4 h-4" />
           </Button>
         </div>
       )}
