@@ -99,7 +99,7 @@ const Register = () => {
           </p>
         </div>
       </div>
-      <Card className="mt-4">
+      <Card className="mt-4 py-16 px-8 max-w-md mx-auto">
         <CardContent className="w-full space-y-4">
           <div className="space-y-2">
             <Label
