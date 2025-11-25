@@ -3,7 +3,7 @@ import { Input } from "@/shared/components/input";
 import { Button } from "@/shared/components/button";
 import { Label } from "@/shared/components/label";
 import { authApi, type UserLoginRequest } from "@/shared/apis";
-import { useNavigate, useSearch } from "@tanstack/react-router";
+import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
 import useAuthStore from "@/stores/useAuthStore";
@@ -104,6 +104,11 @@ const Login = () => {
                 Github로 로그인
               </Button>
             </div>
+
+            <span className="text-sm">
+              계정이 없으신가요? <Link to="/auth/register">여기</Link>를 눌러
+              회원가입을 해보세요
+            </span>
           </CardFooter>
         </Card>
       </div>

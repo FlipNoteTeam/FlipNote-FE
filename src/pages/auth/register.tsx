@@ -170,6 +170,10 @@ const Register = () => {
           >
             가입하기
           </Button>
+
+          <span className="text-sm">
+            소셜계정 연동은 회원가입이후 가능합니다.
+          </span>
         </CardFooter>
       </Card>
     </BaseLayout>
