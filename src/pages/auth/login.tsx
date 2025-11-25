@@ -19,7 +19,7 @@ type FieldState = UserLoginRequest;
 const Login = () => {
   const navigate = useNavigate({ from: "/auth/register" });
   const search = useSearch({ from: "/auth/login" });
-  const redirectUrl = search.redirect as string | undefined;
+  const redirectUrl = search.redirect;
 
   const { getValues, register } = useForm<FieldState>({});
   const updateAccessToken = useAuthStore((state) => state.updateAccessToken);
