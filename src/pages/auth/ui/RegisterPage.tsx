@@ -3,6 +3,7 @@ import { Card, CardContent, CardFooter } from "@/shared/components/card";
 import { Input } from "@/shared/components/input";
 import { PhoneInput } from "@/shared/components/phone-input";
 import { PasswordInput } from "@/shared/components/password-input";
+import { ErrorMessage } from "@/shared/components/error-message";
 import { Button } from "@/shared/components/button";
 import { Label } from "@/shared/components/label";
 import { Checkbox } from "@/shared/components/checkbox";
@@ -116,11 +117,7 @@ const RegisterPage = () => {
                 disabled={activateEmailVerificationField}
                 {...register("email")}
               />
-              {errors.email && (
-                <span className="text-sm text-red-500">
-                  {errors.email.message}
-                </span>
-              )}
+              <ErrorMessage>{errors.email?.message}</ErrorMessage>
               <Button
                 onClick={(e) =>
                   handleSendVerificationCode(
@@ -156,11 +153,7 @@ const RegisterPage = () => {
                     {isVerifyingEmail ? "확인 중..." : "제출하기"}
                   </Button>
                 </div>
-                {errors.emailVerifyCode && (
-                  <span className="text-sm text-red-500">
-                    {errors.emailVerifyCode.message}
-                  </span>
-                )}
+                <ErrorMessage>{errors.emailVerifyCode?.message}</ErrorMessage>
               </>
             )}
           </div>
@@ -171,11 +164,7 @@ const RegisterPage = () => {
               placeholder="비밀번호를 입력해주세요"
               {...register("password")}
             />
-            {errors.password && (
-              <span className="text-sm text-red-500">
-                {errors.password.message}
-              </span>
-            )}
+            <ErrorMessage>{errors.password?.message}</ErrorMessage>
           </div>
 
           <div className="space-y-2">
@@ -185,11 +174,7 @@ const RegisterPage = () => {
               placeholder="비밀번호를 한번 더 입력해주세요"
               {...register("passwordDoublecheck")}
             />
-            {errors.passwordDoublecheck && (
-              <span className="text-sm text-red-500">
-                {errors.passwordDoublecheck.message}
-              </span>
-            )}
+            <ErrorMessage>{errors.passwordDoublecheck?.message}</ErrorMessage>
           </div>
           <div className="space-y-2">
             <Label htmlFor="nickname">닉네임</Label>
@@ -198,11 +183,7 @@ const RegisterPage = () => {
               placeholder="닉네임을 입력해주세요"
               {...register("nickname")}
             ></Input>
-            {errors.nickname && (
-              <span className="text-sm text-red-500">
-                {errors.nickname.message}
-              </span>
-            )}
+            <ErrorMessage>{errors.nickname?.message}</ErrorMessage>
           </div>
 
           <div className="space-y-2">

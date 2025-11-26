@@ -1,6 +1,7 @@
 import { Card, CardContent, CardFooter } from "@/shared/components/card";
 import { Input } from "@/shared/components/input";
 import { PasswordInput } from "@/shared/components/password-input";
+import { ErrorMessage } from "@/shared/components/error-message";
 import { Button } from "@/shared/components/button";
 import { Label } from "@/shared/components/label";
 import { Link, useNavigate, useSearch } from "@tanstack/react-router";
@@ -64,11 +65,7 @@ const LoginPage = () => {
                 placeholder="이메일을 입력해주세요"
                 {...register("email")}
               />
-              {errors.email && (
-                <div className="text-sm text-left text-red-500">
-                  {errors.email.message}
-                </div>
-              )}
+              <ErrorMessage>{errors.email?.message}</ErrorMessage>
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">비밀번호</Label>
@@ -77,11 +74,7 @@ const LoginPage = () => {
                 placeholder="비밀번호를 입력해주세요"
                 {...register("password")}
               />
-              {errors.password && (
-                <div className="text-sm text-left text-red-500">
-                  {errors.password.message}
-                </div>
-              )}
+              <ErrorMessage>{errors.password?.message}</ErrorMessage>
             </div>
             {/* <Link to="/reset-password">비밀번호 찾기</Link> */}
           </CardContent>
