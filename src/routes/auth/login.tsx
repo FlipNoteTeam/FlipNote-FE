@@ -1,4 +1,4 @@
-import Login from "@/pages/auth/login";
+import LoginPage from "@/pages/auth/ui/LoginPage";
 import { authGuard } from "@/routes/__utils/authGuard";
 import { createFileRoute } from "@tanstack/react-router";
 
@@ -20,5 +20,5 @@ export const Route = createFileRoute("/auth/login")({
 });
 
 function RouteComponent() {
-  return <Login />;
+  return <LoginPage />;
 }
