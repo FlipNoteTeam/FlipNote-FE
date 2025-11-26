@@ -11,7 +11,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "@tanstack/react-router";
 import BaseLayout from "@/shared/layouts/base-layout";
-import { Sparkles } from "lucide-react";
+import { BadgeInfo, Sparkles } from "lucide-react";
 import { useRegister } from "../model/useRegister";
 import { registerSchema, type RegisterFormData } from "../model/registerSchema";
 import type { UserRegisterRequest } from "@/shared/apis";
@@ -219,9 +219,10 @@ const RegisterPage = () => {
             {isRegisterPending ? "가입 중..." : "가입하기"}
           </Button>
 
-          <span className="text-sm">
-            소셜계정 연동은 회원가입이후 가능합니다.
-          </span>
+          <div className="w-full rounded-sm border border-violet-300 bg-violet-300/20 text-center p-4 text-sm">
+            <BadgeInfo className="absolute -translate-x-2 -translate-y-0.5" />
+            <span>회원가입 이후 소셜계정을 연동할 수 있습니다.</span>
+          </div>
         </CardFooter>
       </Card>
     </BaseLayout>
