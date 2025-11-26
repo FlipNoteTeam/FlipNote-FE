@@ -9,11 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "@tanstack/react-router";
 import BaseLayout from "@/shared/layouts/base-layout";
 import { Sparkles } from "lucide-react";
-import {
-  useRegister,
-  useSendEmailVerificationCode,
-  useVerifyEmail,
-} from "../model/useRegister";
+import { useRegister } from "../model/useRegister";
 import { registerSchema, type RegisterFormData } from "../model/registerSchema";
 import type { UserRegisterRequest } from "@/shared/apis";
 
@@ -35,18 +31,21 @@ const RegisterPage = () => {
   const [activateEmailVerificationField, setActivateEmailVerificationField] =
     useState(false);
 
-  const { register: registerUser, isPending: isRegisterPending } = useRegister(
-    () => {
+  const {
+    register: registerUser,
+    sendCode,
+    verifyEmail,
+    isRegisterPending,
+    isSendingCode,
+    isVerifyingEmail,
+  } = useRegister({
+    onRegisterSuccess: () => {
       navigate({ to: "/auth/login" });
-    }
-  );
-
-  const { sendCode, isPending: isSendingCode } =
-    useSendEmailVerificationCode(() => {
+    },
+    onCodeSent: () => {
       setActivateEmailVerificationField(true);
-    });
-
-  const { verifyEmail, isPending: isVerifyingEmail } = useVerifyEmail();
+    },
+  });
 
   // 인증코드 발송 핸들러
   const handleSendVerificationCode = (
