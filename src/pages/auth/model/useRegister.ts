@@ -1,41 +1,39 @@
 import { useMutation } from "@tanstack/react-query";
 import { authApi } from "@/shared/apis";
 
+interface UseRegisterCallbacks {
+  onRegisterSuccess?: () => void;
+  onCodeSent?: () => void;
+}
+
 /**
  * 회원가입 비즈니스 로직 훅
  */
-export const useRegister = (onSuccess?: () => void) => {
-  const { mutate: register, isPending } = useMutation({
+export const useRegister = (callbacks?: UseRegisterCallbacks) => {
+  const { mutate: register, isPending: isRegisterPending } = useMutation({
     mutationFn: authApi.register,
     onSuccess: () => {
-      onSuccess?.();
+      callbacks?.onRegisterSuccess?.();
     },
   });
 
-  return { register, isPending };
-};
-
-/**
- * 이메일 인증코드 발송 훅
- */
-export const useSendEmailVerificationCode = (onSuccess?: () => void) => {
-  const { mutate: sendCode, isPending } = useMutation({
+  const { mutate: sendCode, isPending: isSendingCode } = useMutation({
     mutationFn: authApi.sendEmailVerificationCode,
     onSuccess: () => {
-      onSuccess?.();
+      callbacks?.onCodeSent?.();
     },
   });
 
-  return { sendCode, isPending };
-};
-
-/**
- * 이메일 인증 훅
- */
-export const useVerifyEmail = () => {
-  const { mutate: verifyEmail, isPending } = useMutation({
+  const { mutate: verifyEmail, isPending: isVerifyingEmail } = useMutation({
     mutationFn: authApi.verifyEmail,
   });
 
-  return { verifyEmail, isPending };
+  return {
+    register,
+    sendCode,
+    verifyEmail,
+    isRegisterPending,
+    isSendingCode,
+    isVerifyingEmail,
+  };
 };
