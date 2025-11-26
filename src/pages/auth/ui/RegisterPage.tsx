@@ -105,60 +105,74 @@ const RegisterPage = () => {
             >
               이메일
             </Label>
-            <Input
-              id="email"
-              type="email"
-              autoComplete="off"
-              disabled={activateEmailVerificationField}
-              {...register("email")}
-            />
-            {errors.email && (
-              <span className="text-sm text-red-500">{errors.email.message}</span>
-            )}
-            <Button
-              onClick={(e) =>
-                handleSendVerificationCode(
-                  e,
-                  getValues("email"),
-                  !getFieldState("email").invalid
-                )
-              }
-              disabled={activateEmailVerificationField || isSendingCode}
-            >
-              {isSendingCode ? "발송 중..." : "인증코드받기"}
-            </Button>
+            <div className="flex gap-2">
+              <Input
+                id="email"
+                type="email"
+                autoComplete="off"
+                disabled={activateEmailVerificationField}
+                {...register("email")}
+              />
+              {errors.email && (
+                <span className="text-sm text-red-500">
+                  {errors.email.message}
+                </span>
+              )}
+              <Button
+                onClick={(e) =>
+                  handleSendVerificationCode(
+                    e,
+                    getValues("email"),
+                    !getFieldState("email").invalid
+                  )
+                }
+                disabled={activateEmailVerificationField || isSendingCode}
+              >
+                {isSendingCode ? "발송 중..." : "인증코드받기"}
+              </Button>
+            </div>
             {activateEmailVerificationField && (
               <>
-                <Input
-                  id="email-verify"
-                  placeholder="인증코드"
-                  {...register("emailVerifyCode")}
-                />
+                <div className="flex gap-2">
+                  <Input
+                    id="email-verify"
+                    placeholder="인증코드"
+                    {...register("emailVerifyCode")}
+                  />
+
+                  <Button
+                    onClick={(e) =>
+                      handleVerifyEmail(
+                        e,
+                        getValues("email"),
+                        getValues("emailVerifyCode")
+                      )
+                    }
+                    disabled={isVerifyingEmail}
+                  >
+                    {isVerifyingEmail ? "확인 중..." : "제출하기"}
+                  </Button>
+                </div>
                 {errors.emailVerifyCode && (
                   <span className="text-sm text-red-500">
                     {errors.emailVerifyCode.message}
                   </span>
                 )}
-                <Button
-                  onClick={(e) =>
-                    handleVerifyEmail(
-                      e,
-                      getValues("email"),
-                      getValues("emailVerifyCode")
-                    )
-                  }
-                  disabled={isVerifyingEmail}
-                >
-                  {isVerifyingEmail ? "확인 중..." : "제출하기"}
-                </Button>
               </>
             )}
           </div>
           <div className="space-y-2">
             <Label htmlFor="password">비밀번호</Label>
-            <Input type="password" id="password" {...register("password")} />
+            <Input
+              type="password"
+              id="password"
+              placeholder="비밀번호를 입력해주세요"
+              {...register("password")}
+            />
             {errors.password && (
-              <span className="text-sm text-red-500">{errors.password.message}</span>
+              <span className="text-sm text-red-500">
+                {errors.password.message}
+              </span>
             )}
           </div>
 
@@ -167,6 +181,7 @@ const RegisterPage = () => {
             <Input
               type="password"
               id="passwordDoublecheck"
+              placeholder="비밀번호를 한번 더 입력해주세요"
               {...register("passwordDoublecheck")}
             />
             {errors.passwordDoublecheck && (
@@ -177,15 +192,26 @@ const RegisterPage = () => {
           </div>
           <div className="space-y-2">
             <Label htmlFor="nickname">닉네임</Label>
-            <Input id="nickname" {...register("nickname")}></Input>
+            <Input
+              id="nickname"
+              placeholder="닉네임을 입력해주세요"
+              {...register("nickname")}
+            ></Input>
             {errors.nickname && (
-              <span className="text-sm text-red-500">{errors.nickname.message}</span>
+              <span className="text-sm text-red-500">
+                {errors.nickname.message}
+              </span>
             )}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="phone">휴대폰번호</Label>
-            <Input type="tel" id="phone" {...register("phone")}></Input>
+            <Input
+              type="tel"
+              id="phone"
+              placeholder="010-xxxx-xxxx"
+              {...register("phone")}
+            ></Input>
           </div>
 
           <div className="flex gap-2">
