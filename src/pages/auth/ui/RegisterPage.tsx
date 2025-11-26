@@ -1,3 +1,4 @@
+import { useState, type MouseEvent } from "react";
 import { Card, CardContent, CardFooter } from "@/shared/components/card";
 import { Input } from "@/shared/components/input";
 import { Button } from "@/shared/components/button";
@@ -5,28 +6,80 @@ import { Label } from "@/shared/components/label";
 import { Checkbox } from "@/shared/components/checkbox";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useNavigate } from "@tanstack/react-router";
 import BaseLayout from "@/shared/layouts/base-layout";
 import { Sparkles } from "lucide-react";
-import { useRegister } from "../model/useRegister";
+import {
+  useRegister,
+  useSendEmailVerificationCode,
+  useVerifyEmail,
+} from "../model/useRegister";
 import { registerSchema, type RegisterFormData } from "../model/registerSchema";
+import type { UserRegisterRequest } from "@/shared/apis";
 
 const RegisterPage = () => {
-  const { register, handleSubmit, getValues, getFieldState, formState: { errors } } = useForm<RegisterFormData>({
+  const {
+    register,
+    handleSubmit,
+    getValues,
+    getFieldState,
+    formState: { errors },
+  } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
       smsAgree: true,
     },
   });
 
-  const {
-    activateEmailVerificationField,
-    handleSendVerificationCode,
-    handleVerifyEmail,
-    handleRegister,
-    isSendingCode,
-    isVerifyingEmail,
-    isRegisterPending,
-  } = useRegister();
+  const navigate = useNavigate();
+  const [activateEmailVerificationField, setActivateEmailVerificationField] =
+    useState(false);
+
+  const { register: registerUser, isPending: isRegisterPending } = useRegister(
+    () => {
+      navigate({ to: "/auth/login" });
+    }
+  );
+
+  const { sendCode, isPending: isSendingCode } =
+    useSendEmailVerificationCode(() => {
+      setActivateEmailVerificationField(true);
+    });
+
+  const { verifyEmail, isPending: isVerifyingEmail } = useVerifyEmail();
+
+  // 인증코드 발송 핸들러
+  const handleSendVerificationCode = (
+    e: MouseEvent,
+    email: string,
+    isEmailValid: boolean
+  ) => {
+    e.preventDefault();
+    if (email && isEmailValid) {
+      sendCode({ email });
+    }
+  };
+
+  // 이메일 인증 핸들러
+  const handleVerifyEmail = (e: MouseEvent, email: string, code: string) => {
+    e.preventDefault();
+    if (email && code) {
+      verifyEmail({ email, code });
+    }
+  };
+
+  // 회원가입 제출 핸들러
+  const handleRegister = (data: RegisterFormData) => {
+    const payload: UserRegisterRequest = {
+      email: data.email,
+      name: data.nickname,
+      nickname: data.nickname,
+      password: data.password,
+      smsAgree: data.smsAgree ?? true,
+      normalizedPhone: data.phone,
+    };
+    registerUser(payload);
+  };
 
   return (
     <BaseLayout>
@@ -64,11 +117,13 @@ const RegisterPage = () => {
               <span className="text-sm text-red-500">{errors.email.message}</span>
             )}
             <Button
-              onClick={(e) => handleSendVerificationCode(
-                e,
-                getValues("email"),
-                !getFieldState("email").invalid
-              )}
+              onClick={(e) =>
+                handleSendVerificationCode(
+                  e,
+                  getValues("email"),
+                  !getFieldState("email").invalid
+                )
+              }
               disabled={activateEmailVerificationField || isSendingCode}
             >
               {isSendingCode ? "발송 중..." : "인증코드받기"}
@@ -81,14 +136,18 @@ const RegisterPage = () => {
                   {...register("emailVerifyCode")}
                 />
                 {errors.emailVerifyCode && (
-                  <span className="text-sm text-red-500">{errors.emailVerifyCode.message}</span>
+                  <span className="text-sm text-red-500">
+                    {errors.emailVerifyCode.message}
+                  </span>
                 )}
                 <Button
-                  onClick={(e) => handleVerifyEmail(
-                    e,
-                    getValues("email"),
-                    getValues("emailVerifyCode")
-                  )}
+                  onClick={(e) =>
+                    handleVerifyEmail(
+                      e,
+                      getValues("email"),
+                      getValues("emailVerifyCode")
+                    )
+                  }
                   disabled={isVerifyingEmail}
                 >
                   {isVerifyingEmail ? "확인 중..." : "제출하기"}
@@ -112,7 +171,9 @@ const RegisterPage = () => {
               {...register("passwordDoublecheck")}
             />
             {errors.passwordDoublecheck && (
-              <span className="text-sm text-red-500">{errors.passwordDoublecheck.message}</span>
+              <span className="text-sm text-red-500">
+                {errors.passwordDoublecheck.message}
+              </span>
             )}
           </div>
           <div className="space-y-2">

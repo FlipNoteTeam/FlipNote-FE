@@ -2,19 +2,41 @@ import { Card, CardContent, CardFooter } from "@/shared/components/card";
 import { Input } from "@/shared/components/input";
 import { Button } from "@/shared/components/button";
 import { Label } from "@/shared/components/label";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import BaseLayout from "@/shared/layouts/base-layout";
 import { Sparkles } from "lucide-react";
-import { useLogin } from "../model/useLogin";
-import { loginSchema, type LoginFormData } from "../model/loginSchema";
+import { useLogin } from "@/pages/auth/model/useLogin";
+import {
+  loginSchema,
+  type LoginFormData,
+} from "@/pages/auth/model/loginSchema";
 
 const LoginPage = () => {
-  const { register, handleSubmit, formState: { errors } } = useForm<LoginFormData>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   });
-  const { handleLogin, isPending } = useLogin();
+
+  const navigate = useNavigate({ from: "/auth/login" });
+  const search = useSearch({ from: "/auth/login" });
+
+  const { login, isPending } = useLogin(() => {
+    // redirect 파라미터가 있으면 해당 페이지로, 없으면 홈으로
+    if (search.redirect) {
+      window.location.href = search.redirect;
+    } else {
+      navigate({ to: "/" });
+    }
+  });
+
+  const handleLogin = (data: LoginFormData) => {
+    login({ email: data.email, password: data.password });
+  };
 
   return (
     <BaseLayout>
@@ -38,14 +60,18 @@ const LoginPage = () => {
               <Label htmlFor="email">이메일</Label>
               <Input id="email" {...register("email")} />
               {errors.email && (
-                <span className="text-sm text-red-500">{errors.email.message}</span>
+                <span className="text-sm text-red-500">
+                  {errors.email.message}
+                </span>
               )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">비밀번호</Label>
               <Input type="password" id="password" {...register("password")} />
               {errors.password && (
-                <span className="text-sm text-red-500">{errors.password.message}</span>
+                <span className="text-sm text-red-500">
+                  {errors.password.message}
+                </span>
               )}
             </div>
             {/* <Link to="/reset-password">비밀번호 찾기</Link> */}
