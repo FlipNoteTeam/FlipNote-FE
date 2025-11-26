@@ -1,10 +1,11 @@
 import { useState, type MouseEvent } from "react";
 import { Card, CardContent, CardFooter } from "@/shared/components/card";
 import { Input } from "@/shared/components/input";
+import { PhoneInput } from "@/shared/components/phone-input";
 import { Button } from "@/shared/components/button";
 import { Label } from "@/shared/components/label";
 import { Checkbox } from "@/shared/components/checkbox";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "@tanstack/react-router";
 import BaseLayout from "@/shared/layouts/base-layout";
@@ -19,6 +20,7 @@ const RegisterPage = () => {
     handleSubmit,
     getValues,
     getFieldState,
+    control,
     formState: { errors },
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
@@ -206,12 +208,18 @@ const RegisterPage = () => {
 
           <div className="space-y-2">
             <Label htmlFor="phone">휴대폰번호</Label>
-            <Input
-              type="tel"
-              id="phone"
-              placeholder="010-xxxx-xxxx"
-              {...register("phone")}
-            ></Input>
+            <Controller
+              name="phone"
+              control={control}
+              render={({ field }) => (
+                <PhoneInput
+                  id="phone"
+                  placeholder="010-xxxx-xxxx"
+                  value={field.value}
+                  onChange={field.onChange}
+                />
+              )}
+            />
           </div>
 
           <div className="flex gap-2">
