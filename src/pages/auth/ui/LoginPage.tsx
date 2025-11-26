@@ -2,47 +2,19 @@ import { Card, CardContent, CardFooter } from "@/shared/components/card";
 import { Input } from "@/shared/components/input";
 import { Button } from "@/shared/components/button";
 import { Label } from "@/shared/components/label";
-import { authApi, type UserLoginRequest } from "@/shared/apis";
-import { Link, useNavigate, useSearch } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
-import { useMutation } from "@tanstack/react-query";
-import useAuthStore from "@/stores/useAuthStore";
+import { zodResolver } from "@hookform/resolvers/zod";
 import BaseLayout from "@/shared/layouts/base-layout";
 import { Sparkles } from "lucide-react";
+import { useLogin } from "../model/useLogin";
+import { loginSchema, type LoginFormData } from "../model/loginSchema";
 
-type FieldState = UserLoginRequest;
-
-const Login = () => {
-  const navigate = useNavigate({ from: "/auth/register" });
-  const search = useSearch({ from: "/auth/login" });
-  const redirectUrl = search.redirect;
-
-  const { getValues, register } = useForm<FieldState>({});
-  const updateAccessToken = useAuthStore((state) => state.updateAccessToken);
-  const { mutate: login } = useMutation({
-    mutationFn: authApi.login,
-    onSuccess: async (res) => {
-      await updateAccessToken(res.data.data.accessToken);
-      // redirect 파라미터가 있으면 해당 페이지로, 없으면 홈으로
-      if (redirectUrl) {
-        window.location.href = redirectUrl;
-      } else {
-        navigate({ to: "/" });
-      }
-    },
+const LoginPage = () => {
+  const { register, handleSubmit, formState: { errors } } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
   });
-
-  const convertToRequestBody = (fieldStates: FieldState): UserLoginRequest => {
-    return {
-      email: fieldStates.email,
-      password: fieldStates.password,
-    };
-  };
-
-  const handleSubmit = () => {
-    const body = convertToRequestBody(getValues());
-    login(body);
-  };
+  const { handleLogin, isPending } = useLogin();
 
   return (
     <BaseLayout>
@@ -65,10 +37,16 @@ const Login = () => {
             <div className="space-y-2">
               <Label htmlFor="email">이메일</Label>
               <Input id="email" {...register("email")} />
+              {errors.email && (
+                <span className="text-sm text-red-500">{errors.email.message}</span>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">비밀번호</Label>
               <Input type="password" id="password" {...register("password")} />
+              {errors.password && (
+                <span className="text-sm text-red-500">{errors.password.message}</span>
+              )}
             </div>
             {/* <Link to="/reset-password">비밀번호 찾기</Link> */}
           </CardContent>
@@ -77,9 +55,10 @@ const Login = () => {
               type="submit"
               variant="default"
               className="w-full"
-              onClick={handleSubmit}
+              onClick={handleSubmit(handleLogin)}
+              disabled={isPending}
             >
-              로그인
+              {isPending ? "로그인 중..." : "로그인"}
             </Button>
 
             <div className="relative w-full">
@@ -116,4 +95,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default LoginPage;
