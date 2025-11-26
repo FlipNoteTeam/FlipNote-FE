@@ -2,6 +2,7 @@ import { useState, type MouseEvent } from "react";
 import { Card, CardContent, CardFooter } from "@/shared/components/card";
 import { Input } from "@/shared/components/input";
 import { PhoneInput } from "@/shared/components/phone-input";
+import { PasswordInput } from "@/shared/components/password-input";
 import { Button } from "@/shared/components/button";
 import { Label } from "@/shared/components/label";
 import { Checkbox } from "@/shared/components/checkbox";
@@ -165,8 +166,7 @@ const RegisterPage = () => {
           </div>
           <div className="space-y-2">
             <Label htmlFor="password">비밀번호</Label>
-            <Input
-              type="password"
+            <PasswordInput
               id="password"
               placeholder="비밀번호를 입력해주세요"
               {...register("password")}
@@ -180,8 +180,7 @@ const RegisterPage = () => {
 
           <div className="space-y-2">
             <Label htmlFor="passwordDoublecheck">비밀번호 확인</Label>
-            <Input
-              type="password"
+            <PasswordInput
               id="passwordDoublecheck"
               placeholder="비밀번호를 한번 더 입력해주세요"
               {...register("passwordDoublecheck")}
