@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import Register from "@/pages/auth/register";
+import RegisterPage from "@/pages/auth/ui/RegisterPage";
 import { authGuard } from "@/routes/__utils/authGuard";
 
 export const Route = createFileRoute("/auth/register")({
@@ -10,5 +10,5 @@ export const Route = createFileRoute("/auth/register")({
 });
 
 function RouteComponent() {
-  return <Register />;
+  return <RegisterPage />;
 }
