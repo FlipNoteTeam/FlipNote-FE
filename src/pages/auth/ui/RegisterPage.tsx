@@ -4,84 +4,29 @@ import { Button } from "@/shared/components/button";
 import { Label } from "@/shared/components/label";
 import { Checkbox } from "@/shared/components/checkbox";
 import { useForm } from "react-hook-form";
-import { useMutation } from "@tanstack/react-query";
-import { authApi, type UserRegisterRequest } from "@/shared/apis";
-import { useState, type MouseEvent } from "react";
-import { useNavigate } from "@tanstack/react-router";
+import { zodResolver } from "@hookform/resolvers/zod";
 import BaseLayout from "@/shared/layouts/base-layout";
 import { Sparkles } from "lucide-react";
-// import { Link } from "@tanstack/react-router";
+import { useRegister } from "../model/useRegister";
+import { registerSchema, type RegisterFormData } from "../model/registerSchema";
 
-// type Props = {};
-
-type FieldState = UserRegisterRequest & {
-  emailVerifyCode: string;
-  passwordDoublecheck: string;
-};
-const Register = () => {
-  const navigate = useNavigate();
-  const { getFieldState, getValues, register } = useForm<FieldState>({
+const RegisterPage = () => {
+  const { register, handleSubmit, getValues, getFieldState, formState: { errors } } = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
     defaultValues: {
       smsAgree: true,
     },
   });
-  const [activateEmailVerificationField, setActivateEmailVerificationField] =
-    useState(false);
 
-  const { mutate: registerApi } = useMutation({
-    mutationFn: authApi.register,
-    onSuccess: () => {
-      navigate({ to: "/auth/login" });
-    },
-  });
-
-  const { mutate: sendEmailVerificationCode } = useMutation({
-    mutationFn: authApi.sendEmailVerificationCode,
-  });
-
-  const handleClickGetVerifyEmailCode = (e: MouseEvent) => {
-    e.preventDefault();
-
-    setActivateEmailVerificationField(true);
-    const email = getValues("email");
-    const emailField = getFieldState("email");
-    if (email && !emailField.invalid) sendEmailVerificationCode({ email });
-  };
-
-  const { mutate: verifyEmail } = useMutation({
-    mutationFn: authApi.verifyEmail,
-  });
-
-  const handleClickVerifyEmail = (e: MouseEvent) => {
-    e.preventDefault();
-
-    const email = getValues("email");
-    const emailVerifyCode = getValues("emailVerifyCode");
-
-    if (email && emailVerifyCode)
-      verifyEmail({
-        email,
-        code: emailVerifyCode,
-      });
-  };
-
-  const convertFieldStateToPayload = (
-    fieldState: FieldState
-  ): UserRegisterRequest => {
-    return {
-      email: fieldState.email,
-      name: fieldState.name || fieldState.nickname,
-      nickname: fieldState.nickname,
-      password: fieldState.password,
-      smsAgree: true,
-      normalizedPhone: fieldState.phone,
-    };
-  };
-
-  const handleSubmit = () => {
-    const registerBody = convertFieldStateToPayload(getValues());
-    registerApi(registerBody);
-  };
+  const {
+    activateEmailVerificationField,
+    handleSendVerificationCode,
+    handleVerifyEmail,
+    handleRegister,
+    isSendingCode,
+    isVerifyingEmail,
+    isRegisterPending,
+  } = useRegister();
 
   return (
     <BaseLayout>
@@ -115,11 +60,18 @@ const Register = () => {
               disabled={activateEmailVerificationField}
               {...register("email")}
             />
+            {errors.email && (
+              <span className="text-sm text-red-500">{errors.email.message}</span>
+            )}
             <Button
-              onClick={handleClickGetVerifyEmailCode}
-              disabled={activateEmailVerificationField}
+              onClick={(e) => handleSendVerificationCode(
+                e,
+                getValues("email"),
+                !getFieldState("email").invalid
+              )}
+              disabled={activateEmailVerificationField || isSendingCode}
             >
-              인증코드받기
+              {isSendingCode ? "발송 중..." : "인증코드받기"}
             </Button>
             {activateEmailVerificationField && (
               <>
@@ -128,14 +80,29 @@ const Register = () => {
                   placeholder="인증코드"
                   {...register("emailVerifyCode")}
                 />
-                <Button onClick={handleClickVerifyEmail}>제출하기</Button>
+                {errors.emailVerifyCode && (
+                  <span className="text-sm text-red-500">{errors.emailVerifyCode.message}</span>
+                )}
+                <Button
+                  onClick={(e) => handleVerifyEmail(
+                    e,
+                    getValues("email"),
+                    getValues("emailVerifyCode")
+                  )}
+                  disabled={isVerifyingEmail}
+                >
+                  {isVerifyingEmail ? "확인 중..." : "제출하기"}
+                </Button>
               </>
             )}
           </div>
           <div className="space-y-2">
             <Label htmlFor="password">비밀번호</Label>
+            <Input type="password" id="password" {...register("password")} />
+            {errors.password && (
+              <span className="text-sm text-red-500">{errors.password.message}</span>
+            )}
           </div>
-          <Input type="password" id="password" {...register("password")} />
 
           <div className="space-y-2">
             <Label htmlFor="passwordDoublecheck">비밀번호 확인</Label>
@@ -144,10 +111,16 @@ const Register = () => {
               id="passwordDoublecheck"
               {...register("passwordDoublecheck")}
             />
+            {errors.passwordDoublecheck && (
+              <span className="text-sm text-red-500">{errors.passwordDoublecheck.message}</span>
+            )}
           </div>
           <div className="space-y-2">
             <Label htmlFor="nickname">닉네임</Label>
             <Input id="nickname" {...register("nickname")}></Input>
+            {errors.nickname && (
+              <span className="text-sm text-red-500">{errors.nickname.message}</span>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -166,9 +139,10 @@ const Register = () => {
             type="submit"
             variant="default"
             className="w-full"
-            onClick={handleSubmit}
+            onClick={handleSubmit(handleRegister)}
+            disabled={isRegisterPending}
           >
-            가입하기
+            {isRegisterPending ? "가입 중..." : "가입하기"}
           </Button>
 
           <span className="text-sm">
@@ -180,4 +154,4 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default RegisterPage;
