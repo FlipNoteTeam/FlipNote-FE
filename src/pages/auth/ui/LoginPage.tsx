@@ -1,5 +1,6 @@
 import { Card, CardContent, CardFooter } from "@/shared/components/card";
 import { Input } from "@/shared/components/input";
+import { PasswordInput } from "@/shared/components/password-input";
 import { Button } from "@/shared/components/button";
 import { Label } from "@/shared/components/label";
 import { Link, useNavigate, useSearch } from "@tanstack/react-router";
@@ -71,8 +72,7 @@ const LoginPage = () => {
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">비밀번호</Label>
-              <Input
-                type="password"
+              <PasswordInput
                 id="password"
                 placeholder="비밀번호를 입력해주세요"
                 {...register("password")}
