@@ -58,20 +58,29 @@ const LoginPage = () => {
           <CardContent className="w-full space-y-4 ">
             <div className="space-y-2">
               <Label htmlFor="email">이메일</Label>
-              <Input id="email" {...register("email")} />
+              <Input
+                id="email"
+                placeholder="이메일을 입력해주세요"
+                {...register("email")}
+              />
               {errors.email && (
-                <span className="text-sm text-red-500">
+                <div className="text-sm text-left text-red-500">
                   {errors.email.message}
-                </span>
+                </div>
               )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">비밀번호</Label>
-              <Input type="password" id="password" {...register("password")} />
+              <Input
+                type="password"
+                id="password"
+                placeholder="비밀번호를 입력해주세요"
+                {...register("password")}
+              />
               {errors.password && (
-                <span className="text-sm text-red-500">
+                <div className="text-sm text-left text-red-500">
                   {errors.password.message}
-                </span>
+                </div>
               )}
             </div>
             {/* <Link to="/reset-password">비밀번호 찾기</Link> */}
@@ -110,10 +119,18 @@ const LoginPage = () => {
               </Button>
             </div>
 
-            <span className="text-sm">
-              계정이 없으신가요? <Link to="/auth/register">여기</Link>를 눌러
-              회원가입을 해보세요
-            </span>
+            <ul className="w-full text-sm text-left">
+              <li>
+                <Link to="/auth/register" className="text-blue-600">
+                  계정이 없으신가요?
+                </Link>
+              </li>
+              <li>
+                <Link to="/reset-password" className="text-blue-600">
+                  비밀번호를 잊어버리셨나요?
+                </Link>
+              </li>
+            </ul>
           </CardFooter>
         </Card>
       </div>
