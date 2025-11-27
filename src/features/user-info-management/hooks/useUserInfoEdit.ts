@@ -2,9 +2,11 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { userApi, type UserUpdateRequest, type MyInfoResponse } from "@/shared/apis/user";
+import { uploadImage } from "@/shared/lib/upload-image";
 
 export const useUserInfoEdit = () => {
   const [isEditing, setIsEditing] = useState(false);
+  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
   const queryClient = useQueryClient();
 
   const {
@@ -40,12 +42,37 @@ export const useUserInfoEdit = () => {
     setIsEditing(true);
   };
 
-  const onSubmit = (data: UserUpdateRequest) => {
-    updateMutation.mutate(data);
+  const onSubmit = async (data: UserUpdateRequest) => {
+    try {
+      let imageRefId: number | undefined;
+
+      // 이미지 파일이 선택되었으면 S3에 업로드
+      if (selectedImageFile) {
+        imageRefId = await uploadImage({
+          file: selectedImageFile,
+          type: "USER",
+        });
+      }
+
+      // 이미지 업로드 후 받은 imageRefId와 함께 사용자 정보 업데이트
+      updateMutation.mutate({
+        ...data,
+        imageRefId,
+      });
+    } catch (error) {
+      console.error("이미지 업로드 실패:", error);
+      // 이미지 업로드 실패해도 사용자 정보는 업데이트
+      updateMutation.mutate(data);
+    }
   };
 
   const handleCancel = () => {
     setIsEditing(false);
+    setSelectedImageFile(null);
+  };
+
+  const handleImageChange = (file: File | null) => {
+    setSelectedImageFile(file);
   };
 
   return {
@@ -57,5 +84,6 @@ export const useUserInfoEdit = () => {
     isPending: updateMutation.isPending,
     handleEditStart,
     handleCancel,
+    handleImageChange,
   };
 };

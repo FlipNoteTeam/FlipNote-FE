@@ -27,6 +27,7 @@ export interface UserUpdateRequest {
   smsAgree: boolean;
   profileImageUrl?: string;
   normalizedPhone?: string;
+  imageRefId?: number;
 }
 
 export interface UserUpdateResponse {
