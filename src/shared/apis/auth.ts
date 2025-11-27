@@ -1,4 +1,4 @@
-import apiClient from "@/shared/apis/fetch";
+import apiClient, { oauthClient } from "@/shared/apis/fetch";
 import type { ApiResponse } from "@/shared/apis/types";
 
 // Auth API 전용 타입들
@@ -72,7 +72,8 @@ export const authApi = {
   logout: () => apiClient.post("/auth/logout"),
 
   // 토큰 갱신
-  refreshToken: () => apiClient.post<ApiResponse<UserLoginResponse>>("/auth/token/refresh"),
+  refreshToken: () =>
+    apiClient.post<ApiResponse<UserLoginResponse>>("/auth/token/refresh"),
 
   // 내 비밀번호 변경
   updatePassword: (data: ChangePasswordRequest) =>
@@ -97,6 +98,14 @@ export const authApi = {
   // 내 소셜 연동 계정 목록 조회
   getSocialLinks: () =>
     apiClient.get<ApiResponse<SocialLinksResponse>>("/auth/social-links"),
+
+  // 소셜 연동 URL 생성 (프론트엔드에서 직접 리디렉트)
+  getSocialLinkUrl: (provider: "google" | "kakao") => {
+    const baseUrl = import.meta.env.DEV
+      ? "https://api.flipnote.site/v1"
+      : import.meta.env.VITE_BASE_URL;
+    return oauthClient.get(`${baseUrl}/oauth2/authorization/${provider}`);
+  },
 
   // 소셜 연동 해제
   deleteSocialLink: (socialLinkId: number) =>

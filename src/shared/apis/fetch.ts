@@ -1,5 +1,5 @@
 import useAuthStore from "@/stores/useAuthStore";
-import axios from "axios";
+import axios, { type InternalAxiosRequestConfig } from "axios";
 
 const apiClient = axios.create({
   baseURL: import.meta.env.DEV ? "/api" : import.meta.env.VITE_BASE_URL,
@@ -10,19 +10,39 @@ const apiClient = axios.create({
   },
 });
 
-// Request interceptor
-apiClient.interceptors.request.use(
-  (config) => {
-    // 쿠키에서 토큰을 가져와서 헤더에 추가
-    const { accessToken } = useAuthStore.getState();
-    if (accessToken) {
-      config.headers.Authorization = `Bearer ${accessToken}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
+// OAuth 전용 클라이언트 (프록시를 거치지 않음)
+export const oauthClient = axios.create({
+  baseURL: import.meta.env.DEV
+    ? "https://api.flipnote.site/v1"
+    : import.meta.env.VITE_BASE_URL,
+  timeout: 10000,
+  withCredentials: true,
+});
+
+// Request interceptor (공통)
+const requestInterceptor = (config: InternalAxiosRequestConfig) => {
+  // 쿠키에서 토큰을 가져와서 헤더에 추가
+  const { accessToken } = useAuthStore.getState();
+  if (accessToken) {
+    config.headers.Authorization = `Bearer ${accessToken}`;
   }
+  return config;
+};
+
+const requestErrorInterceptor = (error: unknown) => {
+  return Promise.reject(error);
+};
+
+// apiClient에 interceptor 적용
+apiClient.interceptors.request.use(
+  requestInterceptor,
+  requestErrorInterceptor
+);
+
+// oauthClient에도 동일한 interceptor 적용
+oauthClient.interceptors.request.use(
+  requestInterceptor,
+  requestErrorInterceptor
 );
 
 // Response interceptor
