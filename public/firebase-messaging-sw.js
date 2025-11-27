@@ -8,15 +8,15 @@ importScripts(
   "https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-compat.js"
 );
 
-// Firebase 설정 (환경 변수는 빌드 시점에 주입됩니다)
-// 실제 Firebase 설정값은 .env 파일에서 관리됩니다
+// Firebase 설정
 const firebaseConfig = {
-  apiKey: "VITE_FIREBASE_API_KEY",
-  authDomain: "VITE_FIREBASE_AUTH_DOMAIN",
-  projectId: "VITE_FIREBASE_PROJECT_ID",
-  storageBucket: "VITE_FIREBASE_STORAGE_BUCKET",
-  messagingSenderId: "VITE_FIREBASE_MESSAGING_SENDER_ID",
-  appId: "VITE_FIREBASE_APP_ID",
+  apiKey: "AIzaSyA7H3FVJKXn1MumREbeWd8Y5KUQdPwxklg",
+  authDomain: "flipnote-a3d94.firebaseapp.com",
+  projectId: "flipnote-a3d94",
+  storageBucket: "flipnote-a3d94.firebasestorage.app",
+  messagingSenderId: "275222366818",
+  appId: "1:275222366818:web:f9263bddd3c03e937a5f3b",
+  measurementId: "G-X91Y7RC3CN",
 };
 
 // Firebase 초기화
