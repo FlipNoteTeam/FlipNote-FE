@@ -117,7 +117,6 @@ const RegisterPage = () => {
                 disabled={activateEmailVerificationField}
                 {...register("email")}
               />
-              <ErrorMessage>{errors.email?.message}</ErrorMessage>
               <Button
                 onClick={(e) =>
                   handleSendVerificationCode(
@@ -131,6 +130,7 @@ const RegisterPage = () => {
                 {isSendingCode ? "발송 중..." : "인증코드받기"}
               </Button>
             </div>
+            <ErrorMessage>{errors.email?.message}</ErrorMessage>
             {activateEmailVerificationField && (
               <>
                 <div className="flex gap-2">
@@ -203,7 +203,7 @@ const RegisterPage = () => {
           </div>
 
           <div className="flex gap-2">
-            <Checkbox id="accept" />
+            <Checkbox id="accept" {...register("smsAgree")} />
             <Label htmlFor="accept">SMS 수신여부 동의</Label>
           </div>
           {/* <Link to="/reset-password">비밀번호 찾기</Link> */}

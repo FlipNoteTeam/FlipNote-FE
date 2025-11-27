@@ -29,11 +29,7 @@ const LoginPage = () => {
 
   const { login, isPending } = useLogin(() => {
     // redirect 파라미터가 있으면 해당 페이지로, 없으면 홈으로
-    if (search.redirect) {
-      window.location.href = search.redirect;
-    } else {
-      navigate({ to: "/" });
-    }
+    navigate({ to: search.redirect ?? "/" });
   });
 
   const handleLogin = (data: LoginFormData) => {
