@@ -14,6 +14,7 @@ import {
   loginSchema,
   type LoginFormData,
 } from "@/pages/auth/model/loginSchema";
+import TextSeperator from "@/shared/components/text-separator";
 
 const LoginPage = () => {
   const {
@@ -85,16 +86,7 @@ const LoginPage = () => {
               {isPending ? "로그인 중..." : "로그인"}
             </Button>
 
-            <div className="relative w-full">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300" />
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-background text-muted-foreground">
-                  또는
-                </span>
-              </div>
-            </div>
+            <TextSeperator>또는</TextSeperator>
 
             <div className="w-full space-y-2">
               <Button variant="outline" className="w-full">

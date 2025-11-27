@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader } from "@/shared/components/card";
 import { Button } from "@/shared/components/button";
 import { Label } from "@/shared/components/label";
 import type { MyInfoResponse } from "@/shared/apis/user";
+import SocialAccountSection from "@/features/social-link/components/social-account-section";
 
 type Props = {
   userInfo: MyInfoResponse;
@@ -45,7 +46,9 @@ const UserProfileView = ({ userInfo, onEditClick }: Props) => {
             </div>
             <div>
               <Label>SMS 수신 동의</Label>
-              <p className="text-lg mt-1">{userInfo.smsAgree ? "동의" : "미동의"}</p>
+              <p className="text-lg mt-1">
+                {userInfo.smsAgree ? "동의" : "미동의"}
+              </p>
             </div>
             <div>
               <Label>가입일</Label>
@@ -54,6 +57,8 @@ const UserProfileView = ({ userInfo, onEditClick }: Props) => {
               </p>
             </div>
           </div>
+
+          <SocialAccountSection />
         </CardContent>
       </Card>
     </div>
