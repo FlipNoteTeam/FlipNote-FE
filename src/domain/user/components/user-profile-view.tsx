@@ -11,48 +11,44 @@ type Props = {
 
 const UserProfileView = ({ userInfo, onEditClick }: Props) => {
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto ">
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="flex flex-row items-center justify-between px-4 py-0 mt-4">
           <h2 className="text-2xl font-bold">내 정보</h2>
-          <Button onClick={onEditClick}>수정</Button>
+          <Button variant="link" className="p-2" onClick={onEditClick}>
+            수정
+          </Button>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {userInfo.profileImageUrl && (
-              <div className="flex justify-center">
+            <div className="grid grid-cols-[auto_1fr] items-center gap-x-4 gap-y-4">
+              <Label className="text-gray-500">프로필 이미지</Label>
+              {userInfo.profileImageUrl ? (
                 <img
                   src={userInfo.profileImageUrl}
                   alt="프로필"
                   className="w-32 h-32 rounded-full object-cover"
                 />
-              </div>
-            )}
-            <div>
-              <Label>이메일</Label>
-              <p className="text-lg mt-1">{userInfo.email}</p>
-            </div>
-            <div>
-              <Label>이름</Label>
-              <p className="text-lg mt-1">{userInfo.name}</p>
-            </div>
-            <div>
-              <Label>닉네임</Label>
-              <p className="text-lg mt-1">{userInfo.nickname}</p>
-            </div>
-            <div>
-              <Label>전화번호</Label>
-              <p className="text-lg mt-1">{userInfo.phone || "미등록"}</p>
-            </div>
-            <div>
-              <Label>SMS 수신 동의</Label>
-              <p className="text-lg mt-1">
-                {userInfo.smsAgree ? "동의" : "미동의"}
-              </p>
-            </div>
-            <div>
-              <Label>가입일</Label>
-              <p className="text-lg mt-1">
+              ) : (
+                <span className="text-sm text-gray-400">
+                  등록된 이미지가 없습니다.
+                </span>
+              )}
+
+              <Label className="text-gray-500">이메일</Label>
+              <p className="text-sm">{userInfo.email}</p>
+
+              <Label className="text-gray-500">이름</Label>
+              <p className="text-sm">{userInfo.name}</p>
+
+              <Label className="text-gray-500">닉네임</Label>
+              <p className="text-sm">{userInfo.nickname}</p>
+
+              <Label className="text-gray-500">전화번호</Label>
+              <p className="text-sm">{userInfo.phone || "미등록"}</p>
+
+              <Label className="text-gray-500">가입일</Label>
+              <p className="text-sm">
                 {new Date(userInfo.createdAt).toLocaleDateString()}
               </p>
             </div>
