@@ -25,6 +25,7 @@ const MyUserProfilePage = () => {
     handleEditStart,
     handleSubmit,
     handleCancel,
+    handleImageChange,
   } = useUserInfoEdit();
 
   if (isLoading) {
@@ -54,12 +55,14 @@ const MyUserProfilePage = () => {
   if (isEditing) {
     return (
       <UserProfileEditForm
+        userInfo={myInfo}
         register={register}
         control={control}
         errors={errors}
         onSubmit={handleSubmit}
         onCancel={handleCancel}
         isPending={isPending}
+        onImageChange={handleImageChange}
       />
     );
   }
