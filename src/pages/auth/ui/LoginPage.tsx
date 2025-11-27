@@ -92,12 +92,6 @@ const LoginPage = () => {
               <Button variant="outline" className="w-full">
                 Google로 로그인
               </Button>
-              <Button variant="outline" className="w-full">
-                Kakao로 로그인
-              </Button>
-              <Button variant="outline" className="w-full">
-                Github로 로그인
-              </Button>
             </div>
 
             <ul className="w-full text-sm text-left">
