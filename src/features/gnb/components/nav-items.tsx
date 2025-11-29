@@ -3,6 +3,10 @@ import { Link } from "@tanstack/react-router";
 import { useMemo } from "react";
 import type { FileRouteTypes } from "@/routeTree.gen";
 
+import groupLogo from "@/assets/group.png";
+import cardLogo from "@/assets/card.png";
+import mypageLogo from "@/assets/mypage.png";
+
 type NavItem = {
   name: string;
   to: FileRouteTypes["to"];
@@ -20,11 +24,17 @@ const NavItems = () => {
     () => [
       {
         name: "그룹 목록",
+        beforeIcon: <img src={groupLogo} width={30} />,
         to: "/group-list",
       },
-      { name: "카드셋 목록", to: "/cardset-list" },
+      {
+        name: "카드셋 목록",
+        beforeIcon: <img src={cardLogo} width={30} />,
+        to: "/cardset-list",
+      },
       {
         name: "마이페이지",
+        beforeIcon: <img src={mypageLogo} width={30} />,
         to: "/user/$userId",
         params: { userId: `${user?.userId}` },
         hidden: !user,
@@ -41,8 +51,9 @@ const NavItems = () => {
             <Link
               to={item.to}
               params={item?.params}
-              className="font-semibold text-md rounded-xl px-4 py-2 hover:bg-accent"
+              className="flex items-center gap-1 font-semibold text-md rounded-xl px-4 py-2 hover:bg-accent"
             >
+              {item.beforeIcon}
               {item.name}
             </Link>
           </li>

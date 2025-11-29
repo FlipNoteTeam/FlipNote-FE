@@ -36,11 +36,11 @@ const AuthenticatedNav = () => {
       <li>
         <DropdownMenu>
           <DropdownMenuTrigger className="font-semibold text-md">
-            <img
+            {/* <img
               src={user.profileImageUrl}
               className="w-4 h-4 object-fill rounded-full hover:bg-gray-100"
-            />
-            {/* {user.name} */}
+            /> */}
+            {user.name}님
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <DropdownMenuGroup>
