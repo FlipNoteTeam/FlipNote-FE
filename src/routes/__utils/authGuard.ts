@@ -6,7 +6,8 @@ interface Props {
   mode?: "protected" | "non-protected" | "bypass";
 }
 export const authGuard = ({ auth, mode }: Props) => {
-  const isAuthenticated = auth && Boolean(auth.accessToken);
+  const isAuthenticated = auth && auth.isInitialized && Boolean(auth.user);
+
   switch (mode) {
     case "bypass":
       return;
