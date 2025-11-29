@@ -46,7 +46,7 @@ apiClient.interceptors.response.use(
         return result;
       } catch {
         // 토큰 갱신 실패 시 로그아웃 처리
-        await useAuthStore.getState().clearUser();
+        useAuthStore.getState().clearUser();
       }
     }
 
