@@ -18,18 +18,12 @@ const AuthenticatedNav = () => {
 
   if (!user) return null;
   return (
-    <ul className="flex items-center space-x-4">
-      <li className="text-md">
-        <Link to="/">대시보드</Link>
-      </li>
-      <li className="text-md">
-        <Link to="/">내 스터디</Link>
-      </li>
+    <ul className="flex items-center space-x-2">
       <li>
         <AlarmSheet>
           {({ unreadCount }) => (
             <Button variant="ghost" size="sm" className="relative">
-              <Bell className="h-4 w-4" />
+              <Bell className="h-4 w-4" strokeWidth={3} />
               {unreadCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                   {unreadCount > 99 ? "99+" : unreadCount}
@@ -41,7 +35,13 @@ const AuthenticatedNav = () => {
       </li>
       <li>
         <DropdownMenu>
-          <DropdownMenuTrigger>{user.name}</DropdownMenuTrigger>
+          <DropdownMenuTrigger className="font-semibold text-md">
+            <img
+              src={user.profileImageUrl}
+              className="w-4 h-4 object-fill rounded-full hover:bg-gray-100"
+            />
+            {/* {user.name} */}
+          </DropdownMenuTrigger>
           <DropdownMenuContent>
             <DropdownMenuGroup>
               <DropdownMenuItem asChild>
