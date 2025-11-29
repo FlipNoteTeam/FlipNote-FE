@@ -9,7 +9,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import BaseLayout from "@/shared/layouts/base-layout";
 import { Sparkles } from "lucide-react";
-import useAuthStore from "@/stores/useAuthStore";
+import { useLogin } from "@/features/auth/hooks/useLogin";
 import {
   loginSchema,
   type LoginFormData,
@@ -28,13 +28,17 @@ const LoginPage = () => {
   const navigate = useNavigate({ from: "/auth/login" });
   const search = useSearch({ from: "/auth/login" });
 
-  const login = useAuthStore((state) => state.login);
-  const isLoggingIn = useAuthStore((state) => state.isLoggingIn);
+  const { mutate: login, isPending, error } = useLogin();
 
-  const handleLogin = async (data: LoginFormData) => {
-    await login({ email: data.email, password: data.password });
-    // redirect 파라미터가 있으면 해당 페이지로, 없으면 홈으로
-    navigate({ to: search.redirect ?? "/" });
+  const handleLogin = (data: LoginFormData) => {
+    login(
+      { email: data.email, password: data.password },
+      {
+        onSuccess: () => {
+          navigate({ to: search.redirect ?? "/" });
+        },
+      }
+    );
   };
 
   return (
@@ -73,6 +77,13 @@ const LoginPage = () => {
               />
               <ErrorMessage>{errors.password?.message}</ErrorMessage>
             </div>
+            {error && (
+              <ErrorMessage className="text-center">
+                {error instanceof Error
+                  ? error.message
+                  : "로그인을 실패했습니다. 다시 시도해주세요"}
+              </ErrorMessage>
+            )}
             {/* <Link to="/reset-password">비밀번호 찾기</Link> */}
           </CardContent>
           <CardFooter className="flex-col space-y-6 mt-4 ">
@@ -81,9 +92,9 @@ const LoginPage = () => {
               variant="default"
               className="w-full"
               onClick={handleSubmit(handleLogin)}
-              disabled={isLoggingIn}
+              disabled={isPending}
             >
-              {isLoggingIn ? "로그인 중..." : "로그인"}
+              {isPending ? "로그인 중..." : "로그인"}
             </Button>
 
             <TextSeperator>또는</TextSeperator>

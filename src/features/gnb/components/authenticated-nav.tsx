@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { Bell } from "lucide-react";
 import AlarmSheet from "@/features/gnb/components/alarm-sheet";
 import useAuthStore from "@/stores/useAuthStore";
+import { useLogout } from "@/features/auth/hooks/useLogout";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,7 +13,8 @@ import {
 } from "@/shared/components/dropdown-menu";
 
 const AuthenticatedNav = () => {
-  const { user, unauthenticate } = useAuthStore();
+  const user = useAuthStore((state) => state.user);
+  const { mutate: logout } = useLogout();
 
   if (!user) return null;
   return (
@@ -50,7 +52,7 @@ const AuthenticatedNav = () => {
                   내 정보
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={unauthenticate}>
+              <DropdownMenuItem onClick={() => logout()}>
                 로그아웃
               </DropdownMenuItem>
             </DropdownMenuGroup>
