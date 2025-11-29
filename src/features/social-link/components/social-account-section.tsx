@@ -2,16 +2,13 @@ import { Button } from "@/shared/components/button";
 import TextSeperator from "@/shared/components/text-separator";
 import { GoogleLogo } from "@/shared/components/logos";
 import { useSocialLinks } from "@/features/social-link/hooks/useSocialLinks";
-import {
-  useSocialAccountLink,
-  useSocialAccountUnlink,
-} from "@/features/social-link/hooks/useSocialAccount";
+import { useSocialAccountUnlink } from "@/features/social-link/hooks/useSocialAccount";
 import { Check, X } from "lucide-react";
 
 type SocialProvider = {
   name: string;
   displayName: string;
-  logo: JSX.Element;
+  logo: React.ReactNode;
   color: string;
 };
 
@@ -38,7 +35,7 @@ const socialProviders: SocialProvider[] = [
 
 const SocialAccountSection = () => {
   const { data: socialLinksData, isLoading } = useSocialLinks();
-  const { mutate: linkAccount } = useSocialAccountLink();
+  // const { mutate: linkAccount } = useSocialAccountLink();
   const { mutate: unlinkAccount, isPending: isUnlinking } =
     useSocialAccountUnlink();
 
@@ -56,7 +53,7 @@ const SocialAccountSection = () => {
       }
     } else {
       // 연동
-      linkAccount(provider.name);
+      // linkAccount(provider.name);
     }
   };
 
@@ -83,10 +80,20 @@ const SocialAccountSection = () => {
       <div className="flex gap-2 justify-center flex-wrap">
         {socialProviders.map((provider) => {
           const isLinked = isProviderLinked(provider.name);
+
+          if (!isLinked)
+            return (
+              <a
+                className="flex items-center gap-2 min-w-[120px]"
+                href={`${import.meta.env.VITE_BASE_URL}/oauth2/authorization/google`}
+              >
+                구글 연동하기
+              </a>
+            );
           return (
             <Button
               key={provider.name}
-              variant={isLinked ? "default" : "outline"}
+              variant={"default"}
               className="flex items-center gap-2 min-w-[120px]"
               style={
                 isLinked

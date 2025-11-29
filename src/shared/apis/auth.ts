@@ -1,4 +1,4 @@
-import apiClient, { oauthClient } from "@/shared/apis/fetch";
+import apiClient from "@/shared/apis/fetch";
 import type { ApiResponse } from "@/shared/apis/types";
 
 // Auth API 전용 타입들
@@ -7,9 +7,7 @@ export interface UserLoginRequest {
   password: string;
 }
 
-export interface UserLoginResponse {
-  accessToken: string;
-}
+export type UserLoginResponse = {};
 
 export interface UserRegisterRequest {
   email: string;
@@ -99,13 +97,8 @@ export const authApi = {
   getSocialLinks: () =>
     apiClient.get<ApiResponse<SocialLinksResponse>>("/auth/social-links"),
 
-  // 소셜 연동 URL 생성 (프론트엔드에서 직접 리디렉트)
-  getSocialLinkUrl: (provider: "google" | "kakao") => {
-    const baseUrl = import.meta.env.DEV
-      ? "https://api.flipnote.site/v1"
-      : import.meta.env.VITE_BASE_URL;
-    return oauthClient.get(`${baseUrl}/oauth2/authorization/${provider}`);
-  },
+  // 소셜 인증 URL로 리다이렉트
+  redirectToSocialLink: () => "",
 
   // 소셜 연동 해제
   deleteSocialLink: (socialLinkId: number) =>

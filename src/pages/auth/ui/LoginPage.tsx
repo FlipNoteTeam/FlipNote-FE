@@ -9,7 +9,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import BaseLayout from "@/shared/layouts/base-layout";
 import { Sparkles } from "lucide-react";
-import { useLogin } from "@/pages/auth/model/useLogin";
+import useAuthStore from "@/stores/useAuthStore";
 import {
   loginSchema,
   type LoginFormData,
@@ -28,13 +28,13 @@ const LoginPage = () => {
   const navigate = useNavigate({ from: "/auth/login" });
   const search = useSearch({ from: "/auth/login" });
 
-  const { login, isPending } = useLogin(() => {
+  const login = useAuthStore((state) => state.login);
+  const isLoggingIn = useAuthStore((state) => state.isLoggingIn);
+
+  const handleLogin = async (data: LoginFormData) => {
+    await login({ email: data.email, password: data.password });
     // redirect 파라미터가 있으면 해당 페이지로, 없으면 홈으로
     navigate({ to: search.redirect ?? "/" });
-  });
-
-  const handleLogin = (data: LoginFormData) => {
-    login({ email: data.email, password: data.password });
   };
 
   return (
@@ -81,9 +81,9 @@ const LoginPage = () => {
               variant="default"
               className="w-full"
               onClick={handleSubmit(handleLogin)}
-              disabled={isPending}
+              disabled={isLoggingIn}
             >
-              {isPending ? "로그인 중..." : "로그인"}
+              {isLoggingIn ? "로그인 중..." : "로그인"}
             </Button>
 
             <TextSeperator>또는</TextSeperator>
