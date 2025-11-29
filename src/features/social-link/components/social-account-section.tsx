@@ -83,12 +83,14 @@ const SocialAccountSection = () => {
 
           if (!isLinked)
             return (
-              <a
-                className="flex items-center gap-2 min-w-[120px]"
-                href={`${import.meta.env.VITE_BASE_URL}/oauth2/authorization/google`}
-              >
-                구글 연동하기
-              </a>
+              <Button asChild>
+                <a
+                  className="flex items-center gap-2 min-w-[120px]"
+                  href={`${new URL(import.meta.env.VITE_BASE_URL).origin}/oauth2/authorization/google`}
+                >
+                  구글 연동하기
+                </a>
+              </Button>
             );
           return (
             <Button
