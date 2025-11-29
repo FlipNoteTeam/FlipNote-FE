@@ -14,7 +14,11 @@ const GNB = () => {
           <div className="flex items-center">
             <h1 className="text-xl font-semibold">
               <Link to="/">
-                <img src="/flipnote_logo_long.png" className="h-10" />
+                <img
+                  src="/flipnote_logo_long.png"
+                  className="h-10"
+                  alt="플립노트 로고"
+                />
               </Link>
             </h1>
           </div>

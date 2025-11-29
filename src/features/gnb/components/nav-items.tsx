@@ -24,17 +24,17 @@ const NavItems = () => {
     () => [
       {
         name: "그룹 목록",
-        beforeIcon: <img src={groupLogo} width={30} />,
+        beforeIcon: <img src={groupLogo} width={30} alt="그룹 목록 아이콘" />,
         to: "/group-list",
       },
       {
         name: "카드셋 목록",
-        beforeIcon: <img src={cardLogo} width={30} />,
+        beforeIcon: <img src={cardLogo} width={30} alt="카드셋 목록 아이콘" />,
         to: "/cardset-list",
       },
       {
         name: "마이페이지",
-        beforeIcon: <img src={mypageLogo} width={30} />,
+        beforeIcon: <img src={mypageLogo} width={30} alt="마이페이지 아이콘" />,
         to: "/user/$userId",
         params: { userId: `${user?.userId}` },
         hidden: !user,
