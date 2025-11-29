@@ -7,9 +7,7 @@ const BaseLayout = ({ children }: Props) => {
   return (
     <>
       <GNB />
-      <div className="min-h-dvh bg-gradient-to-br from-indigo-50 to-white p-16">
-        <main className="max-w-7xl m-auto">{children}</main>
-      </div>
+      <main className="max-w-7xl min-h-dvh p-16 m-auto">{children}</main>
     </>
   );
 };
