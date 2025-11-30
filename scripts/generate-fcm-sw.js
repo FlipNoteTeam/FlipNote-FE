@@ -1,12 +1,12 @@
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // 환경변수 로드
-const mode = process.env.NODE_ENV || 'development';
+const mode = process.env.NODE_ENV || "development";
 const envFile = path.resolve(__dirname, `../.env.${mode}`);
 
 console.log(`\n🔧 Generating Service Worker for ${mode} mode...`);
@@ -14,13 +14,13 @@ console.log(`\n🔧 Generating Service Worker for ${mode} mode...`);
 // .env 파일 파싱
 const envConfig = {};
 if (fs.existsSync(envFile)) {
-  const envContent = fs.readFileSync(envFile, 'utf-8');
-  envContent.split('\n').forEach((line) => {
+  const envContent = fs.readFileSync(envFile, "utf-8");
+  envContent.split("\n").forEach((line) => {
     const trimmed = line.trim();
-    if (trimmed && !trimmed.startsWith('#')) {
-      const [key, ...values] = trimmed.split('=');
+    if (trimmed && !trimmed.startsWith("#")) {
+      const [key, ...values] = trimmed.split("=");
       if (key) {
-        envConfig[key.trim()] = values.join('=').trim();
+        envConfig[key.trim()] = values.join("=").trim();
       }
     }
   });
@@ -30,13 +30,13 @@ if (fs.existsSync(envFile)) {
 
 // Firebase 설정 추출
 const firebaseConfig = {
-  apiKey: envConfig.VITE_FIREBASE_API_KEY || '',
-  authDomain: envConfig.VITE_FIREBASE_AUTH_DOMAIN || '',
-  projectId: envConfig.VITE_FIREBASE_PROJECT_ID || '',
-  storageBucket: envConfig.VITE_FIREBASE_STORAGE_BUCKET || '',
-  messagingSenderId: envConfig.VITE_FIREBASE_MESSAGING_SENDER_ID || '',
-  appId: envConfig.VITE_FIREBASE_APP_ID || '',
-  measurementId: envConfig.VITE_FIREBASE_MEASUREMENT_ID || '',
+  apiKey: envConfig.VITE_FIREBASE_API_KEY || "",
+  authDomain: envConfig.VITE_FIREBASE_AUTH_DOMAIN || "",
+  projectId: envConfig.VITE_FIREBASE_PROJECT_ID || "",
+  storageBucket: envConfig.VITE_FIREBASE_STORAGE_BUCKET || "",
+  messagingSenderId: envConfig.VITE_FIREBASE_MESSAGING_SENDER_ID || "",
+  appId: envConfig.VITE_FIREBASE_APP_ID || "",
+  measurementId: envConfig.VITE_FIREBASE_MEASUREMENT_ID || "",
 };
 
 // Service Worker 템플릿
@@ -104,8 +104,11 @@ self.addEventListener("notificationclick", (event) => {
 `;
 
 // public 디렉토리에 Service Worker 파일 생성
-const outputPath = path.resolve(__dirname, '../public/firebase-messaging-sw.js');
-fs.writeFileSync(outputPath, swTemplate, 'utf-8');
+const outputPath = path.resolve(
+  __dirname,
+  "../public/firebase-messaging-sw.js"
+);
+fs.writeFileSync(outputPath, swTemplate, "utf-8");
 
 console.log(`✅ Service Worker generated successfully at: ${outputPath}`);
 console.log(`📦 Firebase Config:`, {
