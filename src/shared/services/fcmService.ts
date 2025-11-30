@@ -3,6 +3,7 @@ import {
   getFCMToken,
   deleteFCMToken,
   requestNotificationPermission,
+  setupForegroundMessageListener,
 } from "@/shared/libs/firebase";
 
 const FCM_TOKEN_STORAGE_KEY = "fcm_token";
@@ -100,4 +101,17 @@ export const unregisterFCMToken = async (): Promise<boolean> => {
     console.error("FCM 토큰 삭제 중 오류 발생:", error);
     return false;
   }
+};
+
+/**
+ * 포그라운드 메시지 리스너 초기화
+ * 앱이 활성 상태일 때 메시지를 수신하기 위한 리스너 설정
+ */
+export const initializeForegroundMessageListener = (): (() => void) | null => {
+  return setupForegroundMessageListener((payload) => {
+    console.log("📩 새 메시지 수신:", payload);
+
+    // 여기에 커스텀 메시지 처리 로직 추가 가능
+    // 예: 토스트 알림, 상태 업데이트 등
+  });
 };
