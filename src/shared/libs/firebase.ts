@@ -1,5 +1,11 @@
 import { initializeApp } from "firebase/app";
-import { getMessaging, getToken, deleteToken } from "firebase/messaging";
+import {
+  getMessaging,
+  getToken,
+  deleteToken,
+  onMessage,
+  type MessagePayload,
+} from "firebase/messaging";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -91,4 +97,40 @@ export const requestNotificationPermission = async (): Promise<boolean> => {
     console.error("알림 권한 요청 중 오류:", error);
     return false;
   }
+};
+
+/**
+ * 포그라운드 메시지 수신 리스너 설정
+ */
+export const setupForegroundMessageListener = (
+  onMessageReceived?: (payload: MessagePayload) => void
+): (() => void) | null => {
+  if (!messaging) {
+    console.warn("Firebase Messaging이 초기화되지 않았습니다.");
+    return null;
+  }
+
+  // 포그라운드 메시지 수신 리스너 등록
+  const unsubscribe = onMessage(messaging, (payload) => {
+    // 커스텀 핸들러가 있으면 실행
+    if (onMessageReceived) {
+      onMessageReceived(payload);
+    } else {
+      // 기본 동작: 브라우저 알림 표시
+      const notificationTitle = payload.notification?.title || "새 알림";
+      const notificationOptions: NotificationOptions = {
+        body: payload.notification?.body || "새로운 알림이 도착했습니다.",
+        icon: payload.notification?.icon || "/icon-192x192.png",
+        badge: "/badge-72x72.png",
+        data: payload.data || {},
+      };
+
+      if (Notification.permission === "granted") {
+        new Notification(notificationTitle, notificationOptions);
+      }
+    }
+  });
+
+  // unsubscribe 함수 반환
+  return unsubscribe;
 };
