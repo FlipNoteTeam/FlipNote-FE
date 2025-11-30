@@ -1,6 +1,5 @@
-// Firebase Cloud Messaging Service Worker
-// Auto-generated file - DO NOT EDIT MANUALLY
-// Generated at: 2025-11-30T08:26:38.114Z
+// Firebase Cloud Messaging Service Worker Template
+// This file is a template and will be processed during build
 
 // Firebase 라이브러리 import
 importScripts(
@@ -10,16 +9,8 @@ importScripts(
   "https://www.gstatic.com/firebasejs/12.6.0/firebase-messaging-compat.js"
 );
 
-// Firebase 설정
-const firebaseConfig = {
-  "apiKey": "AIzaSyA7H3FVJKXn1MumREbeWd8Y5KUQdPwxklg",
-  "authDomain": "flipnote-a3d94.firebaseapp.com",
-  "projectId": "flipnote-a3d94",
-  "storageBucket": "flipnote-a3d94.firebasestorage.app",
-  "messagingSenderId": "275222366818",
-  "appId": "1:275222366818:web:f9263bddd3c03e937a5f3b",
-  "measurementId": "G-X91Y7RC3CN"
-};
+// Firebase 설정 (빌드 시 환경변수에서 주입됨)
+const firebaseConfig = __FIREBASE_CONFIG__;
 
 // Firebase 초기화
 firebase.initializeApp(firebaseConfig);
