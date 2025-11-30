@@ -36,11 +36,13 @@ const useAuthStore = create<AuthState & AuthAction>()(
         const user = userResponse.data?.data || null;
         get().setUser(user);
 
-        // FCM 토큰 등록
-        const { registerFCMToken } = await import(
-          "@/shared/services/fcmService"
-        );
+        // FCM 토큰 등록 및 포그라운드 메시지 리스너 설정
+        const {
+          registerFCMToken,
+          initializeForegroundMessageListener,
+        } = await import("@/shared/services/fcmService");
         await registerFCMToken();
+        initializeForegroundMessageListener();
       } catch (error) {
         console.error("사용자 정보 조회 실패:", error);
         get().clearUser();
