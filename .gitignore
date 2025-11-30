@@ -15,6 +15,9 @@ dist-ssr
 !.env.example
 !.env.*.example
 
+# Auto-generated files
+public/firebase-messaging-sw.js
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

@@ -4,8 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
+    "dev": "npm run generate:sw && vite",
+    "build": "npm run generate:sw && tsc -b && vite build",
+    "generate:sw": "node scripts/generate-fcm-sw.js",
     "lint": "eslint .",
     "preview": "vite preview"
   },
