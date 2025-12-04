@@ -3,14 +3,14 @@ import { YjsProvider } from "./yjs-provider";
 import type { CardData } from "./card-types";
 
 interface UseYjsOptions {
-  documentId: string;
+  cardsetId: string;
   userId: string;
   token?: string;
   autoConnect?: boolean;
 }
 
 export function useYjs(options: UseYjsOptions) {
-  const { documentId, userId, token, autoConnect = false } = options;
+  const { cardsetId, userId, token, autoConnect = false } = options;
   const [isConnected, setIsConnected] = useState(false);
   const [hasAccess, setHasAccess] = useState(false);
   const [connectionError, setConnectionError] = useState<string | null>(null);
@@ -19,13 +19,14 @@ export function useYjs(options: UseYjsOptions) {
   const providerRef = useRef<YjsProvider | null>(null);
 
   const connect = useCallback(
+
     async (authToken?: string) => {
       try {
-        const provider = new YjsProvider(documentId, userId);
+        const provider = new YjsProvider(cardsetId, userId);
         providerRef.current = provider;
 
-        const success = await provider.connect(authToken || token || "");
 
+        const success = await provider.connect(authToken || token || "");
         if (success) {
           setIsConnected(true);
           setHasAccess(provider.getHasAccess());
@@ -43,6 +44,7 @@ export function useYjs(options: UseYjsOptions) {
         }
         return false;
       } catch (error) {
+
         setConnectionError(
           error instanceof Error ? error.message : "Connection failed"
         );
@@ -51,7 +53,7 @@ export function useYjs(options: UseYjsOptions) {
         return false;
       }
     },
-    [documentId, userId, token]
+    [cardsetId, userId, token]
   );
 
   const disconnect = useCallback(() => {
@@ -115,6 +117,8 @@ export function useYjs(options: UseYjsOptions) {
 
   useEffect(() => {
     if (autoConnect) {
+      console.log("이건 실행되잖여")
+
       connect();
     }
 
@@ -122,6 +126,7 @@ export function useYjs(options: UseYjsOptions) {
       disconnect();
     };
   }, [autoConnect, connect, disconnect]);
+
 
   return {
     isConnected,
