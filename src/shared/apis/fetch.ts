@@ -2,8 +2,8 @@ import useAuthStore from "@/stores/useAuthStore";
 import axios from "axios";
 
 const apiClient = axios.create({
-  // baseURL: import.meta.env.DEV ? "/api" : import.meta.env.VITE_BASE_URL,
-  baseURL: import.meta.env.VITE_BASE_URL,
+  baseURL: import.meta.env.DEV ? "/api" : import.meta.env.VITE_BASE_URL,
+  // baseURL: import.meta.env.VITE_BASE_URL,
   timeout: 10000,
   withCredentials: true,
   headers: {
@@ -20,7 +20,12 @@ apiClient.interceptors.response.use(
     const originalRequest = error.config;
 
     // refresh를 시도하지 않아야 하는 URL 목록
-    const skipRefreshUrls = ["/auth/login", "/auth/register", "/auth/logout"];
+    const skipRefreshUrls = [
+      "/auth/login",
+      "/auth/register",
+      "/auth/logout",
+      "/auth/refresh",
+    ];
     const shouldSkipRefresh = skipRefreshUrls.some((url) =>
       originalRequest.url?.includes(url)
     );
