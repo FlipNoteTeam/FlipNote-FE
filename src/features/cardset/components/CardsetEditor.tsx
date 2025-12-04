@@ -52,7 +52,6 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
     autoConnect: true,
   });
 
-
   // 연결된 경우 Yjs 카드 사용, 아니면 로컬 카드 사용
   const cards = hasAccess && yjsCards.length > 0 ? yjsCards : localCards;
   const currentCard = cards[currentCardIndex];
@@ -203,17 +202,13 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
 
   // 협업 연결 시도
   const handleCollaborationConnect = async () => {
-    console.log("버튼 눌렀따")
     try {
-      console.log(0)
       const success = await connect();
 
       if (success) {
-        console.log(1)
         console.log("협업 모드 연결 성공");
       }
     } catch (error) {
-      console.log(2)
       console.error("협업 모드 연결 실패:", error);
     }
   };
