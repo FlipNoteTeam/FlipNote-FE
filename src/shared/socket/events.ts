@@ -3,25 +3,18 @@ export interface ServerToClientEvents {
   connect: () => void;
   disconnect: () => void;
 
-  // 인증 및 권한
-  "access-control": (data: {
-    hasAccess: boolean;
-    currentEditor?: string;
-    message: string;
-  }) => void;
-
   // 카드셋 상태
   "cardset-state": (data: { cardsetId: string; cards: any[] }) => void;
 
   // Yjs 동기화
   sync: (data: {
-    documentId?: string;
+    cardsetId?: string;
     syncStep?: number;
-    update: Uint8Array;
+    update: Uint8Array<ArrayBuffer>;
   }) => void;
 
   // Awareness (커서 위치 등)
-  awareness: (data: { documentId: string; awareness: Uint8Array }) => void;
+  awareness: (data: { cardsetId: string; awareness:  Uint8Array<ArrayBuffer> }) => void;
 
   // 토큰 만료
   expired: (data?: { message?: string }) => void;
@@ -32,17 +25,17 @@ export interface ServerToClientEvents {
 
 export interface ClientToServerEvents {
   // 인증
-  auth: (data: { token: string; userId: string; documentId: string }) => void;
+  auth: (data: { token: string; userId: string; cardsetId: string }) => void;
 
   // 카드셋 룸 관리
   "join-cardset": (data: { cardsetId: string }) => void;
   "leave-cardset": (data: { cardsetId: string }) => void;
 
   // Yjs 업데이트 전송
-  update: (data: { documentId: string; update: Uint8Array }) => void;
+  update: (data: { cardsetId: string; update: Uint8Array<ArrayBuffer> }) => void;
 
   // Awareness (커서 위치 등) 전송
-  awareness: (data: { documentId: string; awareness: Uint8Array }) => void;
+  awareness: (data: { cardsetId: string; awareness: Uint8Array<ArrayBuffer> }) => void;
 }
 
 export const SocketEvents = {

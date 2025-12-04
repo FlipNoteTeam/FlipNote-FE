@@ -21,7 +21,7 @@ export class YjsProvider {
   private awareness: Awareness;
   private socket: Socket | null = null;
   private isConnected = false;
-  private documentId: string;
+  private cardsetId: string;
   private userId: string;
   private hasAccess = false;
 
@@ -31,8 +31,8 @@ export class YjsProvider {
   // 카드 변경 콜백
   private onCardsChangeCallback?: (cards: CardData[]) => void;
 
-  constructor(documentId: string, userId: string) {
-    this.documentId = documentId;
+  constructor(cardsetId: string, userId: string) {
+    this.cardsetId = cardsetId;
     this.userId = userId;
 
     this.doc = new Y.Doc();
@@ -44,47 +44,50 @@ export class YjsProvider {
     this.setupDocumentListeners();
     this.setupAwarenessListeners();
   }
-
   connect(token: string): Promise<boolean> {
     return new Promise((resolve, reject) => {
       try {
         this.socket = socketManager.connect(token);
-        this.setupSocketListeners();
 
-        // 인증 메시지 전송
-        this.sendMessage({
-          type: "auth",
-          data: {
-            token,
-            userId: this.userId,
-            documentId: this.documentId,
-          },
-        } as AuthMessage);
+        this.socket.once("connect", () => {
+          console.log("[socket] connected");
 
-        // 접근 권한 응답 대기
-        this.socket.once("access-control", (message: AccessControlMessage) => {
-          this.hasAccess = message.data.hasAccess;
-          if (this.hasAccess) {
-            this.isConnected = true;
+          // 소켓 이벤트 리스너 등록 — 반드시 connect 이후에
+          this.setupSocketListeners();
 
-            // 룸에 조인
-            this.sendMessage({
-              type: "join-cardset",
-              data: {
-                cardsetId: this.documentId,
-              },
-            } as JoinCardsetMessage);
+          // auth 전송
+          this.sendMessage({
+            type: "auth",
+            data: {
+              token,
+              userId: this.userId,
+              cardsetId: this.cardsetId,
+            },
+          });
 
-            resolve(true);
-          } else {
-            reject(new Error(message.data.message));
-          }
+          // 🔥 반드시 추가해야 하는 코드
+          this.sendMessage({
+            type: "join-cardset",
+            data: {
+              cardsetId: this.cardsetId,
+            },
+          });
+
+
+          this.isConnected = true;
+          this.hasAccess = true; // access-control 제거했으면 필요
+
+          resolve(true);
         });
+
+        this.socket.once("connect_error", reject);
+
       } catch (error) {
         reject(error);
       }
     });
   }
+
 
   disconnect(): void {
     if (this.socket) {
@@ -92,7 +95,7 @@ export class YjsProvider {
       this.sendMessage({
         type: "leave-cardset",
         data: {
-          cardsetId: this.documentId,
+          cardsetId: this.cardsetId,
         },
       } as LeaveCardsetMessage);
 
@@ -109,16 +112,14 @@ export class YjsProvider {
     this.doc.on("update", (update: Uint8Array, origin: any) => {
       console.log("[YJS] Doc update", {
         origin,
-        originIsThis: origin === this,
-        hasAccess: this.hasAccess,
-        isConnected: this.isConnected,
+
       });
 
       if (origin !== this && this.hasAccess && this.isConnected) {
         console.log("[YJS] Sending update to server");
         this.sendMessage({
           type: "update",
-          data: { documentId: this.documentId, update },
+          data: { cardsetId: this.cardsetId, update },
         } as UpdateMessage);
       }
     });
@@ -144,7 +145,7 @@ export class YjsProvider {
         this.sendMessage({
           type: "awareness",
           data: {
-            documentId: this.documentId,
+            cardsetId: this.cardsetId,
             awareness: awarenessUpdate,
           },
         } as AwarenessMessage);
@@ -177,16 +178,32 @@ export class YjsProvider {
     this.socket.on("sync", (message: SyncMessage) => {
       if (!this.hasAccess) return;
 
-      console.log("[YJS❤️] Received sync from server", message);
-      const { update } = message.data;
-      Y.applyUpdate(this.doc, update, this);
+      // console.log("[YJS❤️] Received sync from server", message);
+
+      // const { update } = message;
+      //console.log("[YJS❤]SYNC update raw =", update, Array.isArray(update), update.length);
+
+      const jsonString = new TextDecoder().decode(message);
+      const message2 = JSON.parse(jsonString);
+
+      const { cardsetId, update } = message2;
+
+      // update is number[]
+      const updateBinary = new Uint8Array(update);
+
+      console.log("[SYNC BLOB DECODED]", message2);
+      console.log("[SYNC BINARY]", updateBinary);
+
+      Y.applyUpdate(this.doc, updateBinary, this);
+
+     // Y.applyUpdate(this.doc, update, this);
     });
 
     // Awareness 메시지 처리
     this.socket.on("awareness", (message: AwarenessMessage) => {
       if (!this.hasAccess) return;
 
-      const { awareness } = message.data;
+      const { awareness } = message;
       awarenessProtocol.applyAwarenessUpdate(
         this.awareness,
         awareness,
@@ -200,13 +217,7 @@ export class YjsProvider {
       this.disconnect();
     });
 
-    // 접근 권한 변경 처리
-    this.socket.on("access-control", (message: AccessControlMessage) => {
-      this.hasAccess = message.data.hasAccess;
-      if (!this.hasAccess) {
-        this.disconnect();
-      }
-    });
+
   }
 
   private sendMessage({ type, data }: YjsMessage): void {
