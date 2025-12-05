@@ -1,10 +1,12 @@
 import AuthenticatedNav from "@/features/gnb/components/authenticated-nav";
 import NavItems from "@/features/gnb/components/nav-items";
 import UnauthenticatedNav from "@/features/gnb/components/unauthenticated-nav";
+import { Skeleton } from "@/shared/components/skeleton";
 import useAuthStore from "@/stores/useAuthStore";
 import { Link } from "@tanstack/react-router";
 
 const GNB = () => {
+  const isInitializing = useAuthStore((state) => state.isInitializing);
   const user = useAuthStore((state) => state.user);
 
   return (
@@ -24,7 +26,16 @@ const GNB = () => {
           </div>
           <NavItems />
           <ul className="flex items-center space-x-4 text-pri">
-            {user ? <AuthenticatedNav /> : <UnauthenticatedNav />}
+            {isInitializing ? (
+              <li className="flex gap-2">
+                <Skeleton className="w-8 h-8 rounded-full" />
+                <Skeleton className="w-20 h-8 rounded-full" />
+              </li>
+            ) : user ? (
+              <AuthenticatedNav />
+            ) : (
+              <UnauthenticatedNav />
+            )}
           </ul>
         </div>
       </nav>
