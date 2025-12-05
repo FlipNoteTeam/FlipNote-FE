@@ -8,6 +8,10 @@ interface Props {
 export const authGuard = ({ auth, mode }: Props) => {
   const isAuthenticated = auth && auth.isInitialized && Boolean(auth.user);
 
+  if (auth?.isInitializing) {
+    return null;
+  }
+
   switch (mode) {
     case "bypass":
       return;
