@@ -1,11 +1,10 @@
 import { Card, CardContent } from "@/shared/components/card";
 import { Button } from "@/shared/components/button";
-import {
-  useMyBookmarkedCardSets,
-  useMyLikedCardSets,
-} from "@/domain/study";
 import { Bookmark, Heart, BookOpen } from "lucide-react";
-import { mockBookmarkedCardSets, mockLikedCardSets } from "@/shared/mocks/cardsets";
+import {
+  mockBookmarkedCardSets,
+  mockLikedCardSets,
+} from "@/shared/mocks/cardsets";
 
 export const MyStudyPage = () => {
   // TODO: 실제 API 연동 시 주석 해제
@@ -37,7 +36,9 @@ export const MyStudyPage = () => {
   const hasNextBookmarks = false;
   const hasNextLikes = false;
 
-  const renderCardSetGrid = (cardSets: typeof bookmarkedCardSets | typeof likedCardSets) => {
+  const renderCardSetGrid = (
+    cardSets: typeof bookmarkedCardSets | typeof likedCardSets
+  ) => {
     if (cardSets.length === 0) {
       return (
         <Card>
@@ -100,7 +101,9 @@ export const MyStudyPage = () => {
       <section className="space-y-4">
         <div className="flex items-center gap-2">
           <Bookmark className="w-6 h-6 text-primary" />
-          <h2 className="text-2xl font-semibold text-gray-900">즐겨찾기 카드셋</h2>
+          <h2 className="text-2xl font-semibold text-gray-900">
+            즐겨찾기 카드셋
+          </h2>
         </div>
 
         {isLoadingBookmarks ? (
@@ -109,17 +112,16 @@ export const MyStudyPage = () => {
           </div>
         ) : bookmarksError ? (
           <div className="flex justify-center items-center min-h-[200px]">
-            <div className="text-red-500">카드셋을 불러오는데 실패했습니다.</div>
+            <div className="text-red-500">
+              카드셋을 불러오는데 실패했습니다.
+            </div>
           </div>
         ) : (
           <>
             {renderCardSetGrid(bookmarkedCardSets)}
             {hasNextBookmarks && (
               <div className="flex justify-center pt-4">
-                <Button
-                  onClick={() => {}}
-                  variant="outline"
-                >
+                <Button onClick={() => {}} variant="outline">
                   더 보기
                 </Button>
               </div>
@@ -132,7 +134,9 @@ export const MyStudyPage = () => {
       <section className="space-y-4">
         <div className="flex items-center gap-2">
           <Heart className="w-6 h-6 text-red-500" />
-          <h2 className="text-2xl font-semibold text-gray-900">좋아요한 카드셋</h2>
+          <h2 className="text-2xl font-semibold text-gray-900">
+            좋아요한 카드셋
+          </h2>
         </div>
 
         {isLoadingLikes ? (
@@ -141,17 +145,16 @@ export const MyStudyPage = () => {
           </div>
         ) : likesError ? (
           <div className="flex justify-center items-center min-h-[200px]">
-            <div className="text-red-500">카드셋을 불러오는데 실패했습니다.</div>
+            <div className="text-red-500">
+              카드셋을 불러오는데 실패했습니다.
+            </div>
           </div>
         ) : (
           <>
             {renderCardSetGrid(likedCardSets)}
             {hasNextLikes && (
               <div className="flex justify-center pt-4">
-                <Button
-                  onClick={() => {}}
-                  variant="outline"
-                >
+                <Button onClick={() => {}} variant="outline">
                   더 보기
                 </Button>
               </div>

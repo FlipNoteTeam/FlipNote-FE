@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
 import { authApi, type PasswordResetCreateRequest } from "@/shared/apis/auth";
+import type { ApiError } from "@/shared/apis";
 
 interface PasswordResetRequestForm {
   email: string;
@@ -24,7 +25,7 @@ export const usePasswordResetRequest = () => {
       setIsSuccess(true);
       setErrorMessage("");
     },
-    onError: (error: any) => {
+    onError: (error: ApiError) => {
       setErrorMessage(
         error?.response?.data?.message ||
           "이메일 전송에 실패했습니다. 다시 시도해주세요."

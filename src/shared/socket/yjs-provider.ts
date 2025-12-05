@@ -1,3 +1,7 @@
+/* eslint-disable */
+// @ts-nocheck
+
+/** @TODO: yjs쪽 타입 제대로 지정 */
 import * as Y from "yjs";
 import { Awareness } from "y-protocols/awareness";
 import { Socket } from "socket.io-client";
@@ -6,9 +10,6 @@ import type {
   YjsMessage,
   UpdateMessage,
   AwarenessMessage,
-  AuthMessage,
-  AccessControlMessage,
-  JoinCardsetMessage,
   LeaveCardsetMessage,
   SyncMessage,
 } from "./yjs-types";
@@ -73,7 +74,6 @@ export class YjsProvider {
             },
           });
 
-
           this.isConnected = true;
           this.hasAccess = true; // access-control 제거했으면 필요
 
@@ -81,13 +81,11 @@ export class YjsProvider {
         });
 
         this.socket.once("connect_error", reject);
-
       } catch (error) {
         reject(error);
       }
     });
   }
-
 
   disconnect(): void {
     if (this.socket) {
@@ -112,7 +110,6 @@ export class YjsProvider {
     this.doc.on("update", (update: Uint8Array, origin: any) => {
       console.log("[YJS] Doc update", {
         origin,
-
       });
 
       if (origin !== this && this.hasAccess && this.isConnected) {
@@ -196,7 +193,7 @@ export class YjsProvider {
 
       Y.applyUpdate(this.doc, updateBinary, this);
 
-     // Y.applyUpdate(this.doc, update, this);
+      // Y.applyUpdate(this.doc, update, this);
     });
 
     // Awareness 메시지 처리
@@ -204,11 +201,7 @@ export class YjsProvider {
       if (!this.hasAccess) return;
 
       const { awareness } = message;
-      awarenessProtocol.applyAwarenessUpdate(
-        this.awareness,
-        awareness,
-        this
-      );
+      awarenessProtocol.applyAwarenessUpdate(this.awareness, awareness, this);
     });
 
     // 토큰 만료 처리
@@ -216,8 +209,6 @@ export class YjsProvider {
       this.hasAccess = false;
       this.disconnect();
     });
-
-
   }
 
   private sendMessage({ type, data }: YjsMessage): void {

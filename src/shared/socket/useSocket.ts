@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Socket } from "socket.io-client";
 import { socketManager } from "./index";
-import { ServerToClientEvents, ClientToServerEvents } from "./events";
+import type { ServerToClientEvents, ClientToServerEvents } from "./events";
 
 interface UseSocketOptions {
   autoConnect?: boolean;
@@ -14,7 +14,7 @@ export function useSocket(options: UseSocketOptions = {}) {
   const [connectionError, setConnectionError] = useState<string | null>(null);
   const socketRef = useRef<Socket | null>(null);
 
-  const connect = () => {
+  const connect = useCallback(() => {
     try {
       socketRef.current = socketManager.connect(token);
       setConnectionError(null);
@@ -23,7 +23,7 @@ export function useSocket(options: UseSocketOptions = {}) {
         error instanceof Error ? error.message : "Connection failed"
       );
     }
-  };
+  }, [token]);
 
   const disconnect = () => {
     socketManager.disconnect();
@@ -35,7 +35,6 @@ export function useSocket(options: UseSocketOptions = {}) {
     ...args: Parameters<ClientToServerEvents[T]>
   ) => {
     if (socketRef.current?.connected) {
-      // @ts-expect-error - 타입 추론 한계로 인한 임시 처리
       socketRef.current.emit(event, ...args);
     } else {
       console.warn(`Cannot emit ${String(event)}: socket not connected`);
@@ -74,7 +73,7 @@ export function useSocket(options: UseSocketOptions = {}) {
         socketRef.current.off("connect_error");
       }
     };
-  }, [autoConnect, token]);
+  }, [autoConnect, connect, token]);
 
   useEffect(() => {
     if (socketRef.current) {
@@ -95,7 +94,7 @@ export function useSocket(options: UseSocketOptions = {}) {
         socketRef.current?.off("connect_error", handleConnectError);
       };
     }
-  }, [socketRef.current]);
+  }, []);
 
   return {
     socket: socketRef.current,

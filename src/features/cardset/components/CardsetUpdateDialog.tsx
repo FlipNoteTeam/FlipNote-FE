@@ -1,3 +1,4 @@
+import type { GroupCategory } from "@/domain/group/types";
 import CardsetUpdateForm, {
   type CardsetUpdateFormField,
 } from "@/features/cardset/components/CardsetUpdateForm";
@@ -48,7 +49,9 @@ const CardsetUpdateDialog = ({
     }) => cardSetApi.updateCardSet(groupId, cardsetId, data),
     onSuccess: () => {
       // 카드셋 상세 정보 다시 불러오기
-      queryClient.invalidateQueries({ queryKey: ["cardset", groupId, cardsetId] });
+      queryClient.invalidateQueries({
+        queryKey: ["cardset", groupId, cardsetId],
+      });
       setOpen(false);
       window.alert("카드셋이 수정되었습니다.");
     },
@@ -73,7 +76,7 @@ const CardsetUpdateDialog = ({
   const defaultValues: Partial<CardsetUpdateFormField> = {
     name: cardset.name,
     publicVisible: cardset.publicVisible,
-    category: cardset.category as any,
+    category: cardset.category as unknown as GroupCategory,
     hashtag: cardset.hashtag
       ? cardset.hashtag.split(",").map((tag) => ({ name: tag.trim() }))
       : [],

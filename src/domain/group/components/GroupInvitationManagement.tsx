@@ -24,6 +24,7 @@ import {
   useDeleteGroupInvitation,
 } from "@/domain/group/hooks/useGroupInvitation";
 import { UserPlus, X } from "lucide-react";
+import type { ApiError } from "@/shared/apis";
 
 type GroupInvitationManagementProps = {
   groupId: number;
@@ -56,9 +57,9 @@ export const GroupInvitationManagement = ({
           setEmail("");
           setOpen(false);
         },
-        onError: (error: any) => {
+        onError: (error: ApiError) => {
           window.alert(
-            error?.response?.data?.message || "초대 전송에 실패했습니다."
+            error.response?.data?.message || "초대 전송에 실패했습니다."
           );
         },
       }
@@ -74,7 +75,7 @@ export const GroupInvitationManagement = ({
       onSuccess: () => {
         window.alert("초대를 취소했습니다.");
       },
-      onError: (error: any) => {
+      onError: (error: ApiError) => {
         window.alert(
           error?.response?.data?.message || "초대 취소에 실패했습니다."
         );
@@ -152,9 +153,7 @@ export const GroupInvitationManagement = ({
       {pendingInvitations.length === 0 ? (
         <Card>
           <CardContent className="py-12">
-            <p className="text-center text-gray-500">
-              보낸 초대가 없습니다.
-            </p>
+            <p className="text-center text-gray-500">보낸 초대가 없습니다.</p>
           </CardContent>
         </Card>
       ) : (
