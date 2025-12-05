@@ -1,8 +1,22 @@
+/* eslint-disable */
+// @ts-nocheck
+
+/** @TODO: yjs쪽 타입 제대로 지정 */
 // Client → Server 이벤트 타입
-export type ClientEventType = "auth" | "join-cardset" | "leave-cardset" | "update" | "awareness";
+export type ClientEventType =
+  | "auth"
+  | "join-cardset"
+  | "leave-cardset"
+  | "update"
+  | "awareness";
 
 // Server → Client 이벤트 타입
-export type ServerEventType = "access-control" | "cardset-state" | "sync" | "awareness" | "expired";
+export type ServerEventType =
+  | "access-control"
+  | "cardset-state"
+  | "sync"
+  | "awareness"
+  | "expired";
 
 export interface YjsMessage {
   type: ClientEventType | ServerEventType;

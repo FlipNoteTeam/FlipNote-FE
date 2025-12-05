@@ -41,7 +41,7 @@ const CardSetList = () => {
     hasNextPage,
     isFetchingNextPage,
     isLoading,
-    error,
+    // error,
   } = useCardSets({
     keyword: searchKeyword || undefined,
     category: selectedCategory,
@@ -68,25 +68,25 @@ const CardSetList = () => {
     setOrder(value as "ASC" | "DESC");
   };
 
-  if (isLoading) {
-    return (
-      <BaseLayout>
-        <div className="flex justify-center items-center min-h-[400px]">
-          <div className="text-gray-500">로딩 중...</div>
-        </div>
-      </BaseLayout>
-    );
-  }
+  // if (isLoading) {
+  //   return (
+  //     <BaseLayout>
+  //       <div className="flex justify-center items-center min-h-[400px]">
+  //         <div className="text-gray-500">로딩 중...</div>
+  //       </div>
+  //     </BaseLayout>
+  //   );
+  // }
 
-  if (error) {
-    return (
-      <BaseLayout>
-        <div className="flex justify-center items-center min-h-[400px]">
-          <div className="text-red-500">데이터를 불러오는데 실패했습니다.</div>
-        </div>
-      </BaseLayout>
-    );
-  }
+  // if (error) {
+  //   return (
+  //     <BaseLayout>
+  //       <div className="flex justify-center items-center min-h-[400px]">
+  //         <div className="text-red-500">데이터를 불러오는데 실패했습니다.</div>
+  //       </div>
+  //     </BaseLayout>
+  //   );
+  // }
 
   return (
     <BaseLayout>
@@ -97,7 +97,7 @@ const CardSetList = () => {
             <h1 className="text-2xl font-bold text-gray-900">
               플래시카드셋 목록
             </h1>
-            <Button className="flex items-center gap-2">
+            <Button className="flex items-center gap-2 ">
               <Plus className="w-4 h-4" />
               카드셋 생성
             </Button>

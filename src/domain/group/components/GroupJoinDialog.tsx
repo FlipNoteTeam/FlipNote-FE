@@ -14,6 +14,7 @@ import { Label } from "@/shared/components/label";
 import { useGroupJoin } from "@/domain/group/hooks/useGroupJoin";
 import useAuthStore from "@/stores/useAuthStore";
 import { useNavigate } from "@tanstack/react-router";
+import type { ApiError } from "@/shared/apis";
 
 type GroupJoinDialogProps = {
   groupId: number;
@@ -57,7 +58,7 @@ export const GroupJoinDialog = ({
           setOpen(false);
           setJoinIntro("");
         },
-        onError: (error: any) => {
+        onError: (error: ApiError) => {
           window.alert(
             error?.response?.data?.message || "가입 신청에 실패했습니다."
           );

@@ -7,8 +7,6 @@ export interface UserLoginRequest {
   password: string;
 }
 
-export type UserLoginResponse = {};
-
 export interface UserRegisterRequest {
   email: string;
   password?: string;
@@ -60,7 +58,7 @@ export interface SocialLinksResponse {
 export const authApi = {
   // 로그인
   login: (data: UserLoginRequest) =>
-    apiClient.post<ApiResponse<UserLoginResponse>>("/auth/login", data),
+    apiClient.post<ApiResponse>("/auth/login", data),
 
   // 회원가입
   register: (data: UserRegisterRequest) =>
@@ -70,8 +68,7 @@ export const authApi = {
   logout: () => apiClient.post("/auth/logout"),
 
   // 토큰 갱신
-  refreshToken: () =>
-    apiClient.post<ApiResponse<UserLoginResponse>>("/auth/token/refresh"),
+  refreshToken: () => apiClient.post<ApiResponse>("/auth/token/refresh"),
 
   // 내 비밀번호 변경
   updatePassword: (data: ChangePasswordRequest) =>

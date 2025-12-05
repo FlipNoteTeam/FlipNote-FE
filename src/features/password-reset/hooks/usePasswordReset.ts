@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
 import { authApi, type PasswordResetRequest } from "@/shared/apis/auth";
 import { useNavigate } from "@tanstack/react-router";
+import type { ApiError } from "@/shared/apis";
 
 interface PasswordResetForm {
   token: string;
@@ -29,7 +30,7 @@ export const usePasswordReset = () => {
       alert("비밀번호가 성공적으로 재설정되었습니다.");
       navigate({ to: "/auth/login" });
     },
-    onError: (error: any) => {
+    onError: (error: ApiError) => {
       setErrorMessage(
         error?.response?.data?.message ||
           "비밀번호 재설정에 실패했습니다. 다시 시도해주세요."

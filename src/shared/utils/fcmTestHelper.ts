@@ -89,7 +89,8 @@ export const diagnoseFCM = async (): Promise<void> => {
   console.group("2️⃣ 알림 권한");
   if ("Notification" in window) {
     const permission = Notification.permission;
-    const emoji = permission === "granted" ? "✅" : permission === "denied" ? "❌" : "⚠️";
+    const emoji =
+      permission === "granted" ? "✅" : permission === "denied" ? "❌" : "⚠️";
     console.log(`${emoji} 상태: ${permission}`);
 
     if (permission !== "granted") {
@@ -149,7 +150,7 @@ export const showTestGuide = (): void => {
 
 // 전역 객체에 테스트 함수 추가 (개발 환경에서만)
 if (import.meta.env.DEV) {
-  (window as any).fcmTest = {
+  window.fcmTest = {
     checkToken: checkFCMToken,
     getToken: getNewFCMToken,
     checkSW: checkServiceWorker,

@@ -6,11 +6,17 @@ import {
 } from "@/shared/components/card";
 import { Button } from "@/shared/components/button";
 import {
-  useNotifications,
   useMarkNotificationAsRead,
   useMarkAllNotificationsAsRead,
 } from "@/domain/notification";
-import { Bell, CheckCheck, Calendar, Users, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  Bell,
+  CheckCheck,
+  Calendar,
+  Users,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ko } from "date-fns/locale";
 import { mockNotifications } from "@/shared/mocks/notifications";
@@ -122,9 +128,7 @@ export const NotificationList = () => {
                 <div className="flex items-start gap-3 flex-1">
                   <Bell
                     className={`w-5 h-5 mt-0.5 flex-shrink-0 ${
-                      !notification.isRead
-                        ? "text-blue-600"
-                        : "text-gray-400"
+                      !notification.isRead ? "text-blue-600" : "text-gray-400"
                     }`}
                   />
                   <div className="flex-1 min-w-0">
