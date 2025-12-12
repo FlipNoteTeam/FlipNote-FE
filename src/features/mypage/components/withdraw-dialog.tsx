@@ -12,23 +12,33 @@ import {
   DialogTrigger,
 } from "@/shared/components/dialog";
 import { Input } from "@/shared/components/input";
+import useAuthStore from "@/stores/useAuthStore";
 import { useMutation } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
 import { useState, type ChangeEvent } from "react";
 
 const CONFIRM_TEXT = "탈퇴";
 
 const WithdrawDialog = () => {
+  const navigate = useNavigate();
+
+  const { clearUser } = useAuthStore();
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
 
   const { isPending, mutate } = useMutation({
     mutationFn: userApi.withdrawUser,
     onSuccess: () => {
+      clearUser();
       setOpen(false);
       setValue("");
+
+      navigate({ to: "/" });
     },
     onError: (error) => {
       console.log("ERROR", error);
+
+      window.alert("회원탈퇴에 실패했습니다. 다시 시도해주세요.");
     },
   });
 
