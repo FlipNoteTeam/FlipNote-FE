@@ -100,8 +100,13 @@ const LoginPage = () => {
             <TextSeperator>또는</TextSeperator>
 
             <div className="w-full space-y-2">
-              <Button variant="outline" className="w-full">
-                Google로 로그인
+              <Button variant="outline" asChild>
+                <a
+                  className="w-full"
+                  href={`${new URL(import.meta.env.VITE_BASE_URL).origin}/oauth2/authorization/google`}
+                >
+                  Google로 로그인
+                </a>
               </Button>
             </div>
 
