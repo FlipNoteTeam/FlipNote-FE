@@ -60,6 +60,22 @@ export interface FindGroupMemberResponse {
   groupMembers: GroupMemberInfo[];
 }
 
+export interface GetMyOwnedGroupsRequest {
+  cursor?: string;
+  size?: number;
+  sortBy?: number;
+  order?: number;
+  category?: GroupCategory;
+}
+export interface GetMyOwnedGroupsResponse {
+  groupId: number;
+  name: string;
+  description: string;
+  category: GroupCategory;
+  imageUrl: string;
+  imageRefId: number;
+}
+
 interface GroupListParams {
   keyword?: string /** 없는 값임 ㅎ */;
   category?: string;
@@ -101,5 +117,14 @@ export const groupApi = {
   getGroupMembers: (groupId: number) =>
     apiClient.get<ApiResponse<FindGroupMemberResponse>>(
       `/groups/${groupId}/members`
+    ),
+
+  // 내가 만든 그룹 조회
+  getMyOwnedGroups: (data: GetMyOwnedGroupsRequest) =>
+    apiClient.get<ApiResponse<CursorPagingResponse<GetMyOwnedGroupsResponse>>>(
+      "/groups/created",
+      {
+        params: data,
+      }
     ),
 };
