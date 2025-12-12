@@ -3,8 +3,8 @@ import { authApi } from "@/shared/apis/auth";
 
 export const useSocialAccountLink = () => {
   return useMutation({
-    mutationFn: async (provider: "google" | "kakao") => {
-      const response = await authApi.getSocialLinkUrl(provider);
+    mutationFn: async () => {
+      const response = await authApi.getSocialLinks();
       // OAuth 리다이렉트 URL을 받아서 페이지 이동
       console.log(":::RESPONSE", response);
       if (response.request?.responseURL) {

@@ -1,4 +1,4 @@
-import { useEffect, useRef, ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 
 type Props<T> = {
   items: T[];
@@ -54,7 +54,14 @@ const InfiniteScrollList = <T,>({
         observerRef.current.disconnect();
       }
     };
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, items.length, threshold]);
+  }, [
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    items.length,
+    threshold,
+  ]);
 
   if (isLoading) {
     return renderLoading ? (
@@ -88,15 +95,16 @@ const InfiniteScrollList = <T,>({
         );
       })}
 
-      {isFetchingNextPage && (
-        renderFetchingMore ? (
+      {isFetchingNextPage &&
+        (renderFetchingMore ? (
           renderFetchingMore()
         ) : (
           <div className="flex items-center justify-center py-4">
-            <div className="text-sm text-gray-500">더 많은 항목을 불러오는 중...</div>
+            <div className="text-sm text-gray-500">
+              더 많은 항목을 불러오는 중...
+            </div>
           </div>
-        )
-      )}
+        ))}
     </div>
   );
 };
