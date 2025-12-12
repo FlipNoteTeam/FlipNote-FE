@@ -6,7 +6,7 @@ import {
   ArrowRight,
   CheckCircle,
 } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 import { useState, useEffect } from "react";
 import { Card } from "@/shared/components/card";
 import { Link } from "@tanstack/react-router";
@@ -19,7 +19,7 @@ export default function Home() {
     setIsVisible(true);
   }, []);
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -30,7 +30,7 @@ export default function Home() {
     },
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
       opacity: 1,
@@ -39,7 +39,7 @@ export default function Home() {
     },
   };
 
-  const slideInLeftVariants = {
+  const slideInLeftVariants: Variants = {
     hidden: { opacity: 0, x: -50 },
     visible: {
       opacity: 1,
@@ -48,7 +48,7 @@ export default function Home() {
     },
   };
 
-  const slideInRightVariants = {
+  const slideInRightVariants: Variants = {
     hidden: { opacity: 0, x: 50 },
     visible: {
       opacity: 1,
@@ -57,7 +57,7 @@ export default function Home() {
     },
   };
 
-  const floatVariants = {
+  const floatVariants: Variants = {
     animate: {
       y: [0, -10, 0],
       transition: {
@@ -97,7 +97,7 @@ export default function Home() {
             className="flex gap-4 justify-center pt-4 flex-wrap"
             variants={itemVariants}
           >
-            <Link href="/signup">
+            <Link to="/auth/register">
               <Button className="bg-primary text-primary-foreground hover:bg-primary/90 px-8 py-6 text-base group">
                 무료로 시작하기
                 <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
