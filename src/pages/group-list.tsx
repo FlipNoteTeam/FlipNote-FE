@@ -92,9 +92,11 @@ const GroupList = () => {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-bold text-gray-900">그룹 목록</h1>
-            <Button className="flex items-center gap-2">
-              <Plus className="w-4 h-4" />
-              그룹 생성
+            <Button asChild className="flex items-center gap-2 ">
+              <Link to="/groups/create">
+                <Plus className="w-4 h-4" />
+                그룹 생성
+              </Link>
             </Button>
           </div>
 
@@ -146,8 +148,8 @@ const GroupList = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {groupsData?.groups.map((group) => (
             <Link
-              to="/groups/$id"
-              params={{ id: group.groupId.toString() }}
+              to="/groups/$groupId"
+              params={{ groupId: group.groupId.toString() }}
               key={group.groupId}
             >
               <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-200 cursor-pointer">

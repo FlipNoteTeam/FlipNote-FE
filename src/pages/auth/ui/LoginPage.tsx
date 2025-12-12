@@ -58,36 +58,38 @@ const LoginPage = () => {
       </div>
       <div className="text-center space-y-3">
         <Card className="mt-4 py-16 px-8 max-w-md mx-auto">
-          <CardContent className="w-full space-y-4 ">
-            <div className="space-y-2">
-              <Label htmlFor="email">이메일</Label>
-              <Input
-                id="email"
-                placeholder="이메일을 입력해주세요"
-                {...register("email")}
-              />
-              <ErrorMessage>{errors.email?.message}</ErrorMessage>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">비밀번호</Label>
-              <PasswordInput
-                id="password"
-                placeholder="비밀번호를 입력해주세요"
-                {...register("password")}
-              />
-              <ErrorMessage>{errors.password?.message}</ErrorMessage>
-            </div>
-            {error && (
-              <ErrorMessage className="text-center">
-                {error instanceof Error
-                  ? error.message
-                  : "로그인을 실패했습니다. 다시 시도해주세요"}
-              </ErrorMessage>
-            )}
-            {/* <Link to="/reset-password">비밀번호 찾기</Link> */}
+          <CardContent>
+            <form id="login" className="w-full space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">이메일</Label>
+                <Input
+                  id="email"
+                  placeholder="이메일을 입력해주세요"
+                  {...register("email")}
+                />
+                <ErrorMessage>{errors.email?.message}</ErrorMessage>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">비밀번호</Label>
+                <PasswordInput
+                  id="password"
+                  placeholder="비밀번호를 입력해주세요"
+                  {...register("password")}
+                />
+                <ErrorMessage>{errors.password?.message}</ErrorMessage>
+              </div>
+              {error && (
+                <ErrorMessage className="text-center">
+                  {error instanceof Error
+                    ? error.message
+                    : "로그인을 실패했습니다. 다시 시도해주세요"}
+                </ErrorMessage>
+              )}
+            </form>
           </CardContent>
           <CardFooter className="flex-col space-y-6 mt-4 ">
             <Button
+              form="login"
               type="submit"
               variant="default"
               className="w-full"
