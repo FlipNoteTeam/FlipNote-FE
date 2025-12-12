@@ -3,8 +3,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { Input } from "./input";
 import { cn } from "@/shared/lib/utils";
 
-export interface PasswordInputProps
-  extends Omit<React.ComponentProps<"input">, "type"> {}
+export type PasswordInputProps = Omit<React.ComponentProps<"input">, "type">;
 
 /**
  * 비밀번호 입력 컴포넌트
