@@ -3,6 +3,7 @@ import { Button } from "@/shared/components/button";
 import { Label } from "@/shared/components/label";
 import type { MyInfoResponse } from "@/shared/apis/user";
 import SocialAccountSection from "@/features/social-link/components/social-account-section";
+import WithdrawDialog from "@/features/mypage/components/withdraw-dialog";
 
 type Props = {
   userInfo: MyInfoResponse;
@@ -55,6 +56,8 @@ const UserProfileView = ({ userInfo, onEditClick }: Props) => {
           </div>
 
           <SocialAccountSection />
+
+          <WithdrawDialog />
         </CardContent>
       </Card>
     </div>
