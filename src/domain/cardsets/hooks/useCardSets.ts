@@ -1,4 +1,4 @@
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { cardSetApi } from "@/shared/apis/card-set";
 import type { CardSetCategory } from "@/domain/cardsets/types";
 
@@ -10,10 +10,11 @@ interface UseCardSetsParams {
   size?: number;
   sortBy?: string;
   order?: string;
+  suspense?: boolean;
 }
 
 export const useCardSets = (params?: UseCardSetsParams) => {
-  return useInfiniteQuery({
+  return useSuspenseInfiniteQuery({
     queryKey: [...CARDSETS_QUERY_KEY, params],
     queryFn: async ({ pageParam = 0 }) => {
       const response = await cardSetApi.getCardSets({

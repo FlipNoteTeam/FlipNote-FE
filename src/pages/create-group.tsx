@@ -156,7 +156,9 @@ const CreateGroup = () => {
               id="image"
               type="file"
               onChange={async (e) => {
-                const file = e.target.files[0];
+                const file = e.target.files?.[0];
+                if (!file) return;
+
                 const imageRefId = await uploadImage({ file, type: "GROUP" });
 
                 if (imageRefId) setValue("imageRefId", imageRefId);
