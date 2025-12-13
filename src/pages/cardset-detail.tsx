@@ -12,6 +12,8 @@ import BaseLayout from "@/shared/layouts/base-layout";
 import { Heart, Star } from "lucide-react";
 import { useCardSetLike } from "@/domain/cardsets/hooks/useCardSetLike";
 import { useCardSetBookmark } from "@/domain/cardsets/hooks/useCardSetBookmark";
+import StudySettings from "@/pages/study-settings";
+import { Separator } from "@/shared/components/separator";
 
 type Props = {
   groupId: number;
@@ -176,17 +178,6 @@ const CardsetDetail = ({ groupId, cardsetId }: Props) => {
                   카드셋 수정하기
                 </Link>
               </Button>
-              <Button asChild>
-                <Link
-                  to="/groups/$groupId/cardsets/$cardsetId/study/settings"
-                  params={{
-                    cardsetId: String(cardsetId),
-                    groupId: String(groupId),
-                  }}
-                >
-                  학습하기
-                </Link>
-              </Button>
             </div>
           </div>
         </div>
@@ -211,6 +202,9 @@ const CardsetDetail = ({ groupId, cardsetId }: Props) => {
           </div>
         </div>
       </div>
+
+      <Separator className="my-4" />
+      <StudySettings groupId={groupId} cardsetId={cardsetId} />
     </BaseLayout>
   );
 };
