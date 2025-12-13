@@ -4,7 +4,11 @@ import {
   ButtonCheckboxGroupField,
 } from "@/shared/components/button-checkbox";
 import { Card, CardContent, CardHeader } from "@/shared/components/card";
-import { Description, FormTitle, RequiredLabel } from "@/shared/components/form";
+import {
+  Description,
+  FormTitle,
+  RequiredLabel,
+} from "@/shared/components/form";
 import { Input } from "@/shared/components/input";
 import { Label } from "@/shared/components/label";
 import { useNavigate } from "@tanstack/react-router";
@@ -64,7 +68,7 @@ const StudySettings = ({ groupId, cardsetId }: StudySettingsProps) => {
 
     // 학습 시작 페이지로 이동
     navigate({
-      to: `/groups/$groupId/cardsets/$cardsetId/study`,
+      to: "/groups/$groupId/cardsets/$cardsetId/study",
       params: { groupId: String(groupId), cardsetId: String(cardsetId) },
       search: {
         mode: data.mode,
@@ -89,7 +93,7 @@ const StudySettings = ({ groupId, cardsetId }: StudySettingsProps) => {
               value={modeField.value}
               onChange={modeField.onChange}
               onBlur={modeField.onBlur}
-              singleSelect
+              multiple={false}
             >
               <ButtonCheckbox value="memorize">암기 모드</ButtonCheckbox>
               <ButtonCheckbox value="test">시험 모드</ButtonCheckbox>
@@ -107,7 +111,7 @@ const StudySettings = ({ groupId, cardsetId }: StudySettingsProps) => {
               value={navigationTypeField.value}
               onChange={navigationTypeField.onChange}
               onBlur={navigationTypeField.onBlur}
-              singleSelect
+              multiple={false}
             >
               <ButtonCheckbox value="manual">수동</ButtonCheckbox>
               <ButtonCheckbox value="auto">자동 (타이머)</ButtonCheckbox>
@@ -124,7 +128,9 @@ const StudySettings = ({ groupId, cardsetId }: StudySettingsProps) => {
               <Label htmlFor="autoTimer" className="mb-2">
                 자동 넘김 시간
               </Label>
-              <Description>카드가 자동으로 넘어가는 시간을 설정해주세요</Description>
+              <Description>
+                카드가 자동으로 넘어가는 시간을 설정해주세요
+              </Description>
               <div className="flex items-end gap-2">
                 <Input
                   type="number"
@@ -132,7 +138,10 @@ const StudySettings = ({ groupId, cardsetId }: StudySettingsProps) => {
                   className="w-20"
                   {...register("autoTimer", {
                     min: { value: 1, message: "최소 1초 이상이어야 합니다." },
-                    max: { value: 60, message: "최대 60초까지 설정 가능합니다." },
+                    max: {
+                      value: 60,
+                      message: "최대 60초까지 설정 가능합니다.",
+                    },
                     valueAsNumber: true,
                   })}
                 />
@@ -150,7 +159,15 @@ const StudySettings = ({ groupId, cardsetId }: StudySettingsProps) => {
             <Button
               type="button"
               className="bg-white border border-gray-500 text-gray-500"
-              onClick={() => navigate({ to: `/groups/$groupId/cardsets/$cardsetId`, params: { groupId: String(groupId), cardsetId: String(cardsetId) } })}
+              onClick={() =>
+                navigate({
+                  to: `/groups/$groupId/cardsets/$cardsetId`,
+                  params: {
+                    groupId: String(groupId),
+                    cardsetId: String(cardsetId),
+                  },
+                })
+              }
             >
               취소
             </Button>
