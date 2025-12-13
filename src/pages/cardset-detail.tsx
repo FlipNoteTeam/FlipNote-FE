@@ -176,6 +176,17 @@ const CardsetDetail = ({ groupId, cardsetId }: Props) => {
                   카드셋 수정하기
                 </Link>
               </Button>
+              <Button asChild>
+                <Link
+                  to="/groups/$groupId/cardsets/$cardsetId/study/settings"
+                  params={{
+                    cardsetId: String(cardsetId),
+                    groupId: String(groupId),
+                  }}
+                >
+                  학습하기
+                </Link>
+              </Button>
             </div>
           </div>
         </div>

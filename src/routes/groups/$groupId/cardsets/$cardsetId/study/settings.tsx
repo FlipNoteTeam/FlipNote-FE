@@ -10,5 +10,7 @@ export const Route = createFileRoute(
 function RouteComponent() {
   const { groupId, cardsetId } = Route.useParams();
 
-  return <StudySettings groupId={Number(groupId)} cardsetId={Number(cardsetId)} />;
+  return (
+    <StudySettings groupId={Number(groupId)} cardsetId={Number(cardsetId)} />
+  );
 }

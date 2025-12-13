@@ -22,7 +22,8 @@ import { Route as UserUserIdIndexRouteImport } from './routes/user/$userId/index
 import { Route as GroupsGroupIdIndexRouteImport } from './routes/groups/$groupId/index'
 import { Route as GroupsGroupIdManageRouteImport } from './routes/groups/$groupId/manage'
 import { Route as CardsetsEditorIdRouteImport } from './routes/cardsets/editor/$id'
-import { Route as GroupsGroupIdCardsetsCardsetIdRouteImport } from './routes/groups/$groupId/cardsets/$cardsetId'
+import { Route as GroupsGroupIdCardsetsCardsetIdIndexRouteImport } from './routes/groups/$groupId/cardsets/$cardsetId/index'
+import { Route as GroupsGroupIdCardsetsCardsetIdStudyIndexRouteImport } from './routes/groups/$groupId/cardsets/$cardsetId/study/index'
 import { Route as GroupsGroupIdCardsetsCardsetIdStudySettingsRouteImport } from './routes/groups/$groupId/cardsets/$cardsetId/study/settings'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -90,17 +91,23 @@ const CardsetsEditorIdRoute = CardsetsEditorIdRouteImport.update({
   path: '/cardsets/editor/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
-const GroupsGroupIdCardsetsCardsetIdRoute =
-  GroupsGroupIdCardsetsCardsetIdRouteImport.update({
-    id: '/groups/$groupId/cardsets/$cardsetId',
-    path: '/groups/$groupId/cardsets/$cardsetId',
+const GroupsGroupIdCardsetsCardsetIdIndexRoute =
+  GroupsGroupIdCardsetsCardsetIdIndexRouteImport.update({
+    id: '/groups/$groupId/cardsets/$cardsetId/',
+    path: '/groups/$groupId/cardsets/$cardsetId/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const GroupsGroupIdCardsetsCardsetIdStudyIndexRoute =
+  GroupsGroupIdCardsetsCardsetIdStudyIndexRouteImport.update({
+    id: '/groups/$groupId/cardsets/$cardsetId/study/',
+    path: '/groups/$groupId/cardsets/$cardsetId/study/',
     getParentRoute: () => rootRouteImport,
   } as any)
 const GroupsGroupIdCardsetsCardsetIdStudySettingsRoute =
   GroupsGroupIdCardsetsCardsetIdStudySettingsRouteImport.update({
-    id: '/study/settings',
-    path: '/study/settings',
-    getParentRoute: () => GroupsGroupIdCardsetsCardsetIdRoute,
+    id: '/groups/$groupId/cardsets/$cardsetId/study/settings',
+    path: '/groups/$groupId/cardsets/$cardsetId/study/settings',
+    getParentRoute: () => rootRouteImport,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -117,8 +124,9 @@ export interface FileRoutesByFullPath {
   '/groups/$groupId/manage': typeof GroupsGroupIdManageRoute
   '/groups/$groupId': typeof GroupsGroupIdIndexRoute
   '/user/$userId': typeof UserUserIdIndexRoute
-  '/groups/$groupId/cardsets/$cardsetId': typeof GroupsGroupIdCardsetsCardsetIdRouteWithChildren
+  '/groups/$groupId/cardsets/$cardsetId': typeof GroupsGroupIdCardsetsCardsetIdIndexRoute
   '/groups/$groupId/cardsets/$cardsetId/study/settings': typeof GroupsGroupIdCardsetsCardsetIdStudySettingsRoute
+  '/groups/$groupId/cardsets/$cardsetId/study': typeof GroupsGroupIdCardsetsCardsetIdStudyIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -134,8 +142,9 @@ export interface FileRoutesByTo {
   '/groups/$groupId/manage': typeof GroupsGroupIdManageRoute
   '/groups/$groupId': typeof GroupsGroupIdIndexRoute
   '/user/$userId': typeof UserUserIdIndexRoute
-  '/groups/$groupId/cardsets/$cardsetId': typeof GroupsGroupIdCardsetsCardsetIdRouteWithChildren
+  '/groups/$groupId/cardsets/$cardsetId': typeof GroupsGroupIdCardsetsCardsetIdIndexRoute
   '/groups/$groupId/cardsets/$cardsetId/study/settings': typeof GroupsGroupIdCardsetsCardsetIdStudySettingsRoute
+  '/groups/$groupId/cardsets/$cardsetId/study': typeof GroupsGroupIdCardsetsCardsetIdStudyIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -152,8 +161,9 @@ export interface FileRoutesById {
   '/groups/$groupId/manage': typeof GroupsGroupIdManageRoute
   '/groups/$groupId/': typeof GroupsGroupIdIndexRoute
   '/user/$userId/': typeof UserUserIdIndexRoute
-  '/groups/$groupId/cardsets/$cardsetId': typeof GroupsGroupIdCardsetsCardsetIdRouteWithChildren
+  '/groups/$groupId/cardsets/$cardsetId/': typeof GroupsGroupIdCardsetsCardsetIdIndexRoute
   '/groups/$groupId/cardsets/$cardsetId/study/settings': typeof GroupsGroupIdCardsetsCardsetIdStudySettingsRoute
+  '/groups/$groupId/cardsets/$cardsetId/study/': typeof GroupsGroupIdCardsetsCardsetIdStudyIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -173,6 +183,7 @@ export interface FileRouteTypes {
     | '/user/$userId'
     | '/groups/$groupId/cardsets/$cardsetId'
     | '/groups/$groupId/cardsets/$cardsetId/study/settings'
+    | '/groups/$groupId/cardsets/$cardsetId/study'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -190,6 +201,7 @@ export interface FileRouteTypes {
     | '/user/$userId'
     | '/groups/$groupId/cardsets/$cardsetId'
     | '/groups/$groupId/cardsets/$cardsetId/study/settings'
+    | '/groups/$groupId/cardsets/$cardsetId/study'
   id:
     | '__root__'
     | '/'
@@ -205,8 +217,9 @@ export interface FileRouteTypes {
     | '/groups/$groupId/manage'
     | '/groups/$groupId/'
     | '/user/$userId/'
-    | '/groups/$groupId/cardsets/$cardsetId'
+    | '/groups/$groupId/cardsets/$cardsetId/'
     | '/groups/$groupId/cardsets/$cardsetId/study/settings'
+    | '/groups/$groupId/cardsets/$cardsetId/study/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -223,7 +236,9 @@ export interface RootRouteChildren {
   GroupsGroupIdManageRoute: typeof GroupsGroupIdManageRoute
   GroupsGroupIdIndexRoute: typeof GroupsGroupIdIndexRoute
   UserUserIdIndexRoute: typeof UserUserIdIndexRoute
-  GroupsGroupIdCardsetsCardsetIdRoute: typeof GroupsGroupIdCardsetsCardsetIdRouteWithChildren
+  GroupsGroupIdCardsetsCardsetIdIndexRoute: typeof GroupsGroupIdCardsetsCardsetIdIndexRoute
+  GroupsGroupIdCardsetsCardsetIdStudySettingsRoute: typeof GroupsGroupIdCardsetsCardsetIdStudySettingsRoute
+  GroupsGroupIdCardsetsCardsetIdStudyIndexRoute: typeof GroupsGroupIdCardsetsCardsetIdStudyIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -319,37 +334,29 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CardsetsEditorIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/groups/$groupId/cardsets/$cardsetId': {
-      id: '/groups/$groupId/cardsets/$cardsetId'
+    '/groups/$groupId/cardsets/$cardsetId/': {
+      id: '/groups/$groupId/cardsets/$cardsetId/'
       path: '/groups/$groupId/cardsets/$cardsetId'
       fullPath: '/groups/$groupId/cardsets/$cardsetId'
-      preLoaderRoute: typeof GroupsGroupIdCardsetsCardsetIdRouteImport
+      preLoaderRoute: typeof GroupsGroupIdCardsetsCardsetIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/groups/$groupId/cardsets/$cardsetId/study/': {
+      id: '/groups/$groupId/cardsets/$cardsetId/study/'
+      path: '/groups/$groupId/cardsets/$cardsetId/study'
+      fullPath: '/groups/$groupId/cardsets/$cardsetId/study'
+      preLoaderRoute: typeof GroupsGroupIdCardsetsCardsetIdStudyIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/groups/$groupId/cardsets/$cardsetId/study/settings': {
       id: '/groups/$groupId/cardsets/$cardsetId/study/settings'
-      path: '/study/settings'
+      path: '/groups/$groupId/cardsets/$cardsetId/study/settings'
       fullPath: '/groups/$groupId/cardsets/$cardsetId/study/settings'
       preLoaderRoute: typeof GroupsGroupIdCardsetsCardsetIdStudySettingsRouteImport
-      parentRoute: typeof GroupsGroupIdCardsetsCardsetIdRoute
+      parentRoute: typeof rootRouteImport
     }
   }
 }
-
-interface GroupsGroupIdCardsetsCardsetIdRouteChildren {
-  GroupsGroupIdCardsetsCardsetIdStudySettingsRoute: typeof GroupsGroupIdCardsetsCardsetIdStudySettingsRoute
-}
-
-const GroupsGroupIdCardsetsCardsetIdRouteChildren: GroupsGroupIdCardsetsCardsetIdRouteChildren =
-  {
-    GroupsGroupIdCardsetsCardsetIdStudySettingsRoute:
-      GroupsGroupIdCardsetsCardsetIdStudySettingsRoute,
-  }
-
-const GroupsGroupIdCardsetsCardsetIdRouteWithChildren =
-  GroupsGroupIdCardsetsCardsetIdRoute._addFileChildren(
-    GroupsGroupIdCardsetsCardsetIdRouteChildren,
-  )
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -365,8 +372,12 @@ const rootRouteChildren: RootRouteChildren = {
   GroupsGroupIdManageRoute: GroupsGroupIdManageRoute,
   GroupsGroupIdIndexRoute: GroupsGroupIdIndexRoute,
   UserUserIdIndexRoute: UserUserIdIndexRoute,
-  GroupsGroupIdCardsetsCardsetIdRoute:
-    GroupsGroupIdCardsetsCardsetIdRouteWithChildren,
+  GroupsGroupIdCardsetsCardsetIdIndexRoute:
+    GroupsGroupIdCardsetsCardsetIdIndexRoute,
+  GroupsGroupIdCardsetsCardsetIdStudySettingsRoute:
+    GroupsGroupIdCardsetsCardsetIdStudySettingsRoute,
+  GroupsGroupIdCardsetsCardsetIdStudyIndexRoute:
+    GroupsGroupIdCardsetsCardsetIdStudyIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
