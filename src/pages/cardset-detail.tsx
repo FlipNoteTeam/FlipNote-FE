@@ -1,8 +1,8 @@
 import { GROUP_CATEGORY_MAP } from "@/domain/group/types";
-import { cardSetApi, groupApi } from "@/shared/apis";
+import { cardSetApi, groupApi, type GroupCategory } from "@/shared/apis";
 import { Button } from "@/shared/components/button";
-import { Label } from "@/shared/components/label";
 import { useQuery } from "@tanstack/react-query";
+낷;
 import { useGroupMembers } from "@/domain/members/hooks/useGroupMembers";
 import useAuthStore from "@/stores/useAuthStore";
 import { useEffect } from "react";
@@ -14,6 +14,7 @@ import { useCardSetLike } from "@/domain/cardsets/hooks/useCardSetLike";
 import { useCardSetBookmark } from "@/domain/cardsets/hooks/useCardSetBookmark";
 import StudySettings from "@/pages/study-settings";
 import { Separator } from "@/shared/components/separator";
+import Badge from "@/shared/components/badge";
 
 type Props = {
   groupId: number;
@@ -77,121 +78,94 @@ const CardsetDetail = ({ groupId, cardsetId }: Props) => {
 
   if (!cardset) return null;
 
-  const categories = cardset.category ? cardset.category.split(",") : [];
   const hashtags = cardset.hashtag ? cardset.hashtag.split(",") : [];
 
   return (
     <BaseLayout>
-      <div className="max-w-4xl mx-auto p-6">
-        <div className="flex gap-6">
-          <div className="w-1/3">
-            <div className="relative aspect-square bg-gray-200 rounded-lg overflow-hidden group">
-              {cardset.imageUrl ? (
-                <img
-                  src={cardset.imageUrl}
-                  alt={cardset.name}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-gray-400">
-                  썸네일
-                </div>
-              )}
-
-              {/* 좋아요 버튼 */}
-              {user && (
-                <button
-                  onClick={toggleLike}
-                  disabled={isLikeLoading}
-                  className="absolute top-3 right-3 p-2 rounded-full bg-white/80 hover:bg-white shadow-md transition-all duration-200 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
-                  aria-label={isLiked ? "좋아요 취소" : "좋아요"}
-                >
-                  <Heart
-                    className={`w-5 h-5 transition-colors ${
-                      isLiked
-                        ? "fill-red-500 text-red-500"
-                        : "text-gray-600 hover:text-red-500"
-                    }`}
-                  />
-                </button>
-              )}
-              {/* 즐겨찾기 버튼 */}
-              {user && (
-                <button
-                  onClick={toggleBookmark}
-                  disabled={isBookmarkLoading}
-                  className="absolute top-3 right-16 p-2 rounded-full bg-white/80 hover:bg-white shadow-md transition-all duration-200 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
-                  aria-label={isBookmarked ? "즐겨찾기 취소" : "즐겨찾기"}
-                >
-                  <Star
-                    className={`w-5 h-5 transition-colors ${
-                      isBookmarked
-                        ? "fill-yellow-500 text-yellow-500"
-                        : "text-gray-600 hover:text-yellow-500"
-                    }`}
-                  />
-                </button>
-              )}
-            </div>
-          </div>
-
-          <div className="flex-1 space-y-4">
-            <div>
-              <p className="text-lg font-medium mt-1">{cardset.name}</p>
-            </div>
-
-            <div>
-              <Label className="text-sm text-gray-600">카테고리</Label>
-              <div className="flex flex-wrap gap-2 mt-1">
-                {categories.map((category) => (
-                  <span
-                    key={category}
-                    className="px-3 py-1 bg-gray-100 rounded-full text-sm"
-                  >
-                    {GROUP_CATEGORY_MAP[
-                      category as keyof typeof GROUP_CATEGORY_MAP
-                    ] || category}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <Label className="text-sm text-gray-600">해시태그</Label>
-              <div className="flex flex-wrap gap-2 mt-1">
-                {hashtags.map((tag, index) => (
-                  <span
-                    key={index}
-                    className="px-3 py-1 bg-gray-100 rounded-full text-sm"
-                  >
-                    #{tag.trim()}
-                  </span>
-                ))}
-              </div>
-            </div>
-            <div>
-              <Button asChild>
-                <Link
-                  to="/cardsets/editor/$id"
-                  params={{ id: String(cardsetId) }}
-                >
-                  카드셋 수정하기
-                </Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-6 flex items-center justify-between border-t pt-4">
-          <div className="text-sm text-gray-600">
-            {cardset.publicVisible ? (
-              <p>공개</p>
+      <div className="mx-auto p-6 flex gap-6 justify-between flex-wrap">
+        {/* 썸네일 영역 */}
+        <div className="w-2/7 max-w-48">
+          <div className="relative aspect-square bg-gray-200 rounded-2xl overflow-hidden group">
+            {cardset.imageUrl ? (
+              <img
+                src={cardset.imageUrl}
+                alt={cardset.name}
+                className="w-full h-full object-cover"
+              />
             ) : (
-              <span className="text-red-500">비공개</span>
+              <div className="w-full h-full flex items-center justify-center text-gray-400">
+                썸네일
+              </div>
+            )}
+
+            {/* 좋아요 버튼 */}
+            {user && (
+              <button
+                onClick={toggleLike}
+                disabled={isLikeLoading}
+                className="absolute top-3 right-3 p-2 rounded-full bg-white/80 hover:bg-white shadow-md transition-all duration-200 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label={isLiked ? "좋아요 취소" : "좋아요"}
+              >
+                <Heart
+                  className={`w-5 h-5 transition-colors ${
+                    isLiked
+                      ? "fill-red-500 text-red-500"
+                      : "text-gray-600 hover:text-red-500"
+                  }`}
+                />
+              </button>
+            )}
+            {/* 즐겨찾기 버튼 */}
+            {user && (
+              <button
+                onClick={toggleBookmark}
+                disabled={isBookmarkLoading}
+                className="absolute top-3 right-16 p-2 rounded-full bg-white/80 hover:bg-white shadow-md transition-all duration-200 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label={isBookmarked ? "즐겨찾기 취소" : "즐겨찾기"}
+              >
+                <Star
+                  className={`w-5 h-5 transition-colors ${
+                    isBookmarked
+                      ? "fill-yellow-500 text-yellow-500"
+                      : "text-gray-600 hover:text-yellow-500"
+                  }`}
+                />
+              </button>
             )}
           </div>
-
+        </div>
+        {/* 카드셋 메타정보 영역 */}
+        <div className="flex-1 space-y-4 basis-2/3">
           <div className="flex gap-2">
+            <Badge>
+              {GROUP_CATEGORY_MAP[cardset.category as GroupCategory]}
+            </Badge>
+            <Badge colorVariant={cardset.publicVisible ? "green" : "red"}>
+              {cardset.publicVisible ? "공개" : "비공개"}
+            </Badge>
+          </div>
+          <p className="text-2xl font-bold  mt-1">{cardset.name} </p>
+          <div className="flex flex-wrap gap-2 mt-1">
+            {hashtags.map((tag, index) => (
+              <span key={index} className="text-sm">
+                #{tag.trim()}
+              </span>
+            ))}
+          </div>
+          <div>
+            <span className="text-xs text-gray-500">
+              마지막 수정일 : {cardset.modifiedAt}
+            </span>
+          </div>
+          <div className="flex gap-2 justify-end flex-wrap">
+            <Button asChild>
+              <Link
+                to="/cardsets/editor/$id"
+                params={{ id: String(cardsetId) }}
+              >
+                카드 편집하기
+              </Link>
+            </Button>
             <CardsetUpdateDialog
               groupId={groupId}
               cardsetId={cardsetId}

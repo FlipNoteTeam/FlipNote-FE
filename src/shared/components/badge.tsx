@@ -8,13 +8,13 @@ const COLOR_VARIANTS = {
     border: "border-red-500",
   },
   green: {
-    text: "text-green-500",
-    bg: "bg-green-200/50",
-    border: "border-green-500",
+    text: "text-lime-600",
+    bg: "bg-lime-200/30",
+    border: "border-lime-500",
   },
   blue: {
     text: "text-blue-500",
-    bg: "bg-blue-200/50",
+    bg: "bg-blue-200",
     border: "border-blue-500",
   },
   gray: {
