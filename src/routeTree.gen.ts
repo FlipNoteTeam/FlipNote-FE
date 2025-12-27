@@ -20,6 +20,7 @@ import { Route as AuthRegisterRouteImport } from './routes/auth/register'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
 import { Route as UserUserIdIndexRouteImport } from './routes/user/$userId/index'
 import { Route as GroupsGroupIdIndexRouteImport } from './routes/groups/$groupId/index'
+import { Route as CardsetsLearningIndexRouteImport } from './routes/cardsets/learning/index'
 import { Route as GroupsGroupIdManageRouteImport } from './routes/groups/$groupId/manage'
 import { Route as CardsetsEditorIdRouteImport } from './routes/cardsets/editor/$id'
 import { Route as GroupsGroupIdCardsetsCardsetIdIndexRouteImport } from './routes/groups/$groupId/cardsets/$cardsetId/index'
@@ -81,6 +82,11 @@ const GroupsGroupIdIndexRoute = GroupsGroupIdIndexRouteImport.update({
   path: '/groups/$groupId/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CardsetsLearningIndexRoute = CardsetsLearningIndexRouteImport.update({
+  id: '/cardsets/learning/',
+  path: '/cardsets/learning/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GroupsGroupIdManageRoute = GroupsGroupIdManageRouteImport.update({
   id: '/groups/$groupId/manage',
   path: '/groups/$groupId/manage',
@@ -122,6 +128,7 @@ export interface FileRoutesByFullPath {
   '/groups': typeof GroupsIndexRoute
   '/cardsets/editor/$id': typeof CardsetsEditorIdRoute
   '/groups/$groupId/manage': typeof GroupsGroupIdManageRoute
+  '/cardsets/learning': typeof CardsetsLearningIndexRoute
   '/groups/$groupId': typeof GroupsGroupIdIndexRoute
   '/user/$userId': typeof UserUserIdIndexRoute
   '/groups/$groupId/cardsets/$cardsetId': typeof GroupsGroupIdCardsetsCardsetIdIndexRoute
@@ -140,6 +147,7 @@ export interface FileRoutesByTo {
   '/groups': typeof GroupsIndexRoute
   '/cardsets/editor/$id': typeof CardsetsEditorIdRoute
   '/groups/$groupId/manage': typeof GroupsGroupIdManageRoute
+  '/cardsets/learning': typeof CardsetsLearningIndexRoute
   '/groups/$groupId': typeof GroupsGroupIdIndexRoute
   '/user/$userId': typeof UserUserIdIndexRoute
   '/groups/$groupId/cardsets/$cardsetId': typeof GroupsGroupIdCardsetsCardsetIdIndexRoute
@@ -159,6 +167,7 @@ export interface FileRoutesById {
   '/groups/': typeof GroupsIndexRoute
   '/cardsets/editor/$id': typeof CardsetsEditorIdRoute
   '/groups/$groupId/manage': typeof GroupsGroupIdManageRoute
+  '/cardsets/learning/': typeof CardsetsLearningIndexRoute
   '/groups/$groupId/': typeof GroupsGroupIdIndexRoute
   '/user/$userId/': typeof UserUserIdIndexRoute
   '/groups/$groupId/cardsets/$cardsetId/': typeof GroupsGroupIdCardsetsCardsetIdIndexRoute
@@ -179,6 +188,7 @@ export interface FileRouteTypes {
     | '/groups'
     | '/cardsets/editor/$id'
     | '/groups/$groupId/manage'
+    | '/cardsets/learning'
     | '/groups/$groupId'
     | '/user/$userId'
     | '/groups/$groupId/cardsets/$cardsetId'
@@ -197,6 +207,7 @@ export interface FileRouteTypes {
     | '/groups'
     | '/cardsets/editor/$id'
     | '/groups/$groupId/manage'
+    | '/cardsets/learning'
     | '/groups/$groupId'
     | '/user/$userId'
     | '/groups/$groupId/cardsets/$cardsetId'
@@ -215,6 +226,7 @@ export interface FileRouteTypes {
     | '/groups/'
     | '/cardsets/editor/$id'
     | '/groups/$groupId/manage'
+    | '/cardsets/learning/'
     | '/groups/$groupId/'
     | '/user/$userId/'
     | '/groups/$groupId/cardsets/$cardsetId/'
@@ -234,6 +246,7 @@ export interface RootRouteChildren {
   GroupsIndexRoute: typeof GroupsIndexRoute
   CardsetsEditorIdRoute: typeof CardsetsEditorIdRoute
   GroupsGroupIdManageRoute: typeof GroupsGroupIdManageRoute
+  CardsetsLearningIndexRoute: typeof CardsetsLearningIndexRoute
   GroupsGroupIdIndexRoute: typeof GroupsGroupIdIndexRoute
   UserUserIdIndexRoute: typeof UserUserIdIndexRoute
   GroupsGroupIdCardsetsCardsetIdIndexRoute: typeof GroupsGroupIdCardsetsCardsetIdIndexRoute
@@ -320,6 +333,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GroupsGroupIdIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cardsets/learning/': {
+      id: '/cardsets/learning/'
+      path: '/cardsets/learning'
+      fullPath: '/cardsets/learning'
+      preLoaderRoute: typeof CardsetsLearningIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/groups/$groupId/manage': {
       id: '/groups/$groupId/manage'
       path: '/groups/$groupId/manage'
@@ -370,6 +390,7 @@ const rootRouteChildren: RootRouteChildren = {
   GroupsIndexRoute: GroupsIndexRoute,
   CardsetsEditorIdRoute: CardsetsEditorIdRoute,
   GroupsGroupIdManageRoute: GroupsGroupIdManageRoute,
+  CardsetsLearningIndexRoute: CardsetsLearningIndexRoute,
   GroupsGroupIdIndexRoute: GroupsGroupIdIndexRoute,
   UserUserIdIndexRoute: UserUserIdIndexRoute,
   GroupsGroupIdCardsetsCardsetIdIndexRoute:
