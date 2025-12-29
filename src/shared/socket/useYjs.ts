@@ -19,12 +19,10 @@ export function useYjs(options: UseYjsOptions) {
   const providerRef = useRef<YjsProvider | null>(null);
 
   const connect = useCallback(
-
     async (authToken?: string) => {
       try {
         const provider = new YjsProvider(cardsetId, userId);
         providerRef.current = provider;
-
 
         const success = await provider.connect(authToken || token || "");
         if (success) {
@@ -44,7 +42,6 @@ export function useYjs(options: UseYjsOptions) {
         }
         return false;
       } catch (error) {
-
         setConnectionError(
           error instanceof Error ? error.message : "Connection failed"
         );
@@ -117,7 +114,7 @@ export function useYjs(options: UseYjsOptions) {
 
   useEffect(() => {
     if (autoConnect) {
-      console.log("이건 실행되잖여")
+      console.log("이건 실행되잖여");
 
       connect();
     }
@@ -126,7 +123,6 @@ export function useYjs(options: UseYjsOptions) {
       disconnect();
     };
   }, [autoConnect, connect, disconnect]);
-
 
   return {
     isConnected,

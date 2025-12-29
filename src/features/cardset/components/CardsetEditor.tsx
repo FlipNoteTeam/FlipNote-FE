@@ -6,7 +6,7 @@ import { Label } from "@/shared/components/label";
 import { useYjs } from "@/shared/socket/useYjs";
 import type { CardData } from "@/shared/socket/card-types";
 import * as Y from "yjs";
-import {nestClient} from "@/shared/apis/fetch";
+import { nestClient } from "@/shared/apis/fetch";
 
 type CardsetEditorProps = {
   cardsetId: string;
@@ -31,7 +31,6 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
       id: "local-initial",
       question: "",
       answer: "",
-      createdAt: Date.now(),
     },
   ]);
 
@@ -178,7 +177,6 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
           id: `local-${Date.now()}`,
           question: "새 질문을 입력하세요",
           answer: "새 답변을 입력하세요",
-          createdAt: Date.now(),
         },
       ]);
     }
@@ -326,10 +324,15 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
             </h1>
             <div className="flex items-center gap-3 text-sm text-gray-500 bg-gray-100 px-3 py-2 rounded-lg">
               <span>총 {cards.length}개 카드</span>
-              <Button type={'button'} onClick={(e)=>{
-                e.preventDefault()
-                nestClient.post(`/api/v1/card-sets/${cardsetId}`)
-              }}>저장하기</Button>
+              <Button
+                type={"button"}
+                onClick={(e) => {
+                  e.preventDefault();
+                  nestClient.post(`/api/v1/card-sets/${cardsetId}`);
+                }}
+              >
+                저장하기
+              </Button>
             </div>
           </div>
         </div>
