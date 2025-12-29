@@ -1,4 +1,4 @@
-import StudySettings from "@/pages/study-settings";
+import StudySettings from "@/features/setting-study-mode/study-settings";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute(

@@ -2,7 +2,6 @@ import { GROUP_CATEGORY_MAP } from "@/domain/group/types";
 import { cardSetApi, groupApi, type GroupCategory } from "@/shared/apis";
 import { Button } from "@/shared/components/button";
 import { useQuery } from "@tanstack/react-query";
-낷;
 import { useGroupMembers } from "@/domain/members/hooks/useGroupMembers";
 import useAuthStore from "@/stores/useAuthStore";
 import { useEffect } from "react";
@@ -12,7 +11,7 @@ import BaseLayout from "@/shared/layouts/base-layout";
 import { Heart, Star } from "lucide-react";
 import { useCardSetLike } from "@/domain/cardsets/hooks/useCardSetLike";
 import { useCardSetBookmark } from "@/domain/cardsets/hooks/useCardSetBookmark";
-import StudySettings from "@/pages/study-settings";
+import StudySettings from "@/features/setting-study-mode/study-settings";
 import { Separator } from "@/shared/components/separator";
 import Badge from "@/shared/components/badge";
 
