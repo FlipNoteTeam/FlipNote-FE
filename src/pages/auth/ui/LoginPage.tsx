@@ -8,13 +8,13 @@ import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import BaseLayout from "@/shared/layouts/base-layout";
-import { Sparkles } from "lucide-react";
 import { useLogin } from "@/features/auth/hooks/useLogin";
 import {
   loginSchema,
   type LoginFormData,
 } from "@/pages/auth/model/loginSchema";
 import TextSeperator from "@/shared/components/text-separator";
+import { GoogleLogo } from "@/shared/components/logos";
 
 const LoginPage = () => {
   const {
@@ -44,24 +44,21 @@ const LoginPage = () => {
   return (
     <BaseLayout>
       <div className="text-center space-y-3">
-        <div className="flex justify-center">
-          <div className="w-12 h-12 rounded-lg bg-primary flex items-center justify-center">
-            <Sparkles className="w-7 h-7 text-primary-foreground" />
-          </div>
-        </div>
         <div>
-          <h1 className="text-3xl font-bold text-primary">FlipNote</h1>
+          <h1 className="text-3xl text-primary font-extrabold">로그인</h1>
           <p className="text-sm text-muted-foreground mt-1">
             FlipNote에 오신 걸 환영합니다!
           </p>
         </div>
       </div>
       <div className="text-center space-y-3">
-        <Card className="mt-4 py-16 px-8 max-w-md mx-auto">
+        <Card className="mt-4 py-16 px-8 max-w-md mx-auto border-none shadow-none">
           <CardContent>
-            <form id="login" className="w-full space-y-4">
+            <form id="login" className="w-full space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="email">이메일</Label>
+                <Label htmlFor="email" className="font-medium text-xs">
+                  이메일
+                </Label>
                 <Input
                   id="email"
                   placeholder="이메일을 입력해주세요"
@@ -70,7 +67,9 @@ const LoginPage = () => {
                 <ErrorMessage>{errors.email?.message}</ErrorMessage>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password">비밀번호</Label>
+                <Label htmlFor="password" className="font-medium text-xs">
+                  비밀번호
+                </Label>
                 <PasswordInput
                   id="password"
                   placeholder="비밀번호를 입력해주세요"
@@ -87,7 +86,7 @@ const LoginPage = () => {
               )}
             </form>
           </CardContent>
-          <CardFooter className="flex-col space-y-6 mt-4 ">
+          <CardFooter className="flex-col space-y-6 ">
             <Button
               form="login"
               type="submit"
@@ -104,22 +103,30 @@ const LoginPage = () => {
             <div className="w-full space-y-2">
               <Button variant="outline" asChild>
                 <a
-                  className="w-full"
+                  className="w-full text-gray-600"
                   href={`${new URL(import.meta.env.VITE_BASE_URL).origin}/oauth2/authorization/google`}
                 >
+                  <GoogleLogo />
                   Google로 로그인
                 </a>
               </Button>
             </div>
 
-            <ul className="w-full text-sm text-left">
+            <ul className="w-full text-xs text-left flex gap-2 justify-center">
               <li>
-                <Link to="/auth/register" className="text-blue-600">
+                <Link
+                  to="/auth/register"
+                  className="text-indigo-600 hover:text-indigo-700"
+                >
                   계정이 없으신가요?
                 </Link>
               </li>
+              <span>|</span>
               <li>
-                <Link to="/reset-password" className="text-blue-600">
+                <Link
+                  to="/reset-password"
+                  className="text-indigo-600 hover:text-indigo-700"
+                >
                   비밀번호를 잊어버리셨나요?
                 </Link>
               </li>
