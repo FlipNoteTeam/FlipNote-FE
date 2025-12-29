@@ -11,7 +11,6 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "@tanstack/react-router";
 import BaseLayout from "@/shared/layouts/base-layout";
-import { BadgeInfo, Sparkles } from "lucide-react";
 import { useRegister } from "../model/useRegister";
 import { registerSchema, type RegisterFormData } from "../model/registerSchema";
 import type { UserRegisterRequest } from "@/shared/apis";
@@ -86,27 +85,18 @@ const RegisterPage = () => {
 
   return (
     <BaseLayout>
-      {/* Logo & Header */}
       <div className="text-center space-y-3">
-        <div className="flex justify-center">
-          <div className="w-12 h-12 rounded-lg bg-primary flex items-center justify-center">
-            <Sparkles className="w-7 h-7 text-primary-foreground" />
-          </div>
-        </div>
         <div>
-          <h1 className="text-3xl font-bold text-primary">FlipNote</h1>
+          <h1 className="text-3xl text-primary font-extrabold">회원가입</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            가입하고 학습을 시작하세요
+            회원가입을 통해 FlipNote의 다양한 기능을 이용해보세요!
           </p>
         </div>
       </div>
-      <Card className="mt-4 py-16 px-8 max-w-md mx-auto">
+      <Card className="p-8 max-w-md mx-auto border-none shadow-none">
         <CardContent className="w-full space-y-4">
           <div className="space-y-2">
-            <Label
-              htmlFor="email"
-              className="text-sm font-medium text-foreground"
-            >
+            <Label htmlFor="email" className="font-medium text-xs">
               이메일
             </Label>
             <div className="flex gap-2">
@@ -158,7 +148,9 @@ const RegisterPage = () => {
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="password">비밀번호</Label>
+            <Label htmlFor="password" className="font-medium text-xs">
+              비밀번호
+            </Label>
             <PasswordInput
               id="password"
               placeholder="비밀번호를 입력해주세요"
@@ -168,7 +160,12 @@ const RegisterPage = () => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="passwordDoublecheck">비밀번호 확인</Label>
+            <Label
+              htmlFor="passwordDoublecheck"
+              className="font-medium text-xs"
+            >
+              비밀번호 확인
+            </Label>
             <PasswordInput
               id="passwordDoublecheck"
               placeholder="비밀번호를 한번 더 입력해주세요"
@@ -177,7 +174,9 @@ const RegisterPage = () => {
             <ErrorMessage>{errors.passwordDoublecheck?.message}</ErrorMessage>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="nickname">닉네임</Label>
+            <Label htmlFor="nickname" className="font-medium text-xs">
+              닉네임
+            </Label>
             <Input
               id="nickname"
               placeholder="닉네임을 입력해주세요"
@@ -187,7 +186,9 @@ const RegisterPage = () => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="phone">휴대폰번호</Label>
+            <Label htmlFor="phone" className="font-medium text-xs">
+              휴대폰번호
+            </Label>
             <Controller
               name="phone"
               control={control}
@@ -219,9 +220,8 @@ const RegisterPage = () => {
             {isRegisterPending ? "가입 중..." : "가입하기"}
           </Button>
 
-          <div className="w-full rounded-sm border border-violet-300 bg-violet-300/20 text-center p-4 text-sm">
-            <BadgeInfo className="absolute -translate-x-2 -translate-y-0.5" />
-            <span>회원가입 이후 소셜계정을 연동할 수 있습니다.</span>
+          <div className="text-xs text-indigo-800">
+            회원가입 이후 소셜계정을 연동할 수 있습니다.
           </div>
         </CardFooter>
       </Card>
