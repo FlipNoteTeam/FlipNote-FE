@@ -21,7 +21,7 @@ export const ButtonCheckbox = ({
   const id = React.useId();
 
   return (
-    <div>
+    <>
       <input
         type="checkbox"
         id={id}
@@ -36,7 +36,7 @@ export const ButtonCheckbox = ({
       <label
         htmlFor={id}
         className={cn(
-          "inline-flex items-center px-4 py-2 rounded-md border text-sm font-medium transition-colors cursor-pointer",
+          "inline-flex flex-col px-4 py-2 rounded-md border text-sm font-medium transition-colors cursor-pointer",
           "peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2",
           checked
             ? "bg-linear-60 from-indigo-600 to-indigo-800 text-white border-indigo-800"
@@ -47,7 +47,7 @@ export const ButtonCheckbox = ({
       >
         {children}
       </label>
-    </div>
+    </>
   );
 };
 type ButtonCheckboxGroupProps = {
