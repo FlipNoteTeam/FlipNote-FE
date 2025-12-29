@@ -229,13 +229,11 @@ export class YjsProvider {
       const id = cardMap.get("id") as string;
       const questionText = cardMap.get("question") as Y.Text;
       const answerText = cardMap.get("answer") as Y.Text;
-      const createdAt = cardMap.get("createdAt") as number;
 
       cards.push({
         id,
         question: questionText?.toString() || "",
         answer: answerText?.toString() || "",
-        createdAt,
       });
     });
 
@@ -245,11 +243,10 @@ export class YjsProvider {
   /**
    * 새 카드 추가
    */
-  addCard(card: Omit<CardData, "id" | "createdAt">): string {
+  addCard(card: Omit<CardData, "id">): string {
     if (!this.hasAccess) return "";
 
     const id = crypto.randomUUID();
-    const createdAt = Date.now();
 
     const cardMap = new Y.Map();
 

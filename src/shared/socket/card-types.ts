@@ -7,7 +7,6 @@ export interface CardData {
   id: string;
   question: string;
   answer: string;
-  createdAt: number;
 }
 
 /**
@@ -17,7 +16,6 @@ export interface YCardMap {
   id: string;
   question: Y.Text;
   answer: Y.Text;
-  createdAt: number;
 }
 
 /**
