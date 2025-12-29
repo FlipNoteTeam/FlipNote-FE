@@ -47,11 +47,11 @@ const NavItems = () => {
     <ul className="flex gap-4 justify-center">
       {navItems.map((item) =>
         item.hidden ? null : (
-          <li className="text-md" key={item.name}>
+          <li className="text-sm" key={item.name}>
             <Link
               to={item.to}
               params={item?.params}
-              className="flex items-center gap-1 font-semibold text-md rounded-xl px-4 py-2 hover:bg-accent"
+              className="flex items-center gap-1 font-semibold text-md rounded-xl p-2 hover:bg-accent"
             >
               {item.beforeIcon}
               {item.name}
