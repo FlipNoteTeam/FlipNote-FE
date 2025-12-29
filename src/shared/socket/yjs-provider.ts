@@ -248,14 +248,14 @@ export class YjsProvider {
   addCard(card: Omit<CardData, "id" | "createdAt">): string {
     if (!this.hasAccess) return "";
 
-    const id = `card-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const id = crypto.randomUUID();
     const createdAt = Date.now();
 
     const cardMap = new Y.Map();
+
     cardMap.set("id", id);
     cardMap.set("question", new Y.Text(card.question));
     cardMap.set("answer", new Y.Text(card.answer));
-    cardMap.set("createdAt", createdAt);
 
     this.cardsArray.push([cardMap]);
 
