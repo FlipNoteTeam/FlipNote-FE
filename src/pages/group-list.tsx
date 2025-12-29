@@ -2,13 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/shared/components/button";
 import { Card, CardContent, CardDescription } from "@/shared/components/card";
 import { Input } from "@/shared/components/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/shared/components/select";
+
 import BaseLayout from "@/shared/layouts/base-layout";
 import { Link } from "@tanstack/react-router";
 import { Plus, Search } from "lucide-react";
@@ -22,8 +16,6 @@ const GroupList = () => {
   const [selectedCategory, setSelectedCategory] = useState<
     GroupCategory | undefined
   >(undefined);
-  const [sortBy, setSortBy] = useState("createdAt");
-  const [order, setOrder] = useState<"ASC" | "DESC">("DESC");
 
   // Debounce 검색어 처리
   useEffect(() => {
@@ -46,8 +38,6 @@ const GroupList = () => {
     keyword: searchKeyword || undefined,
     category: selectedCategory,
     size: 20,
-    sortBy,
-    order,
   });
 
   // 카테고리 체크박스 핸들러
@@ -55,15 +45,15 @@ const GroupList = () => {
     setSelectedCategory(checked ? category : undefined);
   };
 
-  // 정렬 필드 핸들러
-  const handleSortByChange = (value: string) => {
-    setSortBy(value);
-  };
+  // // 정렬 필드 핸들러
+  // const handleSortByChange = (value: string) => {
+  //   setSortBy(value);
+  // };
 
-  // 정렬 순서 핸들러
-  const handleOrderChange = (value: string) => {
-    setOrder(value as "ASC" | "DESC");
-  };
+  // // 정렬 순서 핸들러
+  // const handleOrderChange = (value: string) => {
+  //   setOrder(value as "ASC" | "DESC");
+  // };
 
   if (isLoading) {
     return (
@@ -120,7 +110,8 @@ const GroupList = () => {
             />
           </div>
 
-          <div className="flex items-center gap-2 text-sm text-gray-600">
+          {/* 실질적으로 의미없는 파트 /}
+          {/* <div className="flex items-center gap-2 text-sm text-gray-600">
             <span>정렬:</span>
             <Select value={sortBy} onValueChange={handleSortByChange}>
               <SelectTrigger className="w-24 h-8 text-xs">
@@ -141,7 +132,7 @@ const GroupList = () => {
                 <SelectItem value="ASC">오름차순↑</SelectItem>
               </SelectContent>
             </Select>
-          </div>
+          </div> */}
         </div>
 
         {/* 그룹 리스트 */}
