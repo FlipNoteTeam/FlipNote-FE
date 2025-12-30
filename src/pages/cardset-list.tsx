@@ -5,7 +5,7 @@ import { ThumbnailCard } from "@/shared/components/ThumbnailCard";
 
 import BaseLayout from "@/shared/layouts/base-layout";
 import { Link } from "@tanstack/react-router";
-import { Plus, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { useCardSets } from "@/domain/cardsets/hooks/useCardSets";
 import { CardSetFilterSection } from "@/domain/cardsets/components/CardSetFilterSection";
 import type { CardSetCategory } from "@/domain/cardsets/types";
@@ -87,10 +87,6 @@ const CardSetList = () => {
             <h1 className="text-2xl font-bold text-gray-900">
               플래시카드셋 목록
             </h1>
-            <Button className="flex items-center gap-2 ">
-              <Plus className="w-4 h-4" />
-              카드셋 생성
-            </Button>
           </div>
 
           <div className="relative">
