@@ -1,7 +1,7 @@
-import CreateGroupForm, {
-  type CreateGroupFormField,
-} from "@/domain/group/components/CreateGroupForm";
-import { groupApi, type GroupCreateRequest } from "@/shared/apis";
+import CreateGroupForm from "@/features/create-group/components/CreateGroupForm";
+import { type CreateGroupFormField } from "@/features/create-group/schemas/form.schema";
+import { createGroupRequestSchema } from "@/features/create-group/schemas/request.schema";
+import { groupApi } from "@/shared/apis";
 import { Button } from "@/shared/components/button";
 import { Card, CardContent, CardHeader } from "@/shared/components/card";
 import { FormTitle } from "@/shared/components/form";
@@ -16,17 +16,20 @@ const CreateGroup = () => {
   });
 
   const onSubmit = (form: CreateGroupFormField) => {
-    const data: GroupCreateRequest = {
+    const requestData = {
       name: form.name,
       category: form.category,
-      description: form.description,
+      description: form.description ?? "",
       applicationRequired: form.applicationRequired,
       publicVisible: form.publicVisible,
       maxMember: form.maxMember,
       image: form.imageRefId ? String(form.imageRefId) : undefined,
     };
 
-    mutate(data);
+    // API 요청 직전 최종 검증
+    const validatedData = createGroupRequestSchema.parse(requestData);
+
+    mutate(validatedData);
   };
 
   return (

@@ -1,6 +1,4 @@
 import { GROUP_CATEGORY_MAP } from "@/domain/group/types";
-import { type GroupCategory } from "@/shared/apis";
-import { Button } from "@/shared/components/button";
 import {
   ButtonCheckbox,
   ButtonCheckboxGroupField,
@@ -16,17 +14,12 @@ import { Label } from "@/shared/components/label";
 import { Textarea } from "@/shared/components/textarea";
 import { uploadImage } from "@/shared/lib/upload-image";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useController, useForm } from "react-hook-form";
-
-export type CreateGroupFormField = {
-  name: string;
-  category: GroupCategory;
-  description: string;
-  applicationRequired: boolean;
-  publicVisible: boolean;
-  maxMember: number;
-  imageRefId: number;
-};
+import {
+  createGroupFormSchema,
+  type CreateGroupFormField,
+} from "../schemas/form.schema";
 
 type Props = {
   onSubmit: (form: CreateGroupFormField) => void;
@@ -41,6 +34,7 @@ const CreateGroupForm = ({ onSubmit, formId = "group-form" }: Props) => {
     control,
     formState: { errors },
   } = useForm<CreateGroupFormField>({
+    resolver: zodResolver(createGroupFormSchema),
     defaultValues: {
       applicationRequired: false,
       publicVisible: true,
@@ -50,9 +44,6 @@ const CreateGroupForm = ({ onSubmit, formId = "group-form" }: Props) => {
   const { field: categoryField } = useController({
     name: "category",
     control,
-    rules: {
-      required: "하나 이상의 카테고리를 선택해주세요",
-    },
   });
 
   const { field: applicationRequiredField } = useController({

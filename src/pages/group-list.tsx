@@ -9,7 +9,7 @@ import { Plus, Search } from "lucide-react";
 import { useGroups } from "@/features/group-search/hooks/useGroups";
 import { GroupFilterSection } from "@/features/group-search/components/GroupFilterSection";
 import type { GroupCategory } from "@/shared/apis/types";
-import CreateGroupDialog from "@/domain/group/components/CreateGroupDialog";
+import CreateGroupDialog from "@/features/create-group/components/CreateGroupDialog";
 
 const GroupList = () => {
   const [searchInput, setSearchInput] = useState("");
