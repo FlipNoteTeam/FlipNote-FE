@@ -1,14 +1,8 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/shared/components/button";
-import { Card, CardContent, CardDescription } from "@/shared/components/card";
 import { Input } from "@/shared/components/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/shared/components/select";
+import { ThumbnailCard } from "@/shared/components/ThumbnailCard";
+
 import BaseLayout from "@/shared/layouts/base-layout";
 import { Link } from "@tanstack/react-router";
 import { Plus, Search } from "lucide-react";
@@ -22,8 +16,6 @@ const CardSetList = () => {
   const [selectedCategory, setSelectedCategory] = useState<
     CardSetCategory | undefined
   >(undefined);
-  const [sortBy, setSortBy] = useState("createdAt");
-  const [order, setOrder] = useState<"ASC" | "DESC">("DESC");
 
   // Debounce 검색어 처리
   useEffect(() => {
@@ -46,8 +38,6 @@ const CardSetList = () => {
     keyword: searchKeyword || undefined,
     category: selectedCategory,
     size: 20,
-    sortBy,
-    order,
   });
 
   // 카테고리 체크박스 핸들러
@@ -58,15 +48,15 @@ const CardSetList = () => {
     setSelectedCategory(checked ? category : undefined);
   };
 
-  // 정렬 필드 핸들러
-  const handleSortByChange = (value: string) => {
-    setSortBy(value);
-  };
+  // // 정렬 필드 핸들러
+  // const handleSortByChange = (value: string) => {
+  //   setSortBy(value);
+  // };
 
-  // 정렬 순서 핸들러
-  const handleOrderChange = (value: string) => {
-    setOrder(value as "ASC" | "DESC");
-  };
+  // // 정렬 순서 핸들러
+  // const handleOrderChange = (value: string) => {
+  //   setOrder(value as "ASC" | "DESC");
+  // };
 
   // if (isLoading) {
   //   return (
@@ -122,7 +112,7 @@ const CardSetList = () => {
               onCategoryChange={handleCategoryChange}
             />
           </div>
-
+          {/* 
           <div className="flex items-center gap-2 text-sm text-gray-600">
             <span>정렬:</span>
             <Select value={sortBy} onValueChange={handleSortByChange}>
@@ -144,7 +134,7 @@ const CardSetList = () => {
                 <SelectItem value="ASC">오름차순↑</SelectItem>
               </SelectContent>
             </Select>
-          </div>
+          </div> */}
         </div>
 
         {/* 카드셋 리스트 */}
@@ -158,34 +148,19 @@ const CardSetList = () => {
               }}
               key={cardset.cardSetId}
             >
-              <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-200 cursor-pointer">
-                <div className="w-full h-40 bg-gray-100">
-                  {cardset.imageUrl ? (
-                    <img
-                      src={cardset.imageUrl}
-                      alt={`${cardset.name}의 썸네일`}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-400">
-                      No Image
-                    </div>
-                  )}
-                </div>
-                <CardContent className="p-4">
-                  <h3 className="font-semibold text-gray-900 mb-2 line-clamp-1">
-                    {cardset.name}
-                  </h3>
-                  <CardDescription className="line-clamp-2 text-sm">
-                    {cardset.hashtag && `#${cardset.hashtag}`}
-                  </CardDescription>
-                  <div className="mt-3 flex justify-between items-center">
-                    <span className="text-xs text-gray-500">
-                      {cardset.category}
-                    </span>
-                  </div>
-                </CardContent>
-              </Card>
+              <ThumbnailCard
+                imageUrl={cardset.imageUrl}
+                title={cardset.name}
+                category={cardset.category}
+                subtitle={
+                  cardset.hashtag
+                    ? `${cardset.hashtag
+                        .split(",")
+                        .map((tag) => `#${tag}`)
+                        .join(" ")}`
+                    : undefined
+                }
+              />
             </Link>
           ))}
         </div>

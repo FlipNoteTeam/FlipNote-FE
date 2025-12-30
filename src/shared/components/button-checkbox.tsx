@@ -39,7 +39,7 @@ export const ButtonCheckbox = ({
           "inline-flex items-center px-4 py-2 rounded-md border text-sm font-medium transition-colors cursor-pointer",
           "peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2",
           checked
-            ? "bg-blue-500 text-white border-blue-500"
+            ? "bg-linear-60 from-indigo-600 to-indigo-800 text-white border-indigo-800"
             : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50",
           disabled && "opacity-50 cursor-not-allowed",
           className

@@ -5,6 +5,7 @@ import {
   mockBookmarkedCardSets,
   mockLikedCardSets,
 } from "@/shared/mocks/cardsets";
+import { ThumbnailCard } from "@/shared/components/ThumbnailCard";
 
 export const MyStudyPage = () => {
   // TODO: 실제 API 연동 시 주석 해제
@@ -55,41 +56,14 @@ export const MyStudyPage = () => {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {cardSets.map((cardSet) => (
-          <Card
+          <ThumbnailCard
             key={cardSet.cardSetId}
-            className="overflow-hidden hover:shadow-lg transition-shadow duration-200 cursor-pointer"
-          >
-            <div className="w-full h-40 bg-gray-100">
-              {cardSet.imageUrl ? (
-                <img
-                  src={cardSet.imageUrl}
-                  alt={cardSet.name}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-gray-400">
-                  <BookOpen className="w-12 h-12" />
-                </div>
-              )}
-            </div>
-            <CardContent className="p-4">
-              <h3 className="font-semibold text-gray-900 mb-2 line-clamp-1">
-                {cardSet.name}
-              </h3>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
-                    {cardSet.category}
-                  </span>
-                </div>
-                {cardSet.hashtag && (
-                  <p className="text-xs text-gray-500 line-clamp-1">
-                    {cardSet.hashtag}
-                  </p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+            imageUrl={cardSet.imageUrl}
+            title={cardSet.name}
+            subtitle={cardSet.hashtag}
+            category={cardSet.category}
+            className="p-4"
+          />
         ))}
       </div>
     );
