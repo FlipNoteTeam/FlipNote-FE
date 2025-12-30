@@ -9,6 +9,7 @@ import { Plus, Search } from "lucide-react";
 import { useGroups } from "@/features/group-search/hooks/useGroups";
 import { GroupFilterSection } from "@/features/group-search/components/GroupFilterSection";
 import type { GroupCategory } from "@/shared/apis/types";
+import CreateGroupDialog from "@/domain/group/components/CreateGroupDialog";
 
 const GroupList = () => {
   const [searchInput, setSearchInput] = useState("");
@@ -82,12 +83,14 @@ const GroupList = () => {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-bold text-gray-900">그룹 목록</h1>
-            <Button asChild className="flex items-center gap-2 ">
-              <Link to="/groups/create">
-                <Plus className="w-4 h-4" />
-                그룹 생성
-              </Link>
-            </Button>
+            <CreateGroupDialog
+              renderTrigger={
+                <Button className="flex items-center gap-2">
+                  <Plus className="w-4 h-4" />
+                  그룹 생성
+                </Button>
+              }
+            />
           </div>
 
           <div className="relative">
