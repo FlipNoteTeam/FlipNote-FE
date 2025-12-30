@@ -21,6 +21,7 @@ export type GroupDetail = {
   modifiedAt: Date;
 };
 
+// ✅ 단 한 곳에서만 정의
 export const GROUP_CATEGORY_MAP = {
   IT: "IT",
   ENGLISH: "영어",
@@ -31,12 +32,10 @@ export const GROUP_CATEGORY_MAP = {
   KOREAN: "한국어",
 } as const;
 
+// 나머지는 모두 자동으로 파생
 export type GroupCategory = keyof typeof GROUP_CATEGORY_MAP;
-
-export const GROUP_CATEGORY = Object.values(GROUP_CATEGORY_MAP);
-
-export const getGroupCategoryKeys = () =>
-  Object.keys(GROUP_CATEGORY_MAP) as GroupCategory[];
+export const GROUP_CATEGORIES = Object.keys(GROUP_CATEGORY_MAP) as readonly GroupCategory[];
+export const GROUP_CATEGORY_LABELS = Object.values(GROUP_CATEGORY_MAP);
 
 export const toGroupBrief = (apiResponse: GroupInfo): GroupBrief => {
   return {

@@ -1,6 +1,4 @@
-import CreateGroupForm, {
-  type CreateGroupFormField,
-} from "@/domain/group/components/CreateGroupForm";
+import CreateGroupForm from "./CreateGroupForm";
 import { groupApi, type GroupCreateRequest } from "@/shared/apis";
 import { Button } from "@/shared/components/button";
 import {
@@ -12,6 +10,8 @@ import {
 } from "@/shared/components/dialog";
 import { useMutation } from "@tanstack/react-query";
 import type { ReactNode } from "react";
+import { type CreateGroupFormField } from "../schemas/form.schema";
+import { createGroupRequestSchema } from "../schemas/request.schema";
 
 const FORM_ID = "group-create-form";
 
@@ -25,17 +25,20 @@ const CreateGroupDialog = ({ renderTrigger }: Props) => {
   });
 
   const handleSubmit = (form: CreateGroupFormField) => {
-    const data: GroupCreateRequest = {
+    const requestData = {
       name: form.name,
       category: form.category,
-      description: form.description,
+      description: form.description ?? "",
       applicationRequired: form.applicationRequired,
       publicVisible: form.publicVisible,
       maxMember: form.maxMember,
       image: form.imageRefId ? String(form.imageRefId) : undefined,
     };
 
-    mutate(data);
+    // API 요청 직전 최종 검증
+    const validatedData = createGroupRequestSchema.parse(requestData);
+
+    mutate(validatedData);
   };
 
   return (
