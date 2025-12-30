@@ -10,7 +10,7 @@ import {
 import BaseLayout from "@/shared/layouts/base-layout";
 import { GroupInfoCard } from "@/domain/group/components/GroupInfoCard";
 import { MemberCard } from "@/domain/members/components/MemberCard";
-import { CardsetCard } from "@/domain/cardsets/components/CardsetCard";
+import { ThumbnailCard } from "@/shared/components/ThumbnailCard";
 import { useGroupDetail } from "@/domain/group/hooks/useGroupDetail";
 import { useGroupMembers } from "@/domain/members/hooks/useGroupMembers";
 import { useGroupCardsets } from "@/domain/cardsets/hooks/useGroupCardsets";
@@ -181,13 +181,19 @@ const GroupDetailPage = ({ id }: Props) => {
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {cardSets.map((cardSet) => (
                   <Link
+                    key={cardSet.cardSetId}
                     to="/groups/$groupId/cardsets/$cardsetId"
                     params={{
                       groupId: String(cardSet.groupId),
                       cardsetId: String(cardSet.cardSetId),
                     }}
                   >
-                    <CardsetCard key={cardSet.cardSetId} cardset={cardSet} />
+                    <ThumbnailCard
+                      imageUrl={cardSet.imageUrl}
+                      title={cardSet.name}
+                      category={cardSet.category}
+                      subtitle={cardSet.hashtag ? `#${cardSet.hashtag}` : undefined}
+                    />
                   </Link>
                 ))}
               </div>

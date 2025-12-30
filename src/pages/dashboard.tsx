@@ -11,6 +11,7 @@ import { groupApi } from "@/shared/apis/group";
 import { mockWrongAnswerNotes } from "@/shared/mocks/wrong-answer-notes";
 import { BookOpen, Users, Calendar, AlertCircle } from "lucide-react";
 import { GROUP_CATEGORY_MAP } from "@/domain/group/types";
+import { ThumbnailCard } from "@/shared/components/ThumbnailCard";
 
 const Dashboard = () => {
   // 내 그룹 조회
@@ -83,34 +84,13 @@ const Dashboard = () => {
                 params={{ groupId: group.groupId.toString() }}
                 key={group.groupId}
               >
-                <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-200 cursor-pointer h-full">
-                  <div className="w-full h-40 bg-gray-100">
-                    {group.imageUrl ? (
-                      <img
-                        src={group.imageUrl}
-                        alt={`${group.name}의 썸네일`}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-400">
-                        No Image
-                      </div>
-                    )}
-                  </div>
-                  <CardContent className="p-4">
-                    <h3 className="font-semibold text-gray-900 mb-2 line-clamp-1">
-                      {group.name}
-                    </h3>
-                    <CardDescription className="line-clamp-2 text-sm mb-3">
-                      {group.description}
-                    </CardDescription>
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
-                        {GROUP_CATEGORY_MAP[group.category]}
-                      </span>
-                    </div>
-                  </CardContent>
-                </Card>
+                <ThumbnailCard
+                  imageUrl={group.imageUrl}
+                  title={group.name}
+                  subtitle={group.description}
+                  category={GROUP_CATEGORY_MAP[group.category]}
+                  className="p-4"
+                />
               </Link>
             ))}
           </div>
@@ -149,34 +129,13 @@ const Dashboard = () => {
                 params={{ groupId: group.groupId.toString() }}
                 key={group.groupId}
               >
-                <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-200 cursor-pointer h-full">
-                  <div className="w-full h-40 bg-gray-100">
-                    {group.imageUrl ? (
-                      <img
-                        src={group.imageUrl}
-                        alt={`${group.name}의 썸네일`}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-400">
-                        No Image
-                      </div>
-                    )}
-                  </div>
-                  <CardContent className="p-4">
-                    <h3 className="font-semibold text-gray-900 mb-2 line-clamp-1">
-                      {group.name}
-                    </h3>
-                    <CardDescription className="line-clamp-2 text-sm mb-3">
-                      {group.description}
-                    </CardDescription>
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
-                        {GROUP_CATEGORY_MAP[group.category]}
-                      </span>
-                    </div>
-                  </CardContent>
-                </Card>
+                <ThumbnailCard
+                  imageUrl={group.imageUrl}
+                  title={group.name}
+                  subtitle={group.description}
+                  category={GROUP_CATEGORY_MAP[group.category]}
+                  className="p-4"
+                />
               </Link>
             ))}
           </div>
