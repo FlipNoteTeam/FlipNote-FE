@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/shared/components/button";
-import { Card, CardContent, CardDescription } from "@/shared/components/card";
 import { Input } from "@/shared/components/input";
+import { ThumbnailCard } from "@/shared/components/ThumbnailCard";
 
 import BaseLayout from "@/shared/layouts/base-layout";
 import { Link } from "@tanstack/react-router";
@@ -143,34 +143,12 @@ const GroupList = () => {
               params={{ groupId: group.groupId.toString() }}
               key={group.groupId}
             >
-              <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-200 cursor-pointer">
-                <div className="w-full h-40 bg-gray-100">
-                  {group.imageUrl ? (
-                    <img
-                      src={group.imageUrl}
-                      alt={`${group.name}의 썸네일`}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-400">
-                      No Image
-                    </div>
-                  )}
-                </div>
-                <CardContent className="p-4">
-                  <h3 className="font-semibold text-gray-900 mb-2 line-clamp-1">
-                    {group.name}
-                  </h3>
-                  <CardDescription className="line-clamp-2 text-sm">
-                    {group.description}
-                  </CardDescription>
-                  <div className="mt-3 flex justify-between items-center">
-                    <span className="text-xs text-gray-500">
-                      {group.category}
-                    </span>
-                  </div>
-                </CardContent>
-              </Card>
+              <ThumbnailCard
+                imageUrl={group.imageUrl}
+                title={group.name}
+                category={group.category}
+                subtitle={group.description}
+              />
             </Link>
           ))}
         </div>
