@@ -2,6 +2,8 @@ import * as React from "react";
 import { Input } from "./input";
 
 interface NumberInputProps extends Omit<React.ComponentProps<"input">, "type"> {
+  min?: number;
+  max?: number;
   allowNegative?: boolean;
   allowDecimal?: boolean;
 }
@@ -30,10 +32,40 @@ function NumberInput({
     }
   };
 
+  const validateValue = (value: string) => {
+    if (!allowNegative && value.includes("-")) {
+      return false;
+    }
+    if (!allowDecimal && (value.includes(".") || value.includes(","))) {
+      return false;
+    }
+    if (value.includes("e") || value.includes("E")) {
+      return false;
+    }
+    return true;
+  };
+
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    const pastedText = e.clipboardData.getData("text");
+    if (!validateValue(pastedText)) {
+      e.preventDefault();
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!validateValue(e.target.value)) {
+      e.preventDefault();
+      return;
+    }
+    props.onChange?.(e);
+  };
+
   return (
     <Input
       type="number"
       onKeyDown={handleKeyDown}
+      onPaste={handlePaste}
+      onChange={handleChange}
       min={min}
       max={max}
       {...props}
