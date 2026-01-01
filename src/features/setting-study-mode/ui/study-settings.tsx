@@ -5,7 +5,7 @@ import {
 } from "@/shared/components/button-checkbox";
 import { Checkbox } from "@/shared/components/checkbox";
 import { Description, FormTitle } from "@/shared/components/form";
-import { Input } from "@/shared/components/input";
+import { NumberInput } from "@/shared/components/number-input";
 import { Label } from "@/shared/components/label";
 import { ToggleGroup } from "@/shared/components/toggle-group";
 import { useNavigate } from "@tanstack/react-router";
@@ -158,8 +158,7 @@ const StudySettings = ({
               <fieldset className="space-y-3">
                 <Label className="text-sm font-medium">반복 횟수</Label>
                 <div className="flex items-center gap-2">
-                  <Input
-                    type="number"
+                  <NumberInput
                     min={1}
                     max={100}
                     className="w-24"
@@ -243,8 +242,7 @@ const StudySettings = ({
                     카드가 자동으로 넘어가는 시간을 설정해주세요
                   </Description>
                   <div className="flex items-center gap-2">
-                    <Input
-                      type="number"
+                    <NumberInput
                       id="autoTimerSeconds"
                       className="w-24"
                       {...register("autoTimerSeconds", {
@@ -270,8 +268,7 @@ const StudySettings = ({
               <fieldset className="space-y-3">
                 <Label className="text-sm font-medium">시험 시간</Label>
                 <div className="flex items-center gap-2">
-                  <Input
-                    type="number"
+                  <NumberInput
                     min={1}
                     max={180}
                     className="w-24"
@@ -350,8 +347,7 @@ const StudySettings = ({
                         전체 {totalCardCount}개 중 몇 개를 시험 볼까요?
                       </Description>
                       <div className="flex items-center gap-2">
-                        <Input
-                          type="number"
+                        <NumberInput
                           id="randomPickCount"
                           min={1}
                           max={totalCardCount}
