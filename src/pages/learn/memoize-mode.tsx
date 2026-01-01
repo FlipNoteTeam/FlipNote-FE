@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import BaseLayout from "@/shared/layouts/base-layout";
 import FlipCard from "@/shared/components/flip-card";
 import { Button } from "@/shared/components/button";
+// import { useLocation } from "@tanstack/react-router";
 
 const MOCKED_PROBLEMSET = [
   {
@@ -65,16 +66,43 @@ const MOCKED_PROBLEMSET = [
 //   state: { current: "a1f3c9b2-1e4a-4d8b-9c12-001" },
 // };
 
-const CardCarousel = () => {
+const CardCarousel = ({
+  autoPlay = false,
+  duration,
+  repeat = false,
+}:
+  | { autoPlay?: false; duration?: never; repeat?: never }
+  | { autoPlay: true; duration: number; repeat?: boolean }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const moveNext = () => {
-    setCurrentIndex((i) => Math.min(i + 1, MOCKED_PROBLEMSET.length - 1));
-  };
+  const moveNext = useCallback(() => {
+    if (repeat) {
+      setCurrentIndex((i) => (i + 1) % MOCKED_PROBLEMSET.length);
+    } else {
+      if (currentIndex >= MOCKED_PROBLEMSET.length - 1) return;
+      setCurrentIndex((i) => Math.min(i + 1, MOCKED_PROBLEMSET.length - 1));
+    }
+  }, [currentIndex, repeat]);
 
-  const movePrev = () => {
-    setCurrentIndex((i) => Math.max(i - 1, 0));
-  };
+  const movePrev = useCallback(() => {
+    if (repeat) {
+      setCurrentIndex(
+        (i) => (i - 1 + MOCKED_PROBLEMSET.length) % MOCKED_PROBLEMSET.length
+      );
+    } else {
+      if (currentIndex < 0) return;
+      setCurrentIndex((i) => Math.max(i - 1, 0));
+    }
+  }, [currentIndex, repeat]);
+
+  useEffect(() => {
+    if (autoPlay) {
+      const interval = setInterval(() => {
+        moveNext();
+      }, duration);
+      return () => clearInterval(interval);
+    }
+  }, [autoPlay, duration, moveNext]);
 
   return (
     <div className="relative h-[600px] w-full overflow-hidden bg-gray-100">
@@ -107,27 +135,33 @@ const CardCarousel = () => {
       })}
 
       {/* Controls */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-4">
-        <Button
-          onClick={movePrev}
-          className="px-4 py-2 rounded bg-gray-800 text-white disabled:opacity-40"
-          disabled={currentIndex === 0}
-        >
-          이전
-        </Button>
-        <Button
-          onClick={moveNext}
-          className="px-4 py-2 rounded bg-gray-800 text-white disabled:opacity-40"
-          disabled={currentIndex === MOCKED_PROBLEMSET.length - 1}
-        >
-          다음
-        </Button>
-      </div>
+      {!autoPlay && (
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-4">
+          <Button
+            onClick={movePrev}
+            className="px-4 py-2 rounded bg-gray-800 text-white disabled:opacity-40"
+            disabled={currentIndex === 0}
+          >
+            이전
+          </Button>
+          <Button
+            onClick={moveNext}
+            className="px-4 py-2 rounded bg-gray-800 text-white disabled:opacity-40"
+            disabled={currentIndex === MOCKED_PROBLEMSET.length - 1}
+          >
+            다음
+          </Button>
+        </div>
+      )}
     </div>
   );
 };
 
 const MemoizeMode = () => {
+  // @TODO STATE OPTION 타입 정의
+  // const { state } = useLocation();
+
+  // console.log(":::", state);
   // 로딩은 - 질문지 준비 중..같은 걸로
 
   // 2. 블라인드 모드 - 질문만 쭉-보여주는 모드(원하는 곳에서만 답변 눌러서 보기)
@@ -136,7 +170,7 @@ const MemoizeMode = () => {
     <BaseLayout>
       {/* // 1. 일반 모드 - 질문/답 순서로 보여주는 모드 */}
 
-      <CardCarousel />
+      <CardCarousel autoPlay duration={10 * 1000} repeat />
     </BaseLayout>
   );
 };
