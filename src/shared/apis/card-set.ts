@@ -20,7 +20,7 @@ export interface CardSetDetailResponse {
   cardSetId: number;
   groupId: number;
   name: string;
-  category: string;
+  category: GroupCategory;
   hashtag: string;
   imageUrl?: string;
   imageRefId?: number;

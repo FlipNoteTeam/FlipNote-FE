@@ -1,5 +1,5 @@
 import { GROUP_CATEGORY_MAP } from "@/domain/group/types";
-import { cardSetApi, groupApi, type GroupCategory } from "@/shared/apis";
+import { cardSetApi, groupApi } from "@/shared/apis";
 import { Button } from "@/shared/components/button";
 import { useQuery } from "@tanstack/react-query";
 import { useGroupMembers } from "@/domain/members/hooks/useGroupMembers";
@@ -136,9 +136,7 @@ const CardsetDetail = ({ groupId, cardsetId }: Props) => {
         {/* 카드셋 메타정보 영역 */}
         <div className="flex-1 space-y-4 basis-2/3">
           <div className="flex gap-2">
-            <Badge>
-              {GROUP_CATEGORY_MAP[cardset.category as GroupCategory]}
-            </Badge>
+            <Badge>{GROUP_CATEGORY_MAP[cardset.category]}</Badge>
             <Badge colorVariant={cardset.publicVisible ? "green" : "red"}>
               {cardset.publicVisible ? "공개" : "비공개"}
             </Badge>
