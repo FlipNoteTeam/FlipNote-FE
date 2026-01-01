@@ -11,7 +11,7 @@ import BaseLayout from "@/shared/layouts/base-layout";
 import { Heart, Star } from "lucide-react";
 import { useCardSetLike } from "@/domain/cardsets/hooks/useCardSetLike";
 import { useCardSetBookmark } from "@/domain/cardsets/hooks/useCardSetBookmark";
-import StudySettings from "@/features/setting-study-mode/study-settings";
+import StudySettings from "@/features/setting-study-mode/ui/study-settings";
 import { Separator } from "@/shared/components/separator";
 import Badge from "@/shared/components/badge";
 
