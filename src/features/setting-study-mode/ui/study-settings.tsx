@@ -16,12 +16,33 @@ import {
   studySettingsFormSchema,
   type StudySettingsFormField,
 } from "../model/form.schema";
+import { useEffect } from "react";
 
 type StudySettingsProps = {
   groupId: number;
   cardsetId: number;
   totalCardCount?: number;
 };
+
+// 모드별 기본값 상수
+const MEMORIZE_MODE_DEFAULTS = {
+  mode: "memorize" as const,
+  isUnlimitedRepeat: false,
+  repeatCount: 3,
+  navigationType: "manual" as const,
+  autoTimerSeconds: 5,
+  orderType: "sequential" as const,
+};
+
+const getTestModeDefaults = (totalCardCount: number) => ({
+  mode: "test" as const,
+  isUnlimitedTime: false,
+  testTimeMinutes: 30,
+  orderType: "sequential" as const,
+  testMode: "all" as const,
+  totalCardCount,
+  randomPickCount: undefined,
+});
 
 const StudySettings = ({
   groupId,
@@ -37,14 +58,7 @@ const StudySettings = ({
     formState: { errors },
   } = useForm<StudySettingsFormField>({
     resolver: zodResolver(studySettingsFormSchema),
-    defaultValues: {
-      mode: "memorize",
-      isUnlimitedRepeat: false,
-      repeatCount: 3,
-      navigationType: "manual",
-      autoTimerSeconds: 5,
-      orderType: "sequential",
-    },
+    defaultValues: MEMORIZE_MODE_DEFAULTS,
   });
 
   const { field: modeField } = useController({
@@ -73,26 +87,20 @@ const StudySettings = ({
   const isUnlimitedTime = useWatch({ control, name: "isUnlimitedTime" });
   const testMode = useWatch({ control, name: "testMode" });
 
+  // 모드 변경 시 기본값 설정
+  useEffect(() => {
+    if (mode === "memorize") {
+      reset(MEMORIZE_MODE_DEFAULTS);
+    } else if (mode === "test") {
+      reset(getTestModeDefaults(totalCardCount));
+    }
+  }, [mode, reset, totalCardCount]);
+
   const handleReset = () => {
     if (mode === "memorize") {
-      reset({
-        mode: "memorize",
-        isUnlimitedRepeat: false,
-        repeatCount: 3,
-        navigationType: "manual",
-        autoTimerSeconds: 5,
-        orderType: "sequential",
-      });
+      reset(MEMORIZE_MODE_DEFAULTS);
     } else {
-      reset({
-        mode: "test",
-        isUnlimitedTime: false,
-        testTimeMinutes: 30,
-        orderType: "sequential",
-        testMode: "all",
-        totalCardCount,
-        randomPickCount: undefined,
-      });
+      reset(getTestModeDefaults(totalCardCount));
     }
   };
 
