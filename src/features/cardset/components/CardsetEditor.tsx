@@ -52,6 +52,9 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
     autoConnect: true,
   });
 
+  // 좌측 프리뷰용 실시간 카드 상태
+  const [previewCards, setPreviewCards] = useState<CardData[]>([]);
+
   // 연결된 경우 Yjs 카드 사용, 아니면 로컬 카드 사용
   const cards = hasAccess && yjsCards.length > 0 ? yjsCards : localCards;
   const currentCard = cards[currentCardIndex];
@@ -62,6 +65,53 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
       addCard({ question: "", answer: "" });
     }
   }, [hasAccess, yjsCards.length, addCard]);
+
+  // 좌측 프리뷰용 실시간 업데이트: 모든 카드의 Y.Text에 observer 등록
+  useEffect(() => {
+    if (!hasAccess || cards.length === 0) {
+      setPreviewCards(localCards);
+      return;
+    }
+
+    // 초기 프리뷰 카드 설정
+    setPreviewCards(cards);
+
+    const observers: Array<() => void> = [];
+
+    // 각 카드의 question과 answer Y.Text에 observer 등록
+    cards.forEach((_, index) => {
+      const questionText = getCardQuestionText(index);
+      const answerText = getCardAnswerText(index);
+
+      if (questionText && answerText) {
+        const updatePreview = () => {
+          setPreviewCards((prev) => {
+            const newCards = [...prev];
+            if (newCards[index]) {
+              newCards[index] = {
+                ...newCards[index],
+                question: questionText.toString(),
+                answer: answerText.toString(),
+              };
+            }
+            return newCards;
+          });
+        };
+
+        questionText.observe(updatePreview);
+        answerText.observe(updatePreview);
+
+        observers.push(() => {
+          questionText.unobserve(updatePreview);
+          answerText.unobserve(updatePreview);
+        });
+      }
+    });
+
+    return () => {
+      observers.forEach((cleanup) => cleanup());
+    };
+  }, [hasAccess, cards.length, getCardQuestionText, getCardAnswerText, localCards]);
 
   // 카드 전환 시 값 로드 및 Y.Text observe 설정
   useEffect(() => {
@@ -261,7 +311,7 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
         </div>
 
         <div className="flex-1 overflow-y-auto p-6 space-y-4">
-          {cards.map((card, index) => (
+          {(hasAccess ? previewCards : localCards).map((card, index) => (
             <Card
               key={card.id}
               className={`cursor-pointer transition-all duration-200 ${
@@ -276,7 +326,7 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
                   <span className="text-sm font-semibold text-gray-600 bg-gray-100 px-2 py-1 rounded">
                     카드 {index + 1}
                   </span>
-                  {cards.length > 1 && (
+                  {(hasAccess ? previewCards : localCards).length > 1 && (
                     <Button
                       variant="ghost"
                       size="sm"
