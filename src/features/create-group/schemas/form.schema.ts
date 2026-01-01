@@ -7,8 +7,8 @@ export const createGroupFormSchema = z.object({
     message: "하나 이상의 카테고리를 선택해주세요",
   }),
   description: z.string().optional(),
-  applicationRequired: z.boolean().default(false),
-  publicVisible: z.boolean().default(true),
+  applicationRequired: z.boolean(),
+  publicVisible: z.boolean(),
   maxMember: z
     .number({ message: "숫자를 입력해주세요" })
     .min(1, "최소 인원은 1명입니다.")
