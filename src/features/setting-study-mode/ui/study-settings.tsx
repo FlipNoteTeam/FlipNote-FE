@@ -89,7 +89,9 @@ const StudySettings = ({
     navigate({
       to: "/groups/$groupId/cardsets/$cardsetId/study",
       params: { groupId: String(groupId), cardsetId: String(cardsetId) },
-      state: data as unknown as true,
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error
+      state: data as unknown,
     });
   };
 
