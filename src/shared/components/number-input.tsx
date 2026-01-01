@@ -1,7 +1,8 @@
 import * as React from "react";
 import { Input } from "./input";
 
-interface NumberInputProps extends Omit<React.ComponentProps<"input">, "type"> {
+interface NumberInputProps
+  extends Omit<React.ComponentProps<"input">, "type" | "min" | "max"> {
   min?: number;
   max?: number;
   allowNegative?: boolean;
@@ -63,12 +64,12 @@ function NumberInput({
   return (
     <Input
       type="number"
-      onKeyDown={handleKeyDown}
-      onPaste={handlePaste}
-      onChange={handleChange}
       min={min}
       max={max}
       {...props}
+      onKeyDown={handleKeyDown}
+      onPaste={handlePaste}
+      onChange={handleChange}
     />
   );
 }

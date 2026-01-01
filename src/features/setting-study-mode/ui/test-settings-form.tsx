@@ -40,13 +40,13 @@ export function TestSettingsForm({
         <Label className="text-sm font-medium">시험 시간</Label>
         <div className="flex items-center gap-2">
           <NumberInput
-            min={1}
-            max={180}
             className="w-24"
             disabled={isUnlimitedTime}
             {...register("testTimeMinutes", {
               valueAsNumber: true,
             })}
+            min={1}
+            max={180}
           />
           <span className="text-sm">분</span>
         </div>
@@ -114,12 +114,12 @@ export function TestSettingsForm({
               <div className="flex items-center gap-2">
                 <NumberInput
                   id="randomPickCount"
-                  min={1}
-                  max={totalCardCount}
                   className="w-24"
                   {...register("randomPickCount", {
                     valueAsNumber: true,
                   })}
+                  min={1}
+                  max={totalCardCount}
                 />
                 <span className="text-sm">개</span>
               </div>
