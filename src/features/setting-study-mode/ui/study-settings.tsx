@@ -86,12 +86,19 @@ const StudySettings = ({
 
   const onSubmit = (data: StudySettingsFormField) => {
     // location.state로 학습 페이지로 데이터 전달
+
+    const studyOption = {
+      groupId,
+      cardsetId,
+      ...data,
+    };
+
     navigate({
-      to: "/groups/$groupId/cardsets/$cardsetId/study",
-      params: { groupId: String(groupId), cardsetId: String(cardsetId) },
+      to: "/cardsets/learning",
+
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-expect-error
-      state: data as unknown,
+      state: studyOption,
     });
   };
 
