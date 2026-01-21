@@ -13,7 +13,6 @@ import {
   studySettingsFormSchema,
   type StudySettingsFormField,
 } from "../model/form.schema";
-import { useEffect } from "react";
 import { MemorizeSettingsForm } from "./memorize-settings-form";
 import { TestSettingsForm } from "./test-settings-form";
 
@@ -39,7 +38,7 @@ const getTestModeDefaults = (totalCardCount: number) => ({
   testTimeMinutes: 30,
   orderType: "sequential" as const,
   testMode: "all" as const,
-  totalCardCount,
+  totalCardCount: totalCardCount || 10, // 0이면 기본값 10
   randomPickCount: undefined,
 });
 
@@ -58,6 +57,7 @@ const StudySettings = ({
   } = useForm<StudySettingsFormField>({
     resolver: zodResolver(studySettingsFormSchema),
     defaultValues: MEMORIZE_MODE_DEFAULTS,
+    shouldUnregister: true, // 조건부 필드가 언마운트되면 자동으로 등록 해제
   });
 
   const { field: modeField } = useController({
@@ -67,14 +67,18 @@ const StudySettings = ({
 
   const mode = useWatch({ control, name: "mode" });
 
-  // 모드 변경 시 기본값 설정
-  useEffect(() => {
-    if (mode === "memorize") {
+  // 모드 변경 핸들러
+  const handleModeChange = (value: string | number | string[]) => {
+    const newMode = value as "memorize" | "test";
+    modeField.onChange(newMode);
+
+    // 모드 변경 시 즉시 해당 모드의 기본값으로 리셋
+    if (newMode === "memorize") {
       reset(MEMORIZE_MODE_DEFAULTS);
-    } else if (mode === "test") {
+    } else if (newMode === "test") {
       reset(getTestModeDefaults(totalCardCount));
     }
-  }, [mode, reset, totalCardCount]);
+  };
 
   const handleReset = () => {
     if (mode === "memorize") {
@@ -87,19 +91,25 @@ const StudySettings = ({
   const onSubmit = (data: StudySettingsFormField) => {
     // location.state로 학습 페이지로 데이터 전달
 
+    // testMode가 'all'이면 randomPickCount 제거
+    const cleanedData = { ...data };
+    if (cleanedData.mode === "test" && cleanedData.testMode === "all") {
+      delete cleanedData.randomPickCount;
+    }
+
     const studyOption = {
       groupId,
       cardsetId,
-      ...data,
+      ...cleanedData,
     };
+
+    console.log("Submitting study options:", studyOption);
 
     navigate({
       to: "/cardsets/learning",
-
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-expect-error
       state: studyOption,
-    });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any);
   };
 
   return (
@@ -115,7 +125,7 @@ const StudySettings = ({
           <ButtonCheckboxGroupField
             name="mode"
             value={modeField.value}
-            onChange={modeField.onChange}
+            onChange={handleModeChange}
             onBlur={modeField.onBlur}
             multiple={false}
           >
@@ -167,6 +177,16 @@ const StudySettings = ({
             />
           )}
         </div>
+
+        {/* 디버깅: 폼 에러 표시 */}
+        {Object.keys(errors).length > 0 && (
+          <div className="bg-red-50 border border-red-200 rounded p-4">
+            <p className="font-semibold text-red-700 mb-2">폼 검증 에러:</p>
+            <pre className="text-xs text-red-600">
+              {JSON.stringify(errors, null, 2)}
+            </pre>
+          </div>
+        )}
 
         {/* 학습 시작 버튼 */}
         <div className="flex gap-2 justify-end pt-6">

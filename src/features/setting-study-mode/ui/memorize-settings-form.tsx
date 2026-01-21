@@ -28,6 +28,16 @@ export function MemorizeSettingsForm({
     control,
   });
 
+  const { field: repeatCountField } = useController({
+    name: "repeatCount",
+    control,
+  });
+
+  const { field: autoTimerSecondsField } = useController({
+    name: "autoTimerSeconds",
+    control,
+  });
+
   const navigationType = useWatch({ control, name: "navigationType" });
   const isUnlimitedRepeat = useWatch({ control, name: "isUnlimitedRepeat" });
 
@@ -42,9 +52,9 @@ export function MemorizeSettingsForm({
             max={100}
             className="w-24"
             disabled={isUnlimitedRepeat}
-            {...register("repeatCount", {
-              valueAsNumber: true,
-            })}
+            value={repeatCountField.value}
+            onChange={(e) => repeatCountField.onChange(parseInt(e.target.value) || 1)}
+            onBlur={repeatCountField.onBlur}
           />
           <span className="text-sm">회</span>
         </div>
@@ -115,9 +125,9 @@ export function MemorizeSettingsForm({
             <NumberInput
               id="autoTimerSeconds"
               className="w-24"
-              {...register("autoTimerSeconds", {
-                valueAsNumber: true,
-              })}
+              value={autoTimerSecondsField.value}
+              onChange={(e) => autoTimerSecondsField.onChange(parseInt(e.target.value) || 1)}
+              onBlur={autoTimerSecondsField.onBlur}
             />
             <span className="text-sm">초</span>
           </div>

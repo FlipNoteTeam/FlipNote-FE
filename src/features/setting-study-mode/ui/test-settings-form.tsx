@@ -30,6 +30,11 @@ export function TestSettingsForm({
     control,
   });
 
+  const { field: testTimeMinutesField } = useController({
+    name: "testTimeMinutes",
+    control,
+  });
+
   const isUnlimitedTime = useWatch({ control, name: "isUnlimitedTime" });
   const testMode = useWatch({ control, name: "testMode" });
 
@@ -42,9 +47,9 @@ export function TestSettingsForm({
           <NumberInput
             className="w-24"
             disabled={isUnlimitedTime}
-            {...register("testTimeMinutes", {
-              valueAsNumber: true,
-            })}
+            value={testTimeMinutesField.value}
+            onChange={(e) => testTimeMinutesField.onChange(parseInt(e.target.value) || 1)}
+            onBlur={testTimeMinutesField.onBlur}
             min={1}
             max={180}
           />
@@ -112,11 +117,13 @@ export function TestSettingsForm({
                 전체 {totalCardCount}개 중 몇 개를 시험 볼까요?
               </Description>
               <div className="flex items-center gap-2">
-                <NumberInput
+                <input
                   id="randomPickCount"
-                  className="w-24"
+                  type="number"
+                  className="w-24 flex h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 text-center"
                   {...register("randomPickCount", {
                     valueAsNumber: true,
+                    setValueAs: (v) => (v === "" ? undefined : Number(v)),
                   })}
                   min={1}
                   max={totalCardCount}
