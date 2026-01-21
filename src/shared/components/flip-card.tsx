@@ -1,21 +1,49 @@
-import { useState, type ReactNode } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import { motion } from "framer-motion";
 
 type Props = {
   frontNode: ReactNode;
   backNode: ReactNode;
+  isActive?: boolean;
+  autoFlip?: boolean;
 };
 
-const FlipCard = ({ frontNode, backNode }: Props) => {
+const FlipCard = ({
+  frontNode,
+  backNode,
+  isActive = true,
+  autoFlip = true,
+}: Props) => {
   const [flipped, setFlipped] = useState(false);
+
+  useEffect(() => {
+    if (!isActive) {
+      // deactive 상태가 되면 즉시 앞면으로 리셋
+      setFlipped(false);
+      return;
+    }
+
+    // active 상태가 되면 2초 후 자동으로 뒤집기
+    const timer = setTimeout(() => {
+      setFlipped(true);
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, [isActive]);
+
+  const handleClick = () => {
+    if (autoFlip) return;
+
+    setFlipped((prev) => !prev);
+  };
 
   return (
     <div className="perspective-[1000px]">
       <motion.div
-        className="relative h-[400px] w-[580px] cursor-pointer [transform-style:preserve-3d]"
+        className="relative h-[800px] w-[1000px] [transform-style:preserve-3d] bg-amber-100 border border-gray-200 rounded-lg"
         animate={{ rotateY: flipped ? 180 : 0 }}
         transition={{ duration: 0.4, ease: "easeInOut" }}
-        onClick={() => setFlipped((prev) => !prev)}
+        onClick={handleClick}
       >
         <div
           className="absolute inset-0 flex items-center justify-center

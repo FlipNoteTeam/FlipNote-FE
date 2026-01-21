@@ -1,9 +1,170 @@
-import { useCallback, useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 import BaseLayout from "@/shared/layouts/base-layout";
 import FlipCard from "@/shared/components/flip-card";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  type CarouselApi,
+} from "@/shared/components/carousel";
+import { useLocation } from "@tanstack/react-router";
+import type { MemorizeSettings } from "@/features/setting-study-mode/model/form.schema";
 import { Button } from "@/shared/components/button";
-// import { useLocation } from "@tanstack/react-router";
+import { Label } from "@/shared/components/label";
+import { Input } from "@/shared/components/input";
+import {
+  Play,
+  Pause,
+  SkipBack,
+  SkipForward,
+  Repeat,
+  Repeat1,
+  Shuffle,
+  ListOrdered,
+} from "lucide-react";
+
+type MemoizeControllerProps = {
+  settings: MemorizeSettings;
+  setSettings: React.Dispatch<React.SetStateAction<MemorizeSettings>>;
+  isPlaying: boolean;
+  setIsPlaying: React.Dispatch<React.SetStateAction<boolean>>;
+  currentIndex: number;
+  totalCount: number;
+  onPrevious: () => void;
+  onNext: () => void;
+};
+
+const MemoizeController = ({
+  settings,
+  setSettings,
+  isPlaying,
+  setIsPlaying,
+  currentIndex,
+  totalCount,
+  onPrevious,
+  onNext,
+}: MemoizeControllerProps) => {
+  return (
+    <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg">
+      <div className="max-w-7xl mx-auto px-6 py-4">
+        {/* 진행 바 */}
+        <div className="mb-4">
+          <div className="flex justify-between text-sm text-gray-600 mb-2">
+            <span>
+              {currentIndex + 1} / {totalCount}
+            </span>
+            <span>{Math.round(((currentIndex + 1) / totalCount) * 100)}%</span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-1.5">
+            <div
+              className="bg-blue-600 h-1.5 rounded-full transition-all duration-300"
+              style={{ width: `${((currentIndex + 1) / totalCount) * 100}%` }}
+            />
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between gap-6">
+          {/* 왼쪽: 설정 버튼들 */}
+          <div className="flex items-center gap-2">
+            {/* 순서 토글 */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() =>
+                setSettings((prev) => ({
+                  ...prev,
+                  orderType:
+                    prev.orderType === "sequential" ? "random" : "sequential",
+                }))
+              }
+              title={settings.orderType === "sequential" ? "순차" : "랜덤"}
+            >
+              {settings.orderType === "sequential" ? (
+                <ListOrdered className="h-5 w-5" />
+              ) : (
+                <Shuffle className="h-5 w-5" />
+              )}
+            </Button>
+
+            {/* 반복 토글 */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() =>
+                setSettings((prev) => ({
+                  ...prev,
+                  isUnlimitedRepeat: !prev.isUnlimitedRepeat,
+                }))
+              }
+              title={settings.isUnlimitedRepeat ? "무한 반복" : "반복 끝"}
+            >
+              {settings.isUnlimitedRepeat ? (
+                <Repeat className="h-5 w-5" />
+              ) : (
+                <Repeat1 className="h-5 w-5" />
+              )}
+            </Button>
+          </div>
+
+          {/* 중앙: 플레이어 컨트롤 */}
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onPrevious}
+              disabled={currentIndex === 0}
+            >
+              <SkipBack className="h-6 w-6" />
+            </Button>
+
+            <Button
+              variant="default"
+              size="icon"
+              className="h-12 w-12 rounded-full"
+              onClick={() => setIsPlaying(!isPlaying)}
+            >
+              {isPlaying ? (
+                <Pause className="h-6 w-6" />
+              ) : (
+                <Play className="h-6 w-6 ml-0.5" />
+              )}
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onNext}
+              disabled={
+                !settings.isUnlimitedRepeat && currentIndex === totalCount - 1
+              }
+            >
+              <SkipForward className="h-6 w-6" />
+            </Button>
+          </div>
+
+          {/* 오른쪽: 속도 설정 */}
+          <div className="flex items-center gap-3">
+            <Label className="text-sm whitespace-nowrap">속도</Label>
+            <Input
+              type="number"
+              min={1}
+              max={60}
+              value={settings.autoTimerSeconds ?? 5}
+              onChange={(e) =>
+                setSettings((prev) => ({
+                  ...prev,
+                  autoTimerSeconds: parseInt(e.target.value) || 5,
+                }))
+              }
+              className="w-16 text-center"
+            />
+            <span className="text-sm text-gray-600">초</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const MOCKED_PROBLEMSET = [
   {
@@ -60,117 +221,146 @@ const MOCKED_PROBLEMSET = [
   },
 ];
 
-// const MOCKED_DATA = {
-//   cardsetId: "cardsetId",
-//   problemSet: MOCKED_PROBLEMSET.map((problem) => problem.key),
-//   state: { current: "a1f3c9b2-1e4a-4d8b-9c12-001" },
-// };
+type CardCarouselProps = {
+  api: CarouselApi;
+  setApi: (api: CarouselApi) => void;
+  current: number;
+  setCurrent: (index: number) => void;
+  isPlaying: boolean;
+  duration: number;
+  repeat: boolean;
+};
 
 const CardCarousel = ({
-  autoPlay = false,
+  api,
+  setApi,
+  current,
+  setCurrent,
+  isPlaying,
   duration,
-  repeat = false,
-}:
-  | { autoPlay?: false; duration?: never; repeat?: never }
-  | { autoPlay: true; duration: number; repeat?: boolean }) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  repeat,
+}: CardCarouselProps) => {
+  useEffect(() => {
+    if (!api) return;
 
-  const moveNext = useCallback(() => {
-    if (repeat) {
-      setCurrentIndex((i) => (i + 1) % MOCKED_PROBLEMSET.length);
-    } else {
-      if (currentIndex >= MOCKED_PROBLEMSET.length - 1) return;
-      setCurrentIndex((i) => Math.min(i + 1, MOCKED_PROBLEMSET.length - 1));
-    }
-  }, [currentIndex, repeat]);
+    setCurrent(api.selectedScrollSnap());
 
-  const movePrev = useCallback(() => {
-    if (repeat) {
-      setCurrentIndex(
-        (i) => (i - 1 + MOCKED_PROBLEMSET.length) % MOCKED_PROBLEMSET.length
-      );
-    } else {
-      if (currentIndex < 0) return;
-      setCurrentIndex((i) => Math.max(i - 1, 0));
-    }
-  }, [currentIndex, repeat]);
+    api.on("select", () => {
+      setCurrent(api.selectedScrollSnap());
+    });
+  }, [api, setCurrent]);
 
   useEffect(() => {
-    if (autoPlay) {
-      const interval = setInterval(() => {
-        moveNext();
-      }, duration);
-      return () => clearInterval(interval);
-    }
-  }, [autoPlay, duration, moveNext]);
+    if (!isPlaying || !api) return;
+
+    const interval = setInterval(() => {
+      if (repeat) {
+        // 무한 반복: 마지막 슬라이드에서 첫 슬라이드로
+        if (current === MOCKED_PROBLEMSET.length - 1) {
+          api.scrollTo(0);
+        } else {
+          api.scrollNext();
+        }
+      } else {
+        // 마지막 슬라이드면 멈춤
+        if (api.canScrollNext()) {
+          api.scrollNext();
+        }
+      }
+    }, duration);
+
+    return () => clearInterval(interval);
+  }, [isPlaying, duration, repeat, api, current]);
 
   return (
-    <div className="relative h-[600px] w-full overflow-hidden bg-gray-100">
-      {MOCKED_PROBLEMSET.map((card, index) => {
-        const relativeIndex = index - currentIndex;
-        const isMiddle = relativeIndex === 0;
-        if (relativeIndex < -1 || relativeIndex > 1) return null;
-
-        return (
-          <motion.div
-            key={card.key}
-            className="absolute left-1/2 top-1/2 w-64 h-40
-                       -translate-x-1/2 -translate-y-1/2
-                       flex items-center justify-center"
-            animate={{
-              x: relativeIndex * 400,
-              scale: isMiddle ? 1 : 0.8,
-              opacity: isMiddle ? 1 : 0.6,
-              zIndex: isMiddle ? 10 : 0,
-            }}
-            transition={{
-              type: "spring",
-              stiffness: 300,
-              damping: 30,
-            }}
-          >
-            <FlipCard frontNode={card.question} backNode={card.answer} />
-          </motion.div>
-        );
-      })}
-
-      {/* Controls */}
-      {!autoPlay && (
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-4">
-          <Button
-            onClick={movePrev}
-            className="px-4 py-2 rounded bg-gray-800 text-white disabled:opacity-40"
-            disabled={currentIndex === 0}
-          >
-            이전
-          </Button>
-          <Button
-            onClick={moveNext}
-            className="px-4 py-2 rounded bg-gray-800 text-white disabled:opacity-40"
-            disabled={currentIndex === MOCKED_PROBLEMSET.length - 1}
-          >
-            다음
-          </Button>
-        </div>
-      )}
+    <div className="w-full max-w-5xl mx-auto mb-32">
+      <Carousel setApi={setApi} opts={{ loop: false }}>
+        <CarouselContent>
+          {MOCKED_PROBLEMSET.map((card, index) => (
+            <CarouselItem key={card.key} className="flex justify-center">
+              <FlipCard
+                frontNode={card.question}
+                backNode={card.answer}
+                isActive={index === current}
+                autoFlip={isPlaying}
+              />
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+      </Carousel>
     </div>
   );
 };
 
+type StudyState = MemorizeSettings & {
+  groupId: number;
+  cardsetId: number;
+};
+
 const MemoizeMode = () => {
-  // @TODO STATE OPTION 타입 정의
-  // const { state } = useLocation();
+  const { state } = useLocation();
+  const studySettings = state as unknown as StudyState;
 
-  // console.log(":::", state);
-  // 로딩은 - 질문지 준비 중..같은 걸로
+  // 컨트롤 가능한 설정값들을 state로 관리
+  const [settings, setSettings] = useState<MemorizeSettings>({
+    mode: "memorize",
+    isUnlimitedRepeat: studySettings?.isUnlimitedRepeat ?? false,
+    repeatCount: studySettings?.repeatCount ?? 3,
+    navigationType: studySettings?.navigationType ?? "auto",
+    autoTimerSeconds: studySettings?.autoTimerSeconds ?? 5,
+    orderType: studySettings?.orderType ?? "sequential",
+  });
 
-  // 2. 블라인드 모드 - 질문만 쭉-보여주는 모드(원하는 곳에서만 답변 눌러서 보기)
+  // Carousel API 및 현재 인덱스
+  const [api, setApi] = useState<CarouselApi>();
+  const [current, setCurrent] = useState(0);
+
+  // 재생/일시정지 상태
+  const [isPlaying, setIsPlaying] = useState(true);
+
+  const autoPlayDuration = (settings.autoTimerSeconds ?? 5) * 1000;
+
+  const handlePrevious = () => {
+    api?.scrollPrev();
+  };
+
+  const handleNext = () => {
+    if (
+      settings.isUnlimitedRepeat &&
+      current === MOCKED_PROBLEMSET.length - 1
+    ) {
+      api?.scrollTo(0);
+    } else {
+      api?.scrollNext();
+    }
+  };
 
   return (
     <BaseLayout>
-      {/* // 1. 일반 모드 - 질문/답 순서로 보여주는 모드 */}
+      <div className="space-y-6">
+        {/* 카드 캐러셀 */}
+        <CardCarousel
+          api={api}
+          setApi={setApi}
+          current={current}
+          setCurrent={setCurrent}
+          isPlaying={isPlaying}
+          duration={autoPlayDuration}
+          repeat={settings.isUnlimitedRepeat}
+        />
 
-      <CardCarousel autoPlay duration={10 * 1000} repeat />
+        {/* 컨트롤러 */}
+        <MemoizeController
+          settings={settings}
+          setSettings={setSettings}
+          isPlaying={isPlaying}
+          setIsPlaying={setIsPlaying}
+          currentIndex={current}
+          totalCount={MOCKED_PROBLEMSET.length}
+          onPrevious={handlePrevious}
+          onNext={handleNext}
+        />
+      </div>
     </BaseLayout>
   );
 };
