@@ -7,7 +7,6 @@ import {
   CarouselItem,
   type CarouselApi,
 } from "@/shared/components/carousel";
-import { useLocation } from "@tanstack/react-router";
 import type { MemorizeSettings } from "@/features/setting-study-mode/model/form.schema";
 import { Button } from "@/shared/components/button";
 import { Label } from "@/shared/components/label";
@@ -297,9 +296,11 @@ type StudyState = MemorizeSettings & {
   cardsetId: number;
 };
 
-const MemoizeMode = () => {
-  const { state } = useLocation();
-  const studySettings = state as unknown as StudyState;
+type MemoizeModeProps = {
+  settings: StudyState;
+};
+
+const MemoizeMode = ({ settings: studySettings }: MemoizeModeProps) => {
 
   // 컨트롤 가능한 설정값들을 state로 관리
   const [settings, setSettings] = useState<MemorizeSettings>({

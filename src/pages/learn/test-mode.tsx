@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import BaseLayout from "@/shared/layouts/base-layout";
 import { useLocation } from "@tanstack/react-router";
 import type { TestSettings } from "@/features/setting-study-mode/model/form.schema";
 import { Button } from "@/shared/components/button";
 import { Textarea } from "@/shared/components/textarea";
 import { Card } from "@/shared/components/card";
+import { useTimer } from "@/shared/hooks/use-timer";
+import { Clock, Play, Pause } from "lucide-react";
 
 // TODO: 실제 문제 세트는 API에서 가져와야 함
 const MOCKED_PROBLEMSET = [
@@ -69,6 +71,10 @@ const TestMode = () => {
   // 채점 결과
   const [testResults, setTestResults] = useState<TestResult[]>([]);
 
+  // 타이머 설정
+  const testDurationMinutes = studySettings?.testTimeMinutes ?? 30;
+  const isUnlimitedTime = studySettings?.isUnlimitedTime ?? false;
+
   const handleAnswerChange = (questionKey: string, value: string) => {
     setAnswers((prev) =>
       prev.map((a) =>
@@ -93,6 +99,26 @@ const TestMode = () => {
     setTestResults(results);
     setPhase("grading");
   };
+
+  // 타이머 초기화 (handleSubmit 이후에 선언)
+  const timer = useTimer({
+    onComplete: () => {
+      // 시간 종료 시 자동 제출
+      alert("시험 시간이 종료되었습니다. 자동으로 제출됩니다.");
+      handleSubmit();
+    },
+  });
+
+  // 타이머 시작
+  useEffect(() => {
+    if (!isUnlimitedTime && phase === "answering") {
+      timer.start(testDurationMinutes * 60);
+    }
+    return () => {
+      timer.stop();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleGradeChange = (questionKey: string, isCorrect: boolean) => {
     setTestResults((prev) =>
@@ -167,12 +193,54 @@ const TestMode = () => {
     );
   }
 
+  // 시간 포맷 함수
+  const formatTime = (seconds: number) => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+
+    if (hours > 0) {
+      return `${hours}:${String(minutes).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+    }
+    return `${minutes}:${String(secs).padStart(2, "0")}`;
+  };
+
   return (
     <BaseLayout>
       <div className="max-w-4xl mx-auto py-8 space-y-6">
+        {/* 헤더와 타이머 */}
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold">시험 모드</h1>
-          <Button onClick={handleSubmit}>제출하기</Button>
+
+          <div className="flex items-center gap-4">
+            {/* 타이머 */}
+            {!isUnlimitedTime && (
+              <div className="flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-lg">
+                <Clock className="h-5 w-5 text-gray-600" />
+                <span
+                  className={`text-lg font-mono font-semibold ${
+                    timer.remainingSeconds < 60 ? "text-red-600" : "text-gray-900"
+                  }`}
+                >
+                  {formatTime(timer.remainingSeconds)}
+                </span>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => (timer.isRunning ? timer.pause() : timer.resume())}
+                  className="h-8 w-8"
+                >
+                  {timer.isRunning ? (
+                    <Pause className="h-4 w-4" />
+                  ) : (
+                    <Play className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
+            )}
+
+            <Button onClick={handleSubmit}>제출하기</Button>
+          </div>
         </div>
 
         <div className="space-y-6">
