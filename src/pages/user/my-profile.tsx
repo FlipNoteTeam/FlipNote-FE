@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/shared/components/card";
 import UserProfileView from "@/domain/user/components/user-profile-view";
 import UserProfileEditForm from "@/features/user-info-management/components/user-profile-edit-form";
 import { useUserInfoEdit } from "@/features/user-info-management/hooks/useUserInfoEdit";
+import { ProfileCardSkeleton } from "@/shared/components/skeletons";
 
 const MyUserProfilePage = () => {
   // 본인 정보 조회
@@ -29,15 +30,7 @@ const MyUserProfilePage = () => {
   } = useUserInfoEdit();
 
   if (isLoading) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <Card>
-          <CardContent className="py-8">
-            <p className="text-center">로딩 중...</p>
-          </CardContent>
-        </Card>
-      </div>
-    );
+    return <ProfileCardSkeleton />;
   }
 
   if (!myInfo) {
