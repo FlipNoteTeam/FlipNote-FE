@@ -12,6 +12,7 @@ import { mockWrongAnswerNotes } from "@/shared/mocks/wrong-answer-notes";
 import { BookOpen, Users, Calendar, AlertCircle } from "lucide-react";
 import { GROUP_CATEGORY_MAP } from "@/domain/group/types";
 import { ThumbnailCard } from "@/shared/components/ThumbnailCard";
+import { DashboardSkeleton } from "@/shared/components/skeletons";
 
 const Dashboard = () => {
   // 내 그룹 조회
@@ -41,11 +42,7 @@ const Dashboard = () => {
   });
 
   if (isLoadingGroups || isLoadingOwnedGroups) {
-    return (
-      <div className="flex justify-center items-center min-h-[400px]">
-        <div className="text-gray-500">로딩 중...</div>
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   if (groupsError || ownedGroupsError) {
