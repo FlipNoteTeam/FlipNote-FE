@@ -2,6 +2,11 @@ import MemoizeMode from "@/pages/learn/memoize-mode";
 import TestMode from "@/pages/learn/test-mode";
 import { createFileRoute, useLocation } from "@tanstack/react-router";
 
+type StudySettings = {
+  mode?: "memorize" | "test";
+  groupId?: number;
+};
+
 export const Route = createFileRoute("/cardsets/learning/")({
   component: RouteComponent,
 });
@@ -9,10 +14,7 @@ export const Route = createFileRoute("/cardsets/learning/")({
 function RouteComponent() {
   // location.state에서 학습 설정 가져오기
   const { state } = useLocation();
-  const studySettings = state as { mode?: "memorize" | "test" } | null;
-
-  console.log("Learning page - Received settings:", studySettings);
-  console.log("Study mode:", studySettings?.mode);
+  const studySettings = state as StudySettings | null;
 
   // 1. state가 없는 경우[설정이 안돼있으므로 뒤로 가서 다시 설정하라고 안내해야함.]
   if (!studySettings || !studySettings.mode) {
@@ -22,7 +24,9 @@ function RouteComponent() {
           <p className="text-lg text-gray-700">
             학습에 대한 설정값이 올바르지 않습니다.
           </p>
-          <p className="text-gray-600">학습 모드를 다시 설정하고 들어와주세요!</p>
+          <p className="text-gray-600">
+            학습 모드를 다시 설정하고 들어와주세요!
+          </p>
         </div>
       </div>
     );

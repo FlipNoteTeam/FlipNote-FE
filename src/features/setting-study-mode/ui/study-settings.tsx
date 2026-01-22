@@ -103,8 +103,6 @@ const StudySettings = ({
       ...cleanedData,
     };
 
-    console.log("Submitting study options:", studyOption);
-
     navigate({
       to: "/cardsets/learning",
       state: studyOption,
