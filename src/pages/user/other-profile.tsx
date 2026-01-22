@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { userApi } from "@/shared/apis/user";
 import { Card, CardContent } from "@/shared/components/card";
 import OtherUserProfile from "@/domain/user/components/other-user-profile";
+import { ProfileCardSkeleton } from "@/shared/components/skeletons";
 
 type Props = {
   userId: string;
@@ -18,15 +19,7 @@ const OtherUserProfilePage = ({ userId }: Props) => {
   });
 
   if (isLoading) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <Card>
-          <CardContent className="py-8">
-            <p className="text-center">로딩 중...</p>
-          </CardContent>
-        </Card>
-      </div>
-    );
+    return <ProfileCardSkeleton />;
   }
 
   if (!userInfo) {
