@@ -1,4 +1,5 @@
 import { useEffect, useRef, type ReactNode } from "react";
+import { ListItemSkeleton } from "./skeletons";
 
 type Props<T> = {
   items: T[];
@@ -64,13 +65,7 @@ const InfiniteScrollList = <T,>({
   ]);
 
   if (isLoading) {
-    return renderLoading ? (
-      renderLoading()
-    ) : (
-      <div className="flex items-center justify-center py-8">
-        <div className="text-sm text-gray-500">로딩 중...</div>
-      </div>
-    );
+    return renderLoading ? renderLoading() : <ListItemSkeleton />;
   }
 
   if (items.length === 0) {
