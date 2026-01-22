@@ -32,6 +32,9 @@ export class YjsProvider {
   // 카드 변경 콜백
   private onCardsChangeCallback?: (cards: CardData[]) => void;
 
+  // Awareness 변경 콜백
+  private onAwarenessChangeCallback?: (states: Map<number, any>) => void;
+
   constructor(cardsetId: string, userId: string) {
     this.cardsetId = cardsetId;
     this.userId = userId;
@@ -146,6 +149,11 @@ export class YjsProvider {
             awareness: awarenessUpdate,
           },
         } as AwarenessMessage);
+      }
+
+      // Awareness 콜백 호출
+      if (this.onAwarenessChangeCallback) {
+        this.onAwarenessChangeCallback(this.awareness.getStates());
       }
     });
   }
@@ -326,6 +334,20 @@ export class YjsProvider {
    */
   onCardsChange(callback: (cards: CardData[]) => void): void {
     this.onCardsChangeCallback = callback;
+  }
+
+  /**
+   * Awareness 변경 리스너 등록
+   */
+  onAwarenessChange(callback: (states: Map<number, any>) => void): void {
+    this.onAwarenessChangeCallback = callback;
+  }
+
+  /**
+   * 현재 Awareness 상태 가져오기
+   */
+  getAwarenessStates(): Map<number, any> {
+    return this.awareness.getStates();
   }
 
   getHasAccess(): boolean {

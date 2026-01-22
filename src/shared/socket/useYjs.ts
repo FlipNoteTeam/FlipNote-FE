@@ -15,6 +15,9 @@ export function useYjs(options: UseYjsOptions) {
   const [hasAccess, setHasAccess] = useState(false);
   const [connectionError, setConnectionError] = useState<string | null>(null);
   const [cards, setCards] = useState<CardData[]>([]);
+  const [awarenessStates, setAwarenessStates] = useState<Map<number, unknown>>(
+    new Map()
+  );
 
   const providerRef = useRef<YjsProvider | null>(null);
 
@@ -35,8 +38,16 @@ export function useYjs(options: UseYjsOptions) {
             setCards(updatedCards);
           });
 
+          // Awareness 변경 리스너 설정
+          provider.onAwarenessChange((states) => {
+            setAwarenessStates(states);
+          });
+
           // 초기 카드 로드
           setCards(provider.getCards());
+
+          // 초기 Awareness 로드
+          setAwarenessStates(provider.getAwarenessStates());
 
           return true;
         }
@@ -129,6 +140,7 @@ export function useYjs(options: UseYjsOptions) {
     hasAccess,
     connectionError,
     cards,
+    awarenessStates,
     connect,
     disconnect,
     addCard,
