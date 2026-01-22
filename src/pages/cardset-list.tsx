@@ -9,6 +9,7 @@ import { Search } from "lucide-react";
 import { useCardSets } from "@/domain/cardsets/hooks/useCardSets";
 import { CardSetFilterSection } from "@/domain/cardsets/components/CardSetFilterSection";
 import type { CardSetCategory } from "@/domain/cardsets/types";
+import { CardGridSkeleton } from "@/shared/components/skeletons";
 
 const CardSetList = () => {
   const [searchInput, setSearchInput] = useState("");
@@ -134,32 +135,36 @@ const CardSetList = () => {
         </div>
 
         {/* 카드셋 리스트 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {cardsetsData?.cardsets.map((cardset) => (
-            <Link
-              to="/groups/$groupId/cardsets/$cardsetId"
-              params={{
-                groupId: cardset.groupId.toString(),
-                cardsetId: cardset.cardSetId.toString(),
-              }}
-              key={cardset.cardSetId}
-            >
-              <ThumbnailCard
-                imageUrl={cardset.imageUrl}
-                title={cardset.name}
-                category={cardset.category}
-                subtitle={
-                  cardset.hashtag
-                    ? `${cardset.hashtag
-                        .split(",")
-                        .map((tag) => `#${tag}`)
-                        .join(" ")}`
-                    : undefined
-                }
-              />
-            </Link>
-          ))}
-        </div>
+        {isLoading ? (
+          <CardGridSkeleton />
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {cardsetsData?.cardsets.map((cardset) => (
+              <Link
+                to="/groups/$groupId/cardsets/$cardsetId"
+                params={{
+                  groupId: cardset.groupId.toString(),
+                  cardsetId: cardset.cardSetId.toString(),
+                }}
+                key={cardset.cardSetId}
+              >
+                <ThumbnailCard
+                  imageUrl={cardset.imageUrl}
+                  title={cardset.name}
+                  category={cardset.category}
+                  subtitle={
+                    cardset.hashtag
+                      ? `${cardset.hashtag
+                          .split(",")
+                          .map((tag) => `#${tag}`)
+                          .join(" ")}`
+                      : undefined
+                  }
+                />
+              </Link>
+            ))}
+          </div>
+        )}
 
         {/* 더 보기 버튼 */}
         {hasNextPage && (
