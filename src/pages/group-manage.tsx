@@ -10,6 +10,7 @@ import { Button } from "@/shared/components/button";
 import { ChevronLeft } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { SidebarTabLayout } from "@/shared/layouts/sidebar-tab-layout";
+import { PageSkeleton } from "@/shared/components/skeletons";
 
 type Props = {
   groupId: string;
@@ -33,13 +34,7 @@ const GroupManagePage = ({ groupId }: Props) => {
   const isOwner = currentMember?.role === "OWNER";
 
   if (isGroupLoading || isMembersLoading) {
-    return (
-      <BaseLayout>
-        <div className="flex justify-center items-center min-h-screen">
-          <p className="text-gray-500">로딩 중...</p>
-        </div>
-      </BaseLayout>
-    );
+    return <PageSkeleton />;
   }
 
   // OWNER가 아니면 접근 불가
