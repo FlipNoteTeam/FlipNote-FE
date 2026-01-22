@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import BaseLayout from "@/shared/layouts/base-layout";
 import FlipCard from "@/shared/components/flip-card";
 import {
@@ -20,7 +21,9 @@ import {
   Repeat1,
   Shuffle,
   ListOrdered,
+  Loader2,
 } from "lucide-react";
+import { cardApi, type CardResponse } from "@/shared/apis/card";
 
 type MemoizeControllerProps = {
   settings: MemorizeSettings;
@@ -165,62 +168,9 @@ const MemoizeController = ({
   );
 };
 
-const MOCKED_PROBLEMSET = [
-  {
-    key: "a1f3c9b2-1e4a-4d8b-9c12-001",
-    question: "HTTP와 HTTPS의 차이는 무엇인가?",
-    answer: "HTTPS는 HTTP에 TLS/SSL 암호화를 추가하여 통신 내용을 보호한다.",
-  },
-  {
-    key: "a1f3c9b2-1e4a-4d8b-9c12-002",
-    question: "CSR과 SSR의 차이점은?",
-    answer:
-      "CSR은 브라우저에서 렌더링하고, SSR은 서버에서 HTML을 생성해 전달한다.",
-  },
-  {
-    key: "a1f3c9b2-1e4a-4d8b-9c12-003",
-    question: "REST API의 핵심 원칙은?",
-    answer: "무상태성, 자원 기반 URI, HTTP 메서드의 의미적 사용이다.",
-  },
-  {
-    key: "a1f3c9b2-1e4a-4d8b-9c12-004",
-    question: "브라우저의 로컬 스토리지 특징은?",
-    answer: "영구 저장되며, 탭이나 브라우저를 닫아도 데이터가 유지된다.",
-  },
-  {
-    key: "a1f3c9b2-1e4a-4d8b-9c12-005",
-    question: "쿠키와 세션의 차이는?",
-    answer: "쿠키는 클라이언트에 저장되고, 세션은 서버에서 관리된다.",
-  },
-  {
-    key: "a1f3c9b2-1e4a-4d8b-9c12-006",
-    question: "이벤트 버블링이란?",
-    answer: "이벤트가 가장 안쪽 요소에서 바깥쪽 요소로 전파되는 현상이다.",
-  },
-  {
-    key: "a1f3c9b2-1e4a-4d8b-9c12-007",
-    question: "useEffect의 실행 시점은?",
-    answer: "렌더링이 완료된 후 실행된다.",
-  },
-  {
-    key: "a1f3c9b2-1e4a-4d8b-9c12-008",
-    question: "불변성이 중요한 이유는?",
-    answer: "상태 변경 추적이 쉬워지고, 예측 가능한 코드 작성이 가능해진다.",
-  },
-  {
-    key: "a1f3c9b2-1e4a-4d8b-9c12-009",
-    question: "JWT의 단점은?",
-    answer: "토큰 폐기가 어렵고, 크기가 커질 수 있다.",
-  },
-  {
-    key: "a1f3c9b2-1e4a-4d8b-9c12-010",
-    question: "Debounce와 Throttle의 차이는?",
-    answer:
-      "Debounce는 마지막 호출만 실행하고, Throttle은 일정 주기로 실행한다.",
-  },
-];
 
 type CardCarouselProps = {
+  cards: CardResponse[];
   api: CarouselApi;
   setApi: (api: CarouselApi) => void;
   current: number;
@@ -231,6 +181,7 @@ type CardCarouselProps = {
 };
 
 const CardCarousel = ({
+  cards,
   api,
   setApi,
   current,
@@ -250,12 +201,12 @@ const CardCarousel = ({
   }, [api, setCurrent]);
 
   useEffect(() => {
-    if (!isPlaying || !api) return;
+    if (!isPlaying || !api || cards.length === 0) return;
 
     const interval = setInterval(() => {
       if (repeat) {
         // 무한 반복: 마지막 슬라이드에서 첫 슬라이드로
-        if (current === MOCKED_PROBLEMSET.length - 1) {
+        if (current === cards.length - 1) {
           api.scrollTo(0);
         } else {
           api.scrollNext();
@@ -269,14 +220,14 @@ const CardCarousel = ({
     }, duration);
 
     return () => clearInterval(interval);
-  }, [isPlaying, duration, repeat, api, current]);
+  }, [isPlaying, duration, repeat, api, current, cards.length]);
 
   return (
     <div className="w-full max-w-5xl mx-auto mb-32">
       <Carousel setApi={setApi} opts={{ loop: false }}>
         <CarouselContent>
-          {MOCKED_PROBLEMSET.map((card, index) => (
-            <CarouselItem key={card.key} className="flex justify-center">
+          {cards.map((card, index) => (
+            <CarouselItem key={card.id} className="flex justify-center">
               <FlipCard
                 frontNode={card.question}
                 backNode={card.answer}
@@ -301,6 +252,18 @@ type MemoizeModeProps = {
 };
 
 const MemoizeMode = ({ settings: studySettings }: MemoizeModeProps) => {
+  // 카드 데이터 조회
+  const {
+    data: cardsData,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["cards", studySettings.cardsetId],
+    queryFn: () => cardApi.getCards(studySettings.cardsetId),
+    enabled: !!studySettings.cardsetId,
+  });
+
+  const cards = cardsData?.data?.data ?? [];
 
   // 컨트롤 가능한 설정값들을 state로 관리
   const [settings, setSettings] = useState<MemorizeSettings>({
@@ -326,21 +289,39 @@ const MemoizeMode = ({ settings: studySettings }: MemoizeModeProps) => {
   };
 
   const handleNext = () => {
-    if (
-      settings.isUnlimitedRepeat &&
-      current === MOCKED_PROBLEMSET.length - 1
-    ) {
+    if (settings.isUnlimitedRepeat && current === cards.length - 1) {
       api?.scrollTo(0);
     } else {
       api?.scrollNext();
     }
   };
 
+  if (isLoading) {
+    return (
+      <BaseLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
+        </div>
+      </BaseLayout>
+    );
+  }
+
+  if (isError || cards.length === 0) {
+    return (
+      <BaseLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <p className="text-gray-500">카드를 불러올 수 없습니다.</p>
+        </div>
+      </BaseLayout>
+    );
+  }
+
   return (
     <BaseLayout>
       <div className="space-y-6">
         {/* 카드 캐러셀 */}
         <CardCarousel
+          cards={cards}
           api={api}
           setApi={setApi}
           current={current}
@@ -357,7 +338,7 @@ const MemoizeMode = ({ settings: studySettings }: MemoizeModeProps) => {
           isPlaying={isPlaying}
           setIsPlaying={setIsPlaying}
           currentIndex={current}
-          totalCount={MOCKED_PROBLEMSET.length}
+          totalCount={cards.length}
           onPrevious={handlePrevious}
           onNext={handleNext}
         />
