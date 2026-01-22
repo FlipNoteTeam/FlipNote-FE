@@ -6,6 +6,7 @@ import {
   mockLikedCardSets,
 } from "@/shared/mocks/cardsets";
 import { ThumbnailCard } from "@/shared/components/ThumbnailCard";
+import { CardGridSkeleton } from "@/shared/components/skeletons";
 
 export const MyStudyPage = () => {
   // TODO: 실제 API 연동 시 주석 해제
@@ -81,9 +82,7 @@ export const MyStudyPage = () => {
         </div>
 
         {isLoadingBookmarks ? (
-          <div className="flex justify-center items-center min-h-[200px]">
-            <div className="text-gray-500">로딩 중...</div>
-          </div>
+          <CardGridSkeleton />
         ) : bookmarksError ? (
           <div className="flex justify-center items-center min-h-[200px]">
             <div className="text-red-500">
@@ -114,9 +113,7 @@ export const MyStudyPage = () => {
         </div>
 
         {isLoadingLikes ? (
-          <div className="flex justify-center items-center min-h-[200px]">
-            <div className="text-gray-500">로딩 중...</div>
-          </div>
+          <CardGridSkeleton />
         ) : likesError ? (
           <div className="flex justify-center items-center min-h-[200px]">
             <div className="text-red-500">
