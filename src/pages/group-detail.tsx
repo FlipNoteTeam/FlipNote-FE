@@ -18,6 +18,7 @@ import CardsetCreateDialog from "@/features/cardset/components/CardsetCreateDial
 import { GroupJoinDialog } from "@/domain/group/components/GroupJoinDialog";
 import useAuthStore from "@/stores/useAuthStore";
 import { Link } from "@tanstack/react-router";
+import { GroupDetailSkeleton } from "@/shared/components/skeletons";
 
 type Props = { id: string };
 
@@ -52,13 +53,7 @@ const GroupDetailPage = ({ id }: Props) => {
   const isLoading = isGroupLoading || isMembersLoading || isCardsetsLoading;
 
   if (isLoading) {
-    return (
-      <BaseLayout>
-        <div className="mx-auto max-w-6xl p-6">
-          <p className="text-center text-muted-foreground">로딩 중...</p>
-        </div>
-      </BaseLayout>
-    );
+    return <GroupDetailSkeleton />;
   }
 
   if (!groupData) {
