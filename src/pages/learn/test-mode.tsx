@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import BaseLayout from "@/shared/layouts/base-layout";
 import { useLocation } from "@tanstack/react-router";
 import type { TestSettings } from "@/features/setting-study-mode/model/form.schema";
@@ -6,37 +7,8 @@ import { Button } from "@/shared/components/button";
 import { Textarea } from "@/shared/components/textarea";
 import { Card } from "@/shared/components/card";
 import { useTimer } from "@/shared/hooks/use-timer";
-import { Clock, Play, Pause } from "lucide-react";
-
-// TODO: 실제 문제 세트는 API에서 가져와야 함
-const MOCKED_PROBLEMSET = [
-  {
-    key: "a1f3c9b2-1e4a-4d8b-9c12-001",
-    question: "HTTP와 HTTPS의 차이는 무엇인가?",
-    answer: "HTTPS는 HTTP에 TLS/SSL 암호화를 추가하여 통신 내용을 보호한다.",
-  },
-  {
-    key: "a1f3c9b2-1e4a-4d8b-9c12-002",
-    question: "CSR과 SSR의 차이점은?",
-    answer:
-      "CSR은 브라우저에서 렌더링하고, SSR은 서버에서 HTML을 생성해 전달한다.",
-  },
-  {
-    key: "a1f3c9b2-1e4a-4d8b-9c12-003",
-    question: "REST API의 핵심 원칙은?",
-    answer: "무상태성, 자원 기반 URI, HTTP 메서드의 의미적 사용이다.",
-  },
-  {
-    key: "a1f3c9b2-1e4a-4d8b-9c12-004",
-    question: "브라우저의 로컬 스토리지 특징은?",
-    answer: "영구 저장되며, 탭이나 브라우저를 닫아도 데이터가 유지된다.",
-  },
-  {
-    key: "a1f3c9b2-1e4a-4d8b-9c12-005",
-    question: "쿠키와 세션의 차이는?",
-    answer: "쿠키는 클라이언트에 저장되고, 세션은 서버에서 관리된다.",
-  },
-];
+import { Clock, Play, Pause, Loader2 } from "lucide-react";
+import { cardApi } from "@/shared/apis/card";
 
 type StudyState = TestSettings & {
   groupId: number;
@@ -60,10 +32,28 @@ const TestMode = () => {
   const { state } = useLocation();
   const studySettings = state as unknown as StudyState;
 
+  // 카드 데이터 조회
+  const {
+    data: cardsData,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["cards", studySettings?.cardsetId],
+    queryFn: () => cardApi.getCards(studySettings.cardsetId),
+    enabled: !!studySettings?.cardsetId,
+  });
+
+  const cards = cardsData?.data?.data ?? [];
+
   // 답변 저장
-  const [answers, setAnswers] = useState<Answer[]>(
-    MOCKED_PROBLEMSET.map((q) => ({ questionKey: q.key, userAnswer: "" }))
-  );
+  const [answers, setAnswers] = useState<Answer[]>([]);
+
+  // 카드 데이터가 로드되면 answers 초기화
+  useEffect(() => {
+    if (cards.length > 0 && answers.length === 0) {
+      setAnswers(cards.map((q) => ({ questionKey: q.id, userAnswer: "" })));
+    }
+  }, [cards, answers.length]);
 
   // 시험 진행 단계: 'answering' | 'grading'
   const [phase, setPhase] = useState<"answering" | "grading">("answering");
@@ -85,11 +75,11 @@ const TestMode = () => {
 
   const handleSubmit = () => {
     // 채점 페이지로 이동
-    const results: TestResult[] = MOCKED_PROBLEMSET.map((q) => {
+    const results: TestResult[] = cards.map((q) => {
       const userAnswer =
-        answers.find((a) => a.questionKey === q.key)?.userAnswer || "";
+        answers.find((a) => a.questionKey === q.id)?.userAnswer || "";
       return {
-        questionKey: q.key,
+        questionKey: q.id,
         question: q.question,
         correctAnswer: q.answer,
         userAnswer,
@@ -136,6 +126,26 @@ const TestMode = () => {
     );
     // TODO: 결과 저장 및 결과 페이지로 이동
   };
+
+  if (isLoading) {
+    return (
+      <BaseLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
+        </div>
+      </BaseLayout>
+    );
+  }
+
+  if (isError || cards.length === 0) {
+    return (
+      <BaseLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <p className="text-gray-500">카드를 불러올 수 없습니다.</p>
+        </div>
+      </BaseLayout>
+    );
+  }
 
   if (phase === "grading") {
     return (
@@ -244,18 +254,18 @@ const TestMode = () => {
         </div>
 
         <div className="space-y-6">
-          {MOCKED_PROBLEMSET.map((card, index) => (
-            <Card key={card.key} className="p-6 space-y-4">
+          {cards.map((card, index) => (
+            <Card key={card.id} className="p-6 space-y-4">
               <h3 className="text-lg font-semibold">
                 {index + 1}. {card.question}
               </h3>
               <Textarea
                 placeholder="답변을 입력하세요..."
                 value={
-                  answers.find((a) => a.questionKey === card.key)?.userAnswer ||
+                  answers.find((a) => a.questionKey === card.id)?.userAnswer ||
                   ""
                 }
-                onChange={(e) => handleAnswerChange(card.key, e.target.value)}
+                onChange={(e) => handleAnswerChange(card.id, e.target.value)}
                 className="min-h-[120px]"
               />
             </Card>
