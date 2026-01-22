@@ -16,7 +16,7 @@ export function useYjs(options: UseYjsOptions) {
   const [connectionError, setConnectionError] = useState<string | null>(null);
   const [cards, setCards] = useState<CardData[]>([]);
   const [awarenessStates, setAwarenessStates] = useState<Map<number, unknown>>(
-    new Map()
+    new Map(),
   );
 
   const providerRef = useRef<YjsProvider | null>(null);
@@ -40,28 +40,28 @@ export function useYjs(options: UseYjsOptions) {
 
           // Awareness 변경 리스너 설정
           provider.onAwarenessChange((states) => {
-            setAwarenessStates(states);
+            setAwarenessStates(Object.assign({}, states));
           });
 
           // 초기 카드 로드
           setCards(provider.getCards());
 
           // 초기 Awareness 로드
-          setAwarenessStates(provider.getAwarenessStates());
+          setAwarenessStates(Object.assign({}, provider.getAwarenessStates()));
 
           return true;
         }
         return false;
       } catch (error) {
         setConnectionError(
-          error instanceof Error ? error.message : "Connection failed"
+          error instanceof Error ? error.message : "Connection failed",
         );
         setIsConnected(false);
         setHasAccess(false);
         return false;
       }
     },
-    [cardsetId, userId, token]
+    [cardsetId, userId, token],
   );
 
   const disconnect = useCallback(() => {
@@ -81,7 +81,7 @@ export function useYjs(options: UseYjsOptions) {
       }
       return "";
     },
-    []
+    [],
   );
 
   const deleteCard = useCallback((index: number) => {
@@ -106,13 +106,13 @@ export function useYjs(options: UseYjsOptions) {
     (
       field: "question" | "answer",
       cardIndex: number,
-      cursor?: { index: number; length: number }
+      cursor?: { index: number; length: number },
     ) => {
       if (providerRef.current?.getHasAccess()) {
         providerRef.current.setAwareness(field, cardIndex, cursor);
       }
     },
-    []
+    [],
   );
 
   const getCardQuestionText = useCallback((index: number) => {
