@@ -10,6 +10,7 @@ import { useGroups } from "@/features/group-search/hooks/useGroups";
 import { GroupFilterSection } from "@/features/group-search/components/GroupFilterSection";
 import type { GroupCategory } from "@/shared/apis/types";
 import CreateGroupDialog from "@/features/create-group/components/CreateGroupDialog";
+import { CardGridSkeleton } from "@/shared/components/skeletons";
 
 const GroupList = () => {
   const [searchInput, setSearchInput] = useState("");
@@ -59,8 +60,11 @@ const GroupList = () => {
   if (isLoading) {
     return (
       <BaseLayout>
-        <div className="flex justify-center items-center min-h-[400px]">
-          <div className="text-gray-500">로딩 중...</div>
+        <div className="space-y-6">
+          <div className="space-y-4">
+            <h1 className="text-2xl font-bold text-gray-900">그룹 목록</h1>
+          </div>
+          <CardGridSkeleton />
         </div>
       </BaseLayout>
     );
