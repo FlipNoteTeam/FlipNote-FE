@@ -54,6 +54,12 @@ export interface CardSetSearchRequest extends PaginationRequest {
   category?: string;
 }
 
+export interface CardResponse {
+  id: string;
+  question: string;
+  answer: string;
+}
+
 export const cardSetApi = {
   // 카드셋 목록 조회(검색)
   getCardSets: (params: CardSetSearchRequest) =>
