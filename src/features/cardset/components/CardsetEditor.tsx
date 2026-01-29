@@ -112,7 +112,13 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
     return () => {
       observers.forEach((cleanup) => cleanup());
     };
-  }, [hasAccess, cards.length, getCardQuestionText, getCardAnswerText, localCards]);
+  }, [
+    hasAccess,
+    cards.length,
+    getCardQuestionText,
+    getCardAnswerText,
+    localCards,
+  ]);
 
   // 카드 전환 시 값 로드 및 Y.Text observe 설정
   useEffect(() => {
@@ -183,8 +189,8 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
       setQuestionValue(newValue);
       setLocalCards((prev) =>
         prev.map((card, idx) =>
-          idx === currentCardIndex ? { ...card, question: newValue } : card
-        )
+          idx === currentCardIndex ? { ...card, question: newValue } : card,
+        ),
       );
     }
   };
@@ -207,8 +213,8 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
       setAnswerValue(newValue);
       setLocalCards((prev) =>
         prev.map((card, idx) =>
-          idx === currentCardIndex ? { ...card, answer: newValue } : card
-        )
+          idx === currentCardIndex ? { ...card, answer: newValue } : card,
+        ),
       );
     }
   };
@@ -264,14 +270,18 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
   };
 
   // Awareness에서 다른 사용자들 추출 (자신 제외)
+  const selfClientId = (awarenessStates.get(0) as { clientId?: number })?.clientId;
   const collaborators = Array.from(awarenessStates.entries())
-    .filter(([clientId]) => clientId !== awarenessStates.get(0)?.clientId) // 자신 제외
-    .map(([clientId, state]) => ({
-      clientId,
-      user: state.user || { id: `user-${clientId}`, name: `User ${clientId}` },
-      field: state.field as "question" | "answer" | undefined,
-      cardIndex: state.cardIndex as number | undefined,
-    }))
+    .filter(([clientId]) => clientId !== selfClientId) // 자신 제외
+    .map(([clientId, state]) => {
+      const stateObj = state as { user?: { id: string; name: string }; field?: string; cardIndex?: number };
+      return {
+        clientId,
+        user: stateObj.user || { id: `user-${clientId}`, name: `User ${clientId}` },
+        field: stateObj.field as "question" | "answer" | undefined,
+        cardIndex: stateObj.cardIndex as number | undefined,
+      };
+    })
     .filter((collab) => collab.user); // user 정보가 있는 것만
 
   // 사용자별 고유한 색상 생성
@@ -286,19 +296,21 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
       "bg-indigo-500",
       "bg-teal-500",
     ];
-    const hash = userId.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const hash = userId
+      .split("")
+      .reduce((acc, char) => acc + char.charCodeAt(0), 0);
     return colors[hash % colors.length];
   };
 
   // 현재 카드를 편집 중인 협업자 찾기
   const currentCardCollaborators = collaborators.filter(
-    (collab) => collab.cardIndex === currentCardIndex
+    (collab) => collab.cardIndex === currentCardIndex,
   );
   const questionEditors = currentCardCollaborators.filter(
-    (collab) => collab.field === "question"
+    (collab) => collab.field === "question",
   );
   const answerEditors = currentCardCollaborators.filter(
-    (collab) => collab.field === "answer"
+    (collab) => collab.field === "answer",
   );
 
   return (
@@ -387,7 +399,7 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
           {(hasAccess ? previewCards : localCards).map((card, index) => {
             // 이 카드를 편집 중인 협업자 찾기
             const editingCollaborators = collaborators.filter(
-              (collab) => collab.cardIndex === index
+              (collab) => collab.cardIndex === index,
             );
             const isBeingEdited = editingCollaborators.length > 0;
 
@@ -403,64 +415,65 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
                 }`}
                 onClick={() => setCurrentCardIndex(index)}
               >
-              <div className="p-5">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-sm font-semibold text-gray-600 bg-gray-100 px-2 py-1 rounded">
-                    카드 {index + 1}
-                  </span>
-                  {(hasAccess ? previewCards : localCards).length > 1 && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteCard(index);
-                      }}
-                      className="text-gray-400 hover:text-red-500 h-6 w-6 p-0"
-                    >
-                      ×
-                    </Button>
-                  )}
-                </div>
-                <div className="space-y-3">
-                  <div>
-                    <p className="text-xs font-medium text-gray-500 mb-1">
-                      질문
-                    </p>
-                    <p className="text-sm text-gray-900 line-clamp-2 leading-relaxed">
-                      {card.question || "질문을 입력하세요"}
-                    </p>
+                <div className="p-5">
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-sm font-semibold text-gray-600 bg-gray-100 px-2 py-1 rounded">
+                      카드 {index + 1}
+                    </span>
+                    {(hasAccess ? previewCards : localCards).length > 1 && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteCard(index);
+                        }}
+                        className="text-gray-400 hover:text-red-500 h-6 w-6 p-0"
+                      >
+                        ×
+                      </Button>
+                    )}
                   </div>
-                  <div>
-                    <p className="text-xs font-medium text-gray-500 mb-1">
-                      답변
-                    </p>
-                    <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed">
-                      {card.answer || "답변을 입력하세요"}
-                    </p>
-                  </div>
-                </div>
-
-                {/* 협업자 편집 중 표시 */}
-                {isBeingEdited && (
-                  <div className="mt-3 pt-3 border-t border-green-200">
-                    <div className="flex items-center gap-1 flex-wrap">
-                      <span className="text-xs text-green-600 font-medium">
-                        편집 중:
-                      </span>
-                      {editingCollaborators.map((collab) => (
-                        <span
-                          key={collab.clientId}
-                          className="text-xs text-green-700 bg-green-100 px-2 py-0.5 rounded-full"
-                        >
-                          {collab.user.name} ({collab.field === "question" ? "질문" : "답변"})
-                        </span>
-                      ))}
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-xs font-medium text-gray-500 mb-1">
+                        질문
+                      </p>
+                      <p className="text-sm text-gray-900 line-clamp-2 leading-relaxed">
+                        {card.question || "질문을 입력하세요"}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium text-gray-500 mb-1">
+                        답변
+                      </p>
+                      <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed">
+                        {card.answer || "답변을 입력하세요"}
+                      </p>
                     </div>
                   </div>
-                )}
-              </div>
-            </Card>
+
+                  {/* 협업자 편집 중 표시 */}
+                  {isBeingEdited && (
+                    <div className="mt-3 pt-3 border-t border-green-200">
+                      <div className="flex items-center gap-1 flex-wrap">
+                        <span className="text-xs text-green-600 font-medium">
+                          편집 중:
+                        </span>
+                        {editingCollaborators.map((collab) => (
+                          <span
+                            key={collab.clientId}
+                            className="text-xs text-green-700 bg-green-100 px-2 py-0.5 rounded-full"
+                          >
+                            {collab.user.name} (
+                            {collab.field === "question" ? "질문" : "답변"})
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </Card>
             );
           })}
         </div>
@@ -596,7 +609,7 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
 // 두 문자열의 차이를 계산
 function getDelta(
   oldStr: string,
-  newStr: string
+  newStr: string,
 ): { index: number; delete: number; insert: string } {
   let i = 0;
   const minLen = Math.min(oldStr.length, newStr.length);
@@ -625,7 +638,7 @@ function getDelta(
 // Y.Text에 delta 적용
 function applyDelta(
   ytext: Y.Text,
-  delta: { index: number; delete: number; insert: string }
+  delta: { index: number; delete: number; insert: string },
 ) {
   if (delta.delete > 0) {
     ytext.delete(delta.index, delta.delete);
