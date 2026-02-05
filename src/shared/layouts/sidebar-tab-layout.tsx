@@ -27,13 +27,13 @@ export const SidebarTabLayout = ({
   children,
   className,
 }: SidebarTabLayoutProps) => {
-  return <div className={cn("flex gap-6", className)}>{children}</div>;
+  return <div className={cn("flex flex-col md:flex-row gap-6", className)}>{children}</div>;
 };
 
 const Sidebar = ({ children, className }: SidebarProps) => {
   return (
-    <aside className={cn("w-64 flex-shrink-0", className)}>
-      <nav className="space-y-1">{children}</nav>
+    <aside className={cn("w-full md:w-64 flex-shrink-0", className)}>
+      <nav className="flex flex-row md:flex-col space-x-1 md:space-x-0 md:space-y-1 overflow-x-auto">{children}</nav>
     </aside>
   );
 };
@@ -43,7 +43,7 @@ const Tab = ({ active = false, onClick, children, className }: TabProps) => {
     <button
       onClick={onClick}
       className={cn(
-        "w-full text-left px-4 py-2 rounded-lg transition-colors",
+        "w-full md:w-full whitespace-nowrap text-left px-4 py-2 rounded-lg transition-colors",
         active ? "bg-primary text-primary-foreground" : "hover:bg-gray-100",
         className
       )}
