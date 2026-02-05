@@ -89,9 +89,9 @@ const CardsetDetail = ({ groupId, cardsetId }: Props) => {
 
   return (
     <BaseLayout>
-      <div className="mx-auto p-6 flex gap-6 justify-between flex-wrap">
+      <div className="mx-auto p-6 flex flex-col sm:flex-row gap-6 justify-between">
         {/* 썸네일 영역 */}
-        <div className="w-2/7 max-w-48">
+        <div className="w-full max-w-48 sm:w-auto">
           <div className="relative aspect-square bg-gray-200 rounded-2xl overflow-hidden group">
             {cardset.imageUrl ? (
               <img
@@ -142,7 +142,7 @@ const CardsetDetail = ({ groupId, cardsetId }: Props) => {
           </div>
         </div>
         {/* 카드셋 메타정보 영역 */}
-        <div className="flex-1 space-y-4 basis-2/3">
+        <div className="flex-1 space-y-4">
           <div className="flex gap-2">
             <Badge>{GROUP_CATEGORY_MAP[cardset.category]}</Badge>
             <Badge colorVariant={cardset.publicVisible ? "green" : "red"}>
