@@ -13,6 +13,7 @@ import { MyGroupJoinList } from "@/features/group-join-management";
 import { NotificationList } from "@/features/notification-management";
 import { MyStudyPage } from "@/features/my-study";
 import { useState } from "react";
+import { useMeta } from "@/shared/hooks/use-meta";
 
 type Props = {
   userId: string;
@@ -22,6 +23,11 @@ const UserInfoPage = ({ userId }: Props) => {
   const [activeTab, setActiveTab] = useState<TabMenu>("profile");
   const currentUser = useAuthStore((state) => state.user);
   const isOwner = currentUser?.userId === Number(userId);
+
+  useMeta({
+    title: isOwner ? "내 프로필 | FlipNote" : undefined,
+    description: isOwner ? "프로필 정보를 확인하고 관리하세요" : undefined,
+  });
 
   const renderContent = () => {
     if (!isOwner) {

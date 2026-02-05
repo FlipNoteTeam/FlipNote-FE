@@ -14,6 +14,7 @@ import { useCardSetBookmark } from "@/domain/cardsets/hooks/useCardSetBookmark";
 import StudySettings from "@/features/setting-study-mode/ui/study-settings";
 import { Separator } from "@/shared/components/separator";
 import Badge from "@/shared/components/badge";
+import { useMeta } from "@/shared/hooks/use-meta";
 
 type Props = {
   groupId: number;
@@ -58,6 +59,13 @@ const CardsetDetail = ({ groupId, cardsetId }: Props) => {
 
   const cardset = data?.data.data;
   const group = groupData?.data.data;
+
+  useMeta({
+    title: cardset ? `${cardset.name} | FlipNote` : undefined,
+    description: cardset
+      ? `${cardset.name} - ${cardset.hashtag ?? ""}`
+      : undefined,
+  });
 
   // 현재 사용자가 그룹 멤버인지 확인
   const isMember = members.some((member) => member.id === user?.userId);

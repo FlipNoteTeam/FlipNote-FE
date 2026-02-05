@@ -3,6 +3,7 @@ import { userApi } from "@/shared/apis/user";
 import { Card, CardContent } from "@/shared/components/card";
 import OtherUserProfile from "@/domain/user/components/other-user-profile";
 import { ProfileCardSkeleton } from "@/shared/components/skeletons";
+import { useMeta } from "@/shared/hooks/use-meta";
 
 type Props = {
   userId: string;
@@ -16,6 +17,13 @@ const OtherUserProfilePage = ({ userId }: Props) => {
       const response = await userApi.getUserInfo(Number(userId));
       return response.data.data;
     },
+  });
+
+  useMeta({
+    title: userInfo ? `${userInfo.nickname}의 프로필 | FlipNote` : undefined,
+    description: userInfo
+      ? `${userInfo.nickname}의 프로필을 확인하세요`
+      : undefined,
   });
 
   if (isLoading) {
