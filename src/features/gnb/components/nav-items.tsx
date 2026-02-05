@@ -17,7 +17,7 @@ type NavItem = {
   afterIcon?: React.ReactNode;
 };
 
-const NavItems = () => {
+const NavItems = ({ className }: { className?: string }) => {
   const user = useAuthStore((state) => state.user);
 
   const navItems: NavItem[] = useMemo(
@@ -44,7 +44,7 @@ const NavItems = () => {
   );
 
   return (
-    <ul className="flex gap-4 justify-center">
+    <ul className={`flex flex-col lg:flex-row gap-4 justify-center ${className ?? ""}`}>
       {navItems.map((item) =>
         item.hidden ? null : (
           <li className="text-sm" key={item.name}>
