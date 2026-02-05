@@ -11,6 +11,7 @@ import { ChevronLeft } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { SidebarTabLayout } from "@/shared/layouts/sidebar-tab-layout";
 import { PageSkeleton } from "@/shared/components/skeletons";
+import { useMeta } from "@/shared/hooks/use-meta";
 
 type Props = {
   groupId: string;
@@ -28,6 +29,10 @@ const GroupManagePage = ({ groupId }: Props) => {
     useGroupDetail(groupIdNum);
   const { data: members = [], isLoading: isMembersLoading } =
     useGroupMembers(groupIdNum);
+
+  useMeta({
+    title: groupData ? `${groupData.name} 관리 | FlipNote` : undefined,
+  });
 
   // 현재 사용자가 그룹 OWNER인지 확인
   const currentMember = members.find((member) => member.id === user?.userId);

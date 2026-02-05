@@ -1,5 +1,9 @@
 import * as React from "react";
-import { Outlet, createRootRouteWithContext } from "@tanstack/react-router";
+import {
+  HeadContent,
+  Outlet,
+  createRootRouteWithContext,
+} from "@tanstack/react-router";
 import type { AuthState } from "@/stores/useAuthStore";
 
 interface RouterContext {
@@ -12,6 +16,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 function RootComponent() {
   return (
     <React.Fragment>
+      <HeadContent />
       <Outlet />
     </React.Fragment>
   );

@@ -19,6 +19,7 @@ import { GroupJoinDialog } from "@/domain/group/components/GroupJoinDialog";
 import useAuthStore from "@/stores/useAuthStore";
 import { Link } from "@tanstack/react-router";
 import { GroupDetailSkeleton } from "@/shared/components/skeletons";
+import { useMeta } from "@/shared/hooks/use-meta";
 
 type Props = { id: string };
 
@@ -49,6 +50,11 @@ const GroupDetailPage = ({ id }: Props) => {
 
   // 가입 신청 버튼 표시 여부 (멤버가 아니고 가입 승인이 필요한 그룹)
   const showJoinButton = !isMember && groupData?.applicationRequired;
+
+  useMeta({
+    title: groupData ? `${groupData.name} | FlipNote` : undefined,
+    description: groupData?.description,
+  });
 
   const isLoading = isGroupLoading || isMembersLoading || isCardsetsLoading;
 

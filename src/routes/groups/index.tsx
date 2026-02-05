@@ -7,6 +7,15 @@ export const Route = createFileRoute("/groups/")({
   beforeLoad: ({ context }) => {
     authGuard({ auth: context.auth, mode: "bypass" });
   },
+  head: () => ({
+    meta: [
+      { title: "그룹 목록 | FlipNote" },
+      {
+        name: "description",
+        content: "관심 있는 학습 그룹을 찾아보세요",
+      },
+    ],
+  }),
 });
 
 function RouteComponent() {

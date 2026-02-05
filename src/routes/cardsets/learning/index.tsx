@@ -11,6 +11,15 @@ type StudySettings = {
 
 export const Route = createFileRoute("/cardsets/learning/")({
   component: RouteComponent,
+  head: () => ({
+    meta: [
+      { title: "학습 | FlipNote" },
+      {
+        name: "description",
+        content: "카드셋을 활용하여 학습을 진행하세요",
+      },
+    ],
+  }),
 });
 
 function RouteComponent() {

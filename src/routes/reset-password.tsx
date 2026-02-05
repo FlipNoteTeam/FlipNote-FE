@@ -7,6 +7,15 @@ import { Button } from "@/shared/components/button";
 
 export const Route = createFileRoute("/reset-password")({
   component: RouteComponent,
+  head: () => ({
+    meta: [
+      { title: "비밀번호 재설정 | FlipNote" },
+      {
+        name: "description",
+        content: "비밀번호를 재설정하세요",
+      },
+    ],
+  }),
 });
 
 function RouteComponent() {
