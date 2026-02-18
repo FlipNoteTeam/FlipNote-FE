@@ -1,7 +1,7 @@
 import { GROUP_CATEGORY_MAP } from "@/domain/group/types";
 import { cardSetApi, groupApi } from "@/shared/apis";
 import { Button } from "@/shared/components/button";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useGroupMembers } from "@/domain/members/hooks/use-group-members";
 import useAuthStore from "@/stores/use-auth-store";
 import { useEffect } from "react";
@@ -33,6 +33,17 @@ const CardsetDetail = ({ groupId, cardsetId }: Props) => {
   const { data: groupData } = useQuery({
     queryKey: ["group", groupId],
     queryFn: () => groupApi.getGroupDetail(groupId),
+  });
+
+  const { mutate } = useMutation({
+    mutationFn: () => cardSetApi.deleteCardSet(groupId, cardsetId),
+    onSuccess: () => {
+      alert("카드셋 삭제에 성공했습니다.");
+      navigate({ to: "/cardset-list" });
+    },
+    onError: () => {
+      alert("카드셋 삭제를 실패했습니다.");
+    },
   });
 
   const { data: members = [] } = useGroupMembers(groupId);
@@ -87,6 +98,9 @@ const CardsetDetail = ({ groupId, cardsetId }: Props) => {
 
   const hashtags = cardset.hashtag ? cardset.hashtag.split(",") : [];
 
+  const handleClickDelete = () => {
+    mutate();
+  };
   return (
     <BaseLayout>
       <div className="mx-auto p-6 flex flex-col sm:flex-row gap-6 justify-between">
@@ -177,7 +191,9 @@ const CardsetDetail = ({ groupId, cardsetId }: Props) => {
               cardset={cardset}
               renderTrigger={<Button variant="outline">수정</Button>}
             />
-            <Button variant="outline">삭제</Button>
+            <Button variant="outline" onClick={handleClickDelete}>
+              삭제
+            </Button>
           </div>
         </div>
       </div>
