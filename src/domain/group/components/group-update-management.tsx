@@ -1,8 +1,10 @@
+import GroupDeleteDialog from "@/domain/group/components/group-delete-dialog";
 import GroupForm, {
   type GroupFormField,
 } from "@/domain/group/components/group-form";
 import { useGroupDetail } from "@/domain/group/hooks/use-group-detail";
 import { groupApi, type GroupPutRequest } from "@/shared/apis";
+import { Separator } from "@/shared/components/separator";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 type Props = {
@@ -14,8 +16,13 @@ export const GroupUpdateManagement = ({ groupId }: Props) => {
   const { data: groupData, isLoading } = useGroupDetail(groupId);
 
   const { mutate, isPending } = useMutation({
-    mutationFn: ({ groupId, data }: { groupId: number; data: GroupPutRequest }) =>
-      groupApi.updateGroup(groupId, data),
+    mutationFn: ({
+      groupId,
+      data,
+    }: {
+      groupId: number;
+      data: GroupPutRequest;
+    }) => groupApi.updateGroup(groupId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["group", groupId] });
       window.alert("그룹 정보가 수정되었습니다.");
@@ -79,6 +86,8 @@ export const GroupUpdateManagement = ({ groupId }: Props) => {
         submitButtonText={isPending ? "수정 중..." : "수정하기"}
         showResetButton={false}
       />
+      <Separator className="my-8" />
+      <GroupDeleteDialog groupId={groupId} />
     </div>
   );
 };
