@@ -1,6 +1,6 @@
-export { CardGridSkeleton } from "./CardGridSkeleton";
-export { ProfileCardSkeleton } from "./ProfileCardSkeleton";
-export { GroupDetailSkeleton } from "./GroupDetailSkeleton";
-export { DashboardSkeleton } from "./DashboardSkeleton";
-export { PageSkeleton } from "./PageSkeleton";
-export { ListItemSkeleton } from "./ListItemSkeleton";
+export { CardGridSkeleton } from "./card-grid-skeleton";
+export { ProfileCardSkeleton } from "./profile-card-skeleton";
+export { GroupDetailSkeleton } from "./group-detail-skeleton";
+export { DashboardSkeleton } from "./dashboard-skeleton";
+export { PageSkeleton } from "./page-skeleton";
+export { ListItemSkeleton } from "./list-item-skeleton";

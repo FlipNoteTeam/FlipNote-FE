@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ca
 import { Button } from "@/shared/components/button";
 import { Label } from "@/shared/components/label";
 import { Input } from "@/shared/components/input";
-import { usePasswordResetRequest } from "../hooks/usePasswordResetRequest";
+import { usePasswordResetRequest } from "../hooks/use-password-reset-request";
 
 const PasswordResetRequestForm = () => {
   const { register, handleSubmit, errors, errorMessage, isSuccess, isPending } =

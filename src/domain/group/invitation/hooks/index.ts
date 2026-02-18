@@ -1,1 +1,1 @@
-export { useIncomingInvitations, useRespondToInvitation } from "./useIncomingInvitations";
+export { useIncomingInvitations, useRespondToInvitation } from "./use-incoming-invitations";

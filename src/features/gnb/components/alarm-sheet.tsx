@@ -8,8 +8,8 @@ import {
   SheetTrigger,
 } from "@/shared/components/sheet";
 import { Button } from "@/shared/components/button";
-import { useNotifications } from "../hooks/useNotifications";
-import { useMarkAllNotificationsAsRead } from "../hooks/useMarkAllNotificationsAsRead";
+import { useNotifications } from "../hooks/use-notifications";
+import { useMarkAllNotificationsAsRead } from "../hooks/use-mark-all-notifications-as-read";
 import AlarmList from "./alarm-list";
 import { type NotificationResponse } from "@/shared/apis/notification";
 

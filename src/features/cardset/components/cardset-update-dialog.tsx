@@ -1,7 +1,7 @@
 import type { GroupCategory } from "@/domain/group/types";
 import CardsetUpdateForm, {
   type CardsetUpdateFormField,
-} from "@/features/cardset/components/CardsetUpdateForm";
+} from "@/features/cardset/components/cardset-update-form";
 import {
   cardSetApi,
   type CardSetUpdateRequest,

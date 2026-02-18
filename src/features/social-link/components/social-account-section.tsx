@@ -1,8 +1,8 @@
 import { Button } from "@/shared/components/button";
 import TextSeperator from "@/shared/components/text-separator";
 import { GoogleLogo } from "@/shared/components/logos";
-import { useSocialLinks } from "@/features/social-link/hooks/useSocialLinks";
-import { useSocialAccountUnlink } from "@/features/social-link/hooks/useSocialAccount";
+import { useSocialLinks } from "@/features/social-link/hooks/use-social-links";
+import { useSocialAccountUnlink } from "@/features/social-link/hooks/use-social-account";
 import { Check, X } from "lucide-react";
 
 type SocialProvider = {

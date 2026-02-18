@@ -1,4 +1,4 @@
-import { CardsetEditor } from "@/features/cardset/components/CardsetEditor";
+import { CardsetEditor } from "@/features/cardset/components/cardset-editor";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/cardsets/editor/$id")({

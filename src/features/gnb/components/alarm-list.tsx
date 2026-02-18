@@ -1,5 +1,5 @@
-import { useNotifications } from "../hooks/useNotifications";
-import { useMarkNotificationAsRead } from "../hooks/useMarkNotificationAsRead";
+import { useNotifications } from "../hooks/use-notifications";
+import { useMarkNotificationAsRead } from "../hooks/use-mark-notification-as-read";
 import { type NotificationResponse } from "@/shared/apis/notification";
 import InfiniteScrollList from "@/shared/components/infinite-scroll-list";
 

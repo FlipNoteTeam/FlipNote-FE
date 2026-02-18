@@ -1,1 +1,1 @@
-export { IncomingInvitationList } from "./IncomingInvitationList";
+export { IncomingInvitationList } from "./incoming-invitation-list";

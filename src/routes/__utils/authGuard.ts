@@ -1,4 +1,4 @@
-import { type AuthState } from "@/stores/useAuthStore";
+import { type AuthState } from "@/stores/use-auth-store";
 import { redirect } from "@tanstack/react-router";
 
 interface Props {

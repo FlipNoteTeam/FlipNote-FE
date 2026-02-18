@@ -1,4 +1,4 @@
-import useAuthStore from "@/stores/useAuthStore";
+import useAuthStore from "@/stores/use-auth-store";
 import MyUserProfilePage from "./my-profile";
 import OtherUserProfilePage from "./other-profile";
 import Dashboard from "@/pages/dashboard";
@@ -7,7 +7,7 @@ import { SidebarTabLayout } from "@/shared/layouts/sidebar-tab-layout";
 import {
   MyPageSidebar,
   type TabMenu,
-} from "@/features/mypage/components/MyPageSidebar";
+} from "@/features/mypage/components/my-page-sidebar";
 import { IncomingInvitationList } from "@/features/group-invitation-management";
 import { MyGroupJoinList } from "@/features/group-join-management";
 import { NotificationList } from "@/features/notification-management";

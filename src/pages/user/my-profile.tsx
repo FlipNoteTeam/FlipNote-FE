@@ -3,7 +3,7 @@ import { userApi } from "@/shared/apis/user";
 import { Card, CardContent } from "@/shared/components/card";
 import UserProfileView from "@/domain/user/components/user-profile-view";
 import UserProfileEditForm from "@/features/user-info-management/components/user-profile-edit-form";
-import { useUserInfoEdit } from "@/features/user-info-management/hooks/useUserInfoEdit";
+import { useUserInfoEdit } from "@/features/user-info-management/hooks/use-user-info-edit";
 import { ProfileCardSkeleton } from "@/shared/components/skeletons";
 
 const MyUserProfilePage = () => {

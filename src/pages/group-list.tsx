@@ -1,15 +1,15 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/shared/components/button";
 import { Input } from "@/shared/components/input";
-import { ThumbnailCard } from "@/shared/components/ThumbnailCard";
+import { ThumbnailCard } from "@/shared/components/thumbnail-card";
 
 import BaseLayout from "@/shared/layouts/base-layout";
 import { Link } from "@tanstack/react-router";
 import { Plus, Search } from "lucide-react";
-import { useGroups } from "@/features/group-search/hooks/useGroups";
-import { GroupFilterSection } from "@/features/group-search/components/GroupFilterSection";
+import { useGroups } from "@/features/group-search/hooks/use-groups";
+import { GroupFilterSection } from "@/features/group-search/components/group-filter-section";
 import type { GroupCategory } from "@/shared/apis/types";
-import CreateGroupDialog from "@/features/create-group/components/CreateGroupDialog";
+import CreateGroupDialog from "@/features/create-group/components/create-group-dialog";
 import { CardGridSkeleton } from "@/shared/components/skeletons";
 
 const GroupList = () => {

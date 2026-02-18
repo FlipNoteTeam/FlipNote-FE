@@ -36,7 +36,7 @@ if ("serviceWorker" in navigator) {
 
 // 개발 환경에서 FCM 테스트 도구 로드
 if (import.meta.env.DEV) {
-  import("@/shared/utils/fcmTestHelper");
+  import("@/shared/utils/fcm-test-helper");
 }
 
 createRoot(document.getElementById("root")!).render(

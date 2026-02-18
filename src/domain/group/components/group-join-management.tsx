@@ -9,7 +9,7 @@ import {
 import {
   useGroupJoinList,
   useRespondGroupJoin,
-} from "@/domain/group/hooks/useGroupJoinManagement";
+} from "@/domain/group/hooks/use-group-join-management";
 import { Check, X } from "lucide-react";
 import type { ApiError } from "@/shared/apis";
 

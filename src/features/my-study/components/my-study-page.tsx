@@ -5,7 +5,7 @@ import {
   mockBookmarkedCardSets,
   mockLikedCardSets,
 } from "@/shared/mocks/cardsets";
-import { ThumbnailCard } from "@/shared/components/ThumbnailCard";
+import { ThumbnailCard } from "@/shared/components/thumbnail-card";
 import { CardGridSkeleton } from "@/shared/components/skeletons";
 
 export const MyStudyPage = () => {

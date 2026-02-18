@@ -11,8 +11,8 @@ import {
 import { Button } from "@/shared/components/button";
 import { Textarea } from "@/shared/components/textarea";
 import { Label } from "@/shared/components/label";
-import { useGroupJoin } from "@/domain/group/hooks/useGroupJoin";
-import useAuthStore from "@/stores/useAuthStore";
+import { useGroupJoin } from "@/domain/group/hooks/use-group-join";
+import useAuthStore from "@/stores/use-auth-store";
 import { useNavigate } from "@tanstack/react-router";
 import type { ApiError } from "@/shared/apis";
 

@@ -1,1 +1,1 @@
-export { MyStudyPage } from "./MyStudyPage";
+export { MyStudyPage } from "./my-study-page";
