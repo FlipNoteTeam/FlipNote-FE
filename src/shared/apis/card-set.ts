@@ -67,37 +67,42 @@ export const cardSetApi = {
       "/card-sets",
       {
         params,
-      }
+      },
     ),
 
   // 그룹의 카드셋 목록 조회
   getGroupCardSets: (groupId: number, params?: PaginationRequest) =>
     apiClient.get<ApiResponse<PagingResponse<CardSetSummaryResponse>>>(
       `/groups/${groupId}/card-sets`,
-      { params }
+      { params },
     ),
 
   // 카드셋 생성
   createCardSet: (groupId: number, data: CreateCardSetRequest) =>
     apiClient.post<ApiResponse<CreateCardSetResponse>>(
       `/groups/${groupId}/card-sets`,
-      data
+      // @TODO 매니저 넣는 필드 실제로 추가해야 함.
+      { managers: [3], ...data },
     ),
 
   // 카드셋 상세 조회
   getCardSet: (groupId: number, cardSetId: number) =>
     apiClient.get<ApiResponse<CardSetDetailResponse>>(
-      `/groups/${groupId}/card-sets/${cardSetId}`
+      `/groups/${groupId}/card-sets/${cardSetId}`,
     ),
 
   // 카드셋 수정
   updateCardSet: (
     groupId: number,
     cardSetId: number,
-    data: CardSetUpdateRequest
+    data: CardSetUpdateRequest,
   ) =>
     apiClient.put<ApiResponse<CardSetDetailResponse>>(
       `/groups/${groupId}/card-sets/${cardSetId}`,
-      data
+      data,
     ),
+
+  // 카드셋 삭제
+  deleteCardSet: (groupId: number, cardSetId: number) =>
+    apiClient.delete<ApiResponse>(`/groups/${groupId}/card-sets/${cardSetId}`),
 };
