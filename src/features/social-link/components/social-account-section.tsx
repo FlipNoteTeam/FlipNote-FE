@@ -41,7 +41,7 @@ const SocialAccountSection = () => {
 
   const handleSocialButtonClick = (provider: SocialProvider) => {
     const linkedAccount = socialLinksData?.socialLinks.find(
-      (link) => link.provider.toLowerCase() === provider.name.toLowerCase()
+      (link) => link.provider.toLowerCase() === provider.name.toLowerCase(),
     );
 
     if (linkedAccount) {
@@ -59,7 +59,7 @@ const SocialAccountSection = () => {
 
   const isProviderLinked = (providerName: string) => {
     return socialLinksData?.socialLinks.some(
-      (link) => link.provider.toLowerCase() === providerName.toLowerCase()
+      (link) => link.provider.toLowerCase() === providerName.toLowerCase(),
     );
   };
 
@@ -85,7 +85,7 @@ const SocialAccountSection = () => {
             return (
               <Button asChild>
                 <a
-                  className="flex items-center gap-2 min-w-[120px]"
+                  className="flex items-center gap-2 min-w-30"
                   href={`${new URL(import.meta.env.VITE_BASE_URL).origin}/oauth2/authorization/google`}
                 >
                   구글 연동하기
@@ -96,7 +96,7 @@ const SocialAccountSection = () => {
             <Button
               key={provider.name}
               variant={"default"}
-              className="flex items-center gap-2 min-w-[120px]"
+              className="flex items-center gap-2 min-w-30"
               style={
                 isLinked
                   ? {

@@ -111,13 +111,13 @@ export interface FileRoutesByFullPath {
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
   '/groups/create': typeof GroupsCreateRoute
-  '/groups': typeof GroupsIndexRoute
+  '/groups/': typeof GroupsIndexRoute
   '/cardsets/editor/$id': typeof CardsetsEditorIdRoute
   '/groups/$groupId/manage': typeof GroupsGroupIdManageRoute
-  '/cardsets/learning': typeof CardsetsLearningIndexRoute
-  '/groups/$groupId': typeof GroupsGroupIdIndexRoute
-  '/user/$userId': typeof UserUserIdIndexRoute
-  '/groups/$groupId/cardsets/$cardsetId': typeof GroupsGroupIdCardsetsCardsetIdIndexRoute
+  '/cardsets/learning/': typeof CardsetsLearningIndexRoute
+  '/groups/$groupId/': typeof GroupsGroupIdIndexRoute
+  '/user/$userId/': typeof UserUserIdIndexRoute
+  '/groups/$groupId/cardsets/$cardsetId/': typeof GroupsGroupIdCardsetsCardsetIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -165,13 +165,13 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/register'
     | '/groups/create'
-    | '/groups'
+    | '/groups/'
     | '/cardsets/editor/$id'
     | '/groups/$groupId/manage'
-    | '/cardsets/learning'
-    | '/groups/$groupId'
-    | '/user/$userId'
-    | '/groups/$groupId/cardsets/$cardsetId'
+    | '/cardsets/learning/'
+    | '/groups/$groupId/'
+    | '/user/$userId/'
+    | '/groups/$groupId/cardsets/$cardsetId/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -266,7 +266,7 @@ declare module '@tanstack/react-router' {
     '/groups/': {
       id: '/groups/'
       path: '/groups'
-      fullPath: '/groups'
+      fullPath: '/groups/'
       preLoaderRoute: typeof GroupsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
@@ -294,21 +294,21 @@ declare module '@tanstack/react-router' {
     '/user/$userId/': {
       id: '/user/$userId/'
       path: '/user/$userId'
-      fullPath: '/user/$userId'
+      fullPath: '/user/$userId/'
       preLoaderRoute: typeof UserUserIdIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/groups/$groupId/': {
       id: '/groups/$groupId/'
       path: '/groups/$groupId'
-      fullPath: '/groups/$groupId'
+      fullPath: '/groups/$groupId/'
       preLoaderRoute: typeof GroupsGroupIdIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cardsets/learning/': {
       id: '/cardsets/learning/'
       path: '/cardsets/learning'
-      fullPath: '/cardsets/learning'
+      fullPath: '/cardsets/learning/'
       preLoaderRoute: typeof CardsetsLearningIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
@@ -329,7 +329,7 @@ declare module '@tanstack/react-router' {
     '/groups/$groupId/cardsets/$cardsetId/': {
       id: '/groups/$groupId/cardsets/$cardsetId/'
       path: '/groups/$groupId/cardsets/$cardsetId'
-      fullPath: '/groups/$groupId/cardsets/$cardsetId'
+      fullPath: '/groups/$groupId/cardsets/$cardsetId/'
       preLoaderRoute: typeof GroupsGroupIdCardsetsCardsetIdIndexRouteImport
       parentRoute: typeof rootRouteImport
     }

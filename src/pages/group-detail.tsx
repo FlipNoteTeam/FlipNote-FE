@@ -124,7 +124,7 @@ const GroupDetailPage = ({ id }: Props) => {
                     <UserPlus className="size-4" />
                     가입신청
                   </Button>
-                </group-join-dialog>
+                </GroupJoinDialog>
               )}
               {hasManagePermission && (
                 <Button size="sm" variant="outline">
@@ -193,7 +193,9 @@ const GroupDetailPage = ({ id }: Props) => {
                       imageUrl={cardSet.imageUrl}
                       title={cardSet.name}
                       category={cardSet.category}
-                      subtitle={cardSet.hashtag ? `#${cardSet.hashtag}` : undefined}
+                      subtitle={
+                        cardSet.hashtag ? `#${cardSet.hashtag}` : undefined
+                      }
                     />
                   </Link>
                 ))}
