@@ -1,1 +1,1 @@
-export { MyGroupJoinList } from "./MyGroupJoinList";
+export { MyGroupJoinList } from "./my-group-join-list";

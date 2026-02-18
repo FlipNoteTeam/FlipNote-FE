@@ -3,7 +3,7 @@ import { Card } from "@/shared/components/card";
 import { Button } from "@/shared/components/button";
 import { Textarea } from "@/shared/components/textarea";
 import { Label } from "@/shared/components/label";
-import { useYjs } from "@/shared/socket/useYjs";
+import { useYjs } from "@/shared/socket/use-yjs";
 import type { CardData } from "@/shared/socket/card-types";
 import * as Y from "yjs";
 import { nestClient } from "@/shared/apis/fetch";

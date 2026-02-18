@@ -3,7 +3,7 @@ import NavItems from "@/features/gnb/components/nav-items";
 import UnauthenticatedNav from "@/features/gnb/components/unauthenticated-nav";
 import MobileMenu from "@/features/gnb/components/mobile-menu";
 import { Skeleton } from "@/shared/components/skeleton";
-import useAuthStore from "@/stores/useAuthStore";
+import useAuthStore from "@/stores/use-auth-store";
 import { Link } from "@tanstack/react-router";
 
 const GNB = () => {

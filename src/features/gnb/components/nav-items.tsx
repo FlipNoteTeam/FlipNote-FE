@@ -1,4 +1,4 @@
-import useAuthStore from "@/stores/useAuthStore";
+import useAuthStore from "@/stores/use-auth-store";
 import { Link } from "@tanstack/react-router";
 import { useMemo } from "react";
 import type { FileRouteTypes } from "@/routeTree.gen";

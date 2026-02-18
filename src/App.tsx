@@ -2,8 +2,8 @@ import { createRouter, RouterProvider } from "@tanstack/react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { routeTree } from "./routeTree.gen";
-import useAuthStore from "@/stores/useAuthStore";
-import { type AuthState } from "@/stores/useAuthStore";
+import useAuthStore from "@/stores/use-auth-store";
+import { type AuthState } from "@/stores/use-auth-store";
 import { useEffect } from "react";
 
 declare module "@tanstack/react-router" {

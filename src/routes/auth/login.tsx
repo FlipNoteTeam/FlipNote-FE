@@ -1,4 +1,4 @@
-import LoginPage from "@/pages/auth/ui/LoginPage";
+import LoginPage from "@/pages/auth/ui/login-page";
 import { authGuard } from "@/routes/__utils/authGuard";
 import { createFileRoute } from "@tanstack/react-router";
 

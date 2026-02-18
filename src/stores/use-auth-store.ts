@@ -40,7 +40,7 @@ const useAuthStore = create<AuthState & AuthAction>()(
         const {
           registerFCMToken,
           initializeForegroundMessageListener,
-        } = await import("@/shared/services/fcmService");
+        } = await import("@/shared/services/fcm-service");
         await registerFCMToken();
         initializeForegroundMessageListener();
       } catch (error) {

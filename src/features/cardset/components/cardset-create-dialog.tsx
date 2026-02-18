@@ -1,6 +1,6 @@
 import CardsetCreateForm, {
   type CardsetCreateFormField,
-} from "@/features/cardset/components/CardsetCreateForm";
+} from "@/features/cardset/components/cardset-create-form";
 import { cardSetApi, type CreateCardSetRequest } from "@/shared/apis";
 import { Button } from "@/shared/components/button";
 import {

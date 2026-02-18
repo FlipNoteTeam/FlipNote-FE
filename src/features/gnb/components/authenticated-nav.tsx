@@ -2,8 +2,8 @@ import { Button } from "@/shared/components/button";
 import { Link } from "@tanstack/react-router";
 import { Bell } from "lucide-react";
 import AlarmSheet from "@/features/gnb/components/alarm-sheet";
-import useAuthStore from "@/stores/useAuthStore";
-import { useLogout } from "@/features/auth/hooks/useLogout";
+import useAuthStore from "@/stores/use-auth-store";
+import { useLogout } from "@/features/auth/hooks/use-logout";
 import {
   DropdownMenu,
   DropdownMenuContent,

@@ -1,4 +1,4 @@
-import CreateGroupForm from "@/features/create-group/components/CreateGroupForm";
+import CreateGroupForm from "@/features/create-group/components/create-group-form";
 import { type CreateGroupFormField } from "@/features/create-group/schemas/form.schema";
 import { createGroupRequestSchema } from "@/features/create-group/schemas/request.schema";
 import { groupApi } from "@/shared/apis";

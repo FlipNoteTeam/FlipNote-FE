@@ -1,7 +1,7 @@
 import GroupForm, {
   type GroupFormField,
-} from "@/domain/group/components/GroupForm";
-import { useGroupDetail } from "@/domain/group/hooks/useGroupDetail";
+} from "@/domain/group/components/group-form";
+import { useGroupDetail } from "@/domain/group/hooks/use-group-detail";
 import { groupApi, type GroupPutRequest } from "@/shared/apis";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 

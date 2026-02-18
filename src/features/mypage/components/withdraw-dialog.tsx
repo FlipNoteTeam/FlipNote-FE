@@ -12,7 +12,7 @@ import {
   DialogTrigger,
 } from "@/shared/components/dialog";
 import { Input } from "@/shared/components/input";
-import useAuthStore from "@/stores/useAuthStore";
+import useAuthStore from "@/stores/use-auth-store";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useState, type ChangeEvent } from "react";

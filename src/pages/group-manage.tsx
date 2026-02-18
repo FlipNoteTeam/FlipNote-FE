@@ -1,11 +1,11 @@
 import { useState } from "react";
 import BaseLayout from "@/shared/layouts/base-layout";
-import { GroupJoinManagement } from "@/domain/group/components/GroupJoinManagement";
-import { GroupInvitationManagement } from "@/domain/group/components/GroupInvitationManagement";
-import { GroupUpdateManagement } from "@/domain/group/components/GroupUpdateManagement";
-import { useGroupDetail } from "@/domain/group/hooks/useGroupDetail";
-import { useGroupMembers } from "@/domain/members/hooks/useGroupMembers";
-import useAuthStore from "@/stores/useAuthStore";
+import { GroupJoinManagement } from "@/domain/group/components/group-join-management";
+import { GroupInvitationManagement } from "@/domain/group/components/group-invitation-management";
+import { GroupUpdateManagement } from "@/domain/group/components/group-update-management";
+import { useGroupDetail } from "@/domain/group/hooks/use-group-detail";
+import { useGroupMembers } from "@/domain/members/hooks/use-group-members";
+import useAuthStore from "@/stores/use-auth-store";
 import { Button } from "@/shared/components/button";
 import { ChevronLeft } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";

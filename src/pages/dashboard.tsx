@@ -11,7 +11,7 @@ import { groupApi } from "@/shared/apis/group";
 import { mockWrongAnswerNotes } from "@/shared/mocks/wrong-answer-notes";
 import { BookOpen, Users, Calendar, AlertCircle } from "lucide-react";
 import { GROUP_CATEGORY_MAP } from "@/domain/group/types";
-import { ThumbnailCard } from "@/shared/components/ThumbnailCard";
+import { ThumbnailCard } from "@/shared/components/thumbnail-card";
 import { DashboardSkeleton } from "@/shared/components/skeletons";
 
 const Dashboard = () => {

@@ -1,3 +1,3 @@
-export { useNotifications } from "@/features/gnb/hooks/useNotifications";
-export { useMarkNotificationAsRead } from "@/features/gnb/hooks/useMarkNotificationAsRead";
-export { useMarkAllNotificationsAsRead } from "@/features/gnb/hooks/useMarkAllNotificationsAsRead";
+export { useNotifications } from "@/features/gnb/hooks/use-notifications";
+export { useMarkNotificationAsRead } from "@/features/gnb/hooks/use-mark-notification-as-read";
+export { useMarkAllNotificationsAsRead } from "@/features/gnb/hooks/use-mark-all-notifications-as-read";

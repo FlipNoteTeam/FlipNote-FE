@@ -1,8 +1,8 @@
 import BaseLayout from "@/shared/layouts/base-layout";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import PasswordResetRequestForm from "@/features/password-reset/components/PasswordResetRequestForm";
-import PasswordResetForm from "@/features/password-reset/components/PasswordResetForm";
+import PasswordResetRequestForm from "@/features/password-reset/components/password-reset-request-form";
+import PasswordResetForm from "@/features/password-reset/components/password-reset-form";
 import { Button } from "@/shared/components/button";
 
 export const Route = createFileRoute("/reset-password")({

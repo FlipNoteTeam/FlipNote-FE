@@ -10,7 +10,7 @@ import {
 import NavItems from "@/features/gnb/components/nav-items";
 import AuthenticatedNav from "@/features/gnb/components/authenticated-nav";
 import UnauthenticatedNav from "@/features/gnb/components/unauthenticated-nav";
-import useAuthStore from "@/stores/useAuthStore";
+import useAuthStore from "@/stores/use-auth-store";
 import { Skeleton } from "@/shared/components/skeleton";
 
 const MobileMenu = () => {

@@ -22,7 +22,7 @@ import {
   useOutgoingInvitations,
   useCreateGroupInvitation,
   useDeleteGroupInvitation,
-} from "@/domain/group/hooks/useGroupInvitation";
+} from "@/domain/group/hooks/use-group-invitation";
 import { UserPlus, X } from "lucide-react";
 import type { ApiError } from "@/shared/apis";
 

@@ -3,7 +3,7 @@ import { Button } from "@/shared/components/button";
 import { Label } from "@/shared/components/label";
 import { Input } from "@/shared/components/input";
 import { PasswordInput } from "@/shared/components/password-input";
-import { usePasswordReset } from "../hooks/usePasswordReset";
+import { usePasswordReset } from "../hooks/use-password-reset";
 
 const PasswordResetForm = () => {
   const { register, handleSubmit, errors, password, errorMessage, isPending } =

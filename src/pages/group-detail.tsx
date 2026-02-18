@@ -8,15 +8,15 @@ import {
   CarouselPrevious,
 } from "@/shared/components/carousel";
 import BaseLayout from "@/shared/layouts/base-layout";
-import { GroupInfoCard } from "@/domain/group/components/GroupInfoCard";
-import { MemberCard } from "@/domain/members/components/MemberCard";
-import { ThumbnailCard } from "@/shared/components/ThumbnailCard";
-import { useGroupDetail } from "@/domain/group/hooks/useGroupDetail";
-import { useGroupMembers } from "@/domain/members/hooks/useGroupMembers";
-import { useGroupCardsets } from "@/domain/cardsets/hooks/useGroupCardsets";
-import CardsetCreateDialog from "@/features/cardset/components/CardsetCreateDialog";
-import { GroupJoinDialog } from "@/domain/group/components/GroupJoinDialog";
-import useAuthStore from "@/stores/useAuthStore";
+import { GroupInfoCard } from "@/domain/group/components/group-info-card";
+import { MemberCard } from "@/domain/members/components/member-card";
+import { ThumbnailCard } from "@/shared/components/thumbnail-card";
+import { useGroupDetail } from "@/domain/group/hooks/use-group-detail";
+import { useGroupMembers } from "@/domain/members/hooks/use-group-members";
+import { useGroupCardsets } from "@/domain/cardsets/hooks/use-group-cardsets";
+import CardsetCreateDialog from "@/features/cardset/components/cardset-create-dialog";
+import { GroupJoinDialog } from "@/domain/group/components/group-join-dialog";
+import useAuthStore from "@/stores/use-auth-store";
 import { Link } from "@tanstack/react-router";
 import { GroupDetailSkeleton } from "@/shared/components/skeletons";
 import { useMeta } from "@/shared/hooks/use-meta";
@@ -124,7 +124,7 @@ const GroupDetailPage = ({ id }: Props) => {
                     <UserPlus className="size-4" />
                     가입신청
                   </Button>
-                </GroupJoinDialog>
+                </group-join-dialog>
               )}
               {hasManagePermission && (
                 <Button size="sm" variant="outline">

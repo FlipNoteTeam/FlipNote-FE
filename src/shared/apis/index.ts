@@ -25,4 +25,4 @@ export * from './image';
 
 // API 클라이언트
 export { default as apiClient } from './fetch';
-export { FetchClient } from './fetchClient';
+export { FetchClient } from './fetch-client';

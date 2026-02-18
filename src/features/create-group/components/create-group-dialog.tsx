@@ -1,4 +1,4 @@
-import CreateGroupForm from "./CreateGroupForm";
+import CreateGroupForm from "./create-group-form";
 import { groupApi, type GroupCreateRequest } from "@/shared/apis";
 import { Button } from "@/shared/components/button";
 import {

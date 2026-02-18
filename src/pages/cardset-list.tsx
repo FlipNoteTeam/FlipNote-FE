@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/shared/components/button";
 import { Input } from "@/shared/components/input";
-import { ThumbnailCard } from "@/shared/components/ThumbnailCard";
+import { ThumbnailCard } from "@/shared/components/thumbnail-card";
 
 import BaseLayout from "@/shared/layouts/base-layout";
 import { Link } from "@tanstack/react-router";
 import { Search } from "lucide-react";
-import { useCardSets } from "@/domain/cardsets/hooks/useCardSets";
-import { CardSetFilterSection } from "@/domain/cardsets/components/CardSetFilterSection";
+import { useCardSets } from "@/domain/cardsets/hooks/use-card-sets";
+import { CardSetFilterSection } from "@/domain/cardsets/components/card-set-filter-section";
 import type { CardSetCategory } from "@/domain/cardsets/types";
 import { CardGridSkeleton } from "@/shared/components/skeletons";
 

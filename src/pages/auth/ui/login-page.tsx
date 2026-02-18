@@ -8,11 +8,11 @@ import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import BaseLayout from "@/shared/layouts/base-layout";
-import { useLogin } from "@/features/auth/hooks/useLogin";
+import { useLogin } from "@/features/auth/hooks/use-login";
 import {
   loginSchema,
   type LoginFormData,
-} from "@/pages/auth/model/loginSchema";
+} from "@/pages/auth/model/login.schema";
 import TextSeperator from "@/shared/components/text-separator";
 import { GoogleLogo } from "@/shared/components/logos";
 
