@@ -35,7 +35,7 @@ const CardsetDetail = ({ groupId, cardsetId }: Props) => {
     queryFn: () => groupApi.getGroupDetail(groupId),
   });
 
-  const { mutate } = useMutation({
+  const { mutate, isPending } = useMutation({
     mutationFn: () => cardSetApi.deleteCardSet(groupId, cardsetId),
     onSuccess: () => {
       alert("카드셋 삭제에 성공했습니다.");
@@ -191,7 +191,11 @@ const CardsetDetail = ({ groupId, cardsetId }: Props) => {
               cardset={cardset}
               renderTrigger={<Button variant="outline">수정</Button>}
             />
-            <Button variant="outline" onClick={handleClickDelete}>
+            <Button
+              variant="outline"
+              disabled={isPending}
+              onClick={handleClickDelete}
+            >
               삭제
             </Button>
           </div>
