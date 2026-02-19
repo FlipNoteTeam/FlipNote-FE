@@ -1,8 +1,11 @@
 import CardSetList from "@/pages/cardset-list";
 import { createFileRoute } from "@tanstack/react-router";
+import BaseLayout from "@/shared/layouts/base-layout";
+import { CardGridSkeleton } from "@/shared/components/skeletons";
 
 export const Route = createFileRoute("/cardset-list")({
   component: RouteComponent,
+  pendingComponent: PendingComponent,
   head: () => ({
     meta: [
       { title: "카드셋 목록 | FlipNote" },
@@ -16,4 +19,12 @@ export const Route = createFileRoute("/cardset-list")({
 
 function RouteComponent() {
   return <CardSetList />;
+}
+
+function PendingComponent() {
+  return (
+    <BaseLayout>
+      <CardGridSkeleton />
+    </BaseLayout>
+  );
 }
