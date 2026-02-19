@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Button } from "@/shared/components/button";
 import {
   Card,
@@ -8,21 +7,10 @@ import {
   CardTitle,
 } from "@/shared/components/card";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/shared/components/dialog";
-import { Input } from "@/shared/components/input";
-import { Label } from "@/shared/components/label";
-import {
   useOutgoingInvitations,
-  useCreateGroupInvitation,
   useDeleteGroupInvitation,
 } from "@/domain/group/hooks/use-group-invitation";
+import { GroupInviteDialog } from "@/domain/group/components/group-invite-dialog";
 import { UserPlus, X } from "lucide-react";
 import type { ApiError } from "@/shared/apis";
 
@@ -33,38 +21,9 @@ type GroupInvitationManagementProps = {
 export const GroupInvitationManagement = ({
   groupId,
 }: GroupInvitationManagementProps) => {
-  const [open, setOpen] = useState(false);
-  const [email, setEmail] = useState("");
-
   const { data: invitations = [], isLoading } = useOutgoingInvitations(groupId);
-  const { mutate: createInvitation, isPending: isCreating } =
-    useCreateGroupInvitation(groupId);
   const { mutate: deleteInvitation, isPending: isDeleting } =
     useDeleteGroupInvitation(groupId);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email.trim()) {
-      window.alert("이메일을 입력해주세요.");
-      return;
-    }
-
-    createInvitation(
-      { email: email.trim() },
-      {
-        onSuccess: () => {
-          window.alert("초대를 보냈습니다.");
-          setEmail("");
-          setOpen(false);
-        },
-        onError: (error: ApiError) => {
-          window.alert(
-            error.response?.data?.message || "초대 전송에 실패했습니다."
-          );
-        },
-      }
-    );
-  };
 
   const handleCancelInvitation = (invitationId: number, nickname: string) => {
     if (!window.confirm(`${nickname}님에게 보낸 초대를 취소하시겠습니까?`)) {
@@ -105,49 +64,12 @@ export const GroupInvitationManagement = ({
             사용자를 그룹에 초대하고 초대 현황을 관리할 수 있습니다.
           </p>
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <UserPlus className="size-4 mr-2" />
-              초대하기
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <form onSubmit={handleSubmit}>
-              <DialogHeader>
-                <DialogTitle>그룹 초대</DialogTitle>
-                <DialogDescription>
-                  초대할 사용자의 이메일을 입력해주세요.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="py-4">
-                <Label htmlFor="email">이메일</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="user@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="mt-2"
-                  disabled={isCreating}
-                />
-              </div>
-              <DialogFooter>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setOpen(false)}
-                  disabled={isCreating}
-                >
-                  취소
-                </Button>
-                <Button type="submit" disabled={isCreating}>
-                  {isCreating ? "전송 중..." : "초대 보내기"}
-                </Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
+        <GroupInviteDialog groupId={groupId}>
+          <Button>
+            <UserPlus className="size-4 mr-2" />
+            초대하기
+          </Button>
+        </GroupInviteDialog>
       </div>
 
       {pendingInvitations.length === 0 ? (

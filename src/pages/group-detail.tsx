@@ -16,16 +16,23 @@ import { useGroupMembers } from "@/domain/members/hooks/use-group-members";
 import { useGroupCardsets } from "@/domain/cardsets/hooks/use-group-cardsets";
 import CardsetCreateDialog from "@/features/cardset/components/cardset-create-dialog";
 import { GroupJoinDialog } from "@/domain/group/components/group-join-dialog";
+import { GroupInviteDialog } from "@/domain/group/components/group-invite-dialog";
+import { useGroupJoin } from "@/domain/group/hooks/use-group-join";
 import useAuthStore from "@/stores/use-auth-store";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { GroupDetailSkeleton } from "@/shared/components/skeletons";
 import { useMeta } from "@/shared/hooks/use-meta";
+import { useQueryClient } from "@tanstack/react-query";
+import type { ApiError } from "@/shared/apis";
 
 type Props = { id: string };
 
 const GroupDetailPage = ({ id }: Props) => {
   const groupId = Number(id);
   const user = useAuthStore((state) => state.user);
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { mutate: joinGroup, isPending: isJoining } = useGroupJoin();
 
   const { data: groupData, isLoading: isGroupLoading } =
     useGroupDetail(groupId);
@@ -48,8 +55,27 @@ const GroupDetailPage = ({ id }: Props) => {
   const isOwner = currentMember?.role === "OWNER";
   const hasManagePermission = isOwner; // OWNER만 관리 권한
 
-  // 가입 신청 버튼 표시 여부 (멤버가 아니고 가입 승인이 필요한 그룹)
-  const showJoinButton = !isMember && groupData?.applicationRequired;
+  // 비멤버에게 가입 버튼 노출
+  const showJoinButton = !isMember && !!user;
+
+  const handleDirectJoin = () => {
+    if (!user) {
+      navigate({ to: "/auth/login", search: { redirect: window.location.href } });
+      return;
+    }
+    joinGroup(
+      { groupId },
+      {
+        onSuccess: () => {
+          window.alert(`${groupData?.name} 그룹에 가입했습니다.`);
+          queryClient.invalidateQueries({ queryKey: ["group", "members", groupId] });
+        },
+        onError: (error: ApiError) => {
+          window.alert(error?.response?.data?.message || "가입에 실패했습니다.");
+        },
+      }
+    );
+  };
 
   useMeta({
     title: groupData ? `${groupData.name} | FlipNote` : undefined,
@@ -119,18 +145,32 @@ const GroupDetailPage = ({ id }: Props) => {
             <h2 className="text-2xl font-bold">멤버</h2>
             <div className="flex gap-2">
               {showJoinButton && (
-                <GroupJoinDialog groupId={groupId} groupName={groupData.name}>
-                  <Button size="sm" variant="default">
+                groupData.applicationRequired ? (
+                  <GroupJoinDialog groupId={groupId} groupName={groupData.name}>
+                    <Button size="sm" variant="default">
+                      <UserPlus className="size-4" />
+                      가입신청
+                    </Button>
+                  </GroupJoinDialog>
+                ) : (
+                  <Button
+                    size="sm"
+                    variant="default"
+                    onClick={handleDirectJoin}
+                    disabled={isJoining}
+                  >
                     <UserPlus className="size-4" />
-                    가입신청
+                    {isJoining ? "가입 중..." : "그룹 가입"}
                   </Button>
-                </GroupJoinDialog>
+                )
               )}
               {hasManagePermission && (
-                <Button size="sm" variant="outline">
-                  <Plus className="size-4" />
-                  멤버 초대
-                </Button>
+                <GroupInviteDialog groupId={groupId}>
+                  <Button size="sm" variant="outline">
+                    <Plus className="size-4" />
+                    멤버 초대
+                  </Button>
+                </GroupInviteDialog>
               )}
             </div>
           </div>
