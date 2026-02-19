@@ -27,6 +27,8 @@ export interface CardSetDetailResponse {
   publicVisible: boolean;
   createdAt: string;
   modifiedAt: string;
+  /** 카드셋 관리자 userId 목록 */
+  managers?: number[];
 }
 
 export interface CreateCardSetRequest {
@@ -35,6 +37,8 @@ export interface CreateCardSetRequest {
   category: GroupCategory;
   hashtag: string[];
   imageRefId?: number;
+  /** 카드셋 관리자 userId 목록 */
+  managers?: number[];
 }
 
 export interface CreateCardSetResponse {
@@ -47,6 +51,8 @@ export interface CardSetUpdateRequest {
   category: GroupCategory;
   hashtag: string[];
   image?: string;
+  /** 카드셋 관리자 userId 목록 */
+  managers?: number[];
 }
 
 export interface CardSetSearchRequest extends PaginationRequest {
@@ -81,8 +87,7 @@ export const cardSetApi = {
   createCardSet: (groupId: number, data: CreateCardSetRequest) =>
     apiClient.post<ApiResponse<CreateCardSetResponse>>(
       `/groups/${groupId}/card-sets`,
-      // @TODO 매니저 넣는 필드 실제로 추가해야 함.
-      { managers: [3], ...data },
+      data,
     ),
 
   // 카드셋 상세 조회
