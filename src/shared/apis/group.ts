@@ -127,4 +127,20 @@ export const groupApi = {
         params: data,
       }
     ),
+
+  // 역할 부임 (TODO: API 준비되면 엔드포인트 확인 필요)
+  assignMemberRole: (
+    groupId: number,
+    data: { userId: number; role: "HEAD_MANAGER" | "MANAGER" }
+  ) =>
+    apiClient.post<ApiResponse<void>>(
+      `/groups/${groupId}/members/role`,
+      data
+    ),
+
+  // 역할 해제 (TODO: API 준비되면 엔드포인트 확인 필요)
+  dismissMemberRole: (groupId: number, userId: number) =>
+    apiClient.delete<ApiResponse<void>>(
+      `/groups/${groupId}/members/${userId}/role`
+    ),
 };
