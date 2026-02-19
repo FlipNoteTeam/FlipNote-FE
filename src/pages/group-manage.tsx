@@ -3,6 +3,7 @@ import BaseLayout from "@/shared/layouts/base-layout";
 import { GroupJoinManagement } from "@/domain/group/components/group-join-management";
 import { GroupInvitationManagement } from "@/domain/group/components/group-invitation-management";
 import { GroupUpdateManagement } from "@/domain/group/components/group-update-management";
+import { GroupRoleManagement } from "@/domain/group/components/group-role-management";
 import { useGroupDetail } from "@/domain/group/hooks/use-group-detail";
 import { useGroupMembers } from "@/domain/members/hooks/use-group-members";
 import useAuthStore from "@/stores/use-auth-store";
@@ -17,7 +18,7 @@ type Props = {
   groupId: string;
 };
 
-type MenuTab = "join-requests" | "invitations" | "group-settings";
+type MenuTab = "join-requests" | "invitations" | "group-settings" | "role-management";
 
 const GroupManagePage = ({ groupId }: Props) => {
   const navigate = useNavigate();
@@ -100,6 +101,12 @@ const GroupManagePage = ({ groupId }: Props) => {
             >
               초대 관리
             </SidebarTabLayout.Tab>
+            <SidebarTabLayout.Tab
+              active={activeTab === "role-management"}
+              onClick={() => setActiveTab("role-management")}
+            >
+              권한 관리
+            </SidebarTabLayout.Tab>
           </SidebarTabLayout.Sidebar>
 
           <SidebarTabLayout.Content>
@@ -111,6 +118,9 @@ const GroupManagePage = ({ groupId }: Props) => {
             )}
             {activeTab === "invitations" && (
               <GroupInvitationManagement groupId={groupIdNum} />
+            )}
+            {activeTab === "role-management" && (
+              <GroupRoleManagement groupId={groupIdNum} />
             )}
           </SidebarTabLayout.Content>
         </SidebarTabLayout>
