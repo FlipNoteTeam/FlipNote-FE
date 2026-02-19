@@ -38,6 +38,7 @@ const CardsetCreateDialog = ({ groupId, renderTrigger }: Props) => {
       hashtag: form.hashtag?.map((tag) => tag.name) || [],
       category: form.category,
       imageRefId: form.imageRefId ? form.imageRefId : undefined,
+      managers: form.managers?.length ? form.managers : undefined,
     };
 
     mutate({ groupId, data });
@@ -50,7 +51,11 @@ const CardsetCreateDialog = ({ groupId, renderTrigger }: Props) => {
         <DialogHeader>
           <DialogTitle>카드셋 생성</DialogTitle>
         </DialogHeader>
-        <CardsetCreateForm formId={FORM_ID} onSubmit={handleSubmit} />
+        <CardsetCreateForm
+          groupId={groupId}
+          formId={FORM_ID}
+          onSubmit={handleSubmit}
+        />
         <Button form={FORM_ID} type="reset">
           초기화
         </Button>
