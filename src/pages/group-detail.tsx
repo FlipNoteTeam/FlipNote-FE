@@ -34,8 +34,11 @@ const GroupDetailPage = ({ id }: Props) => {
   const queryClient = useQueryClient();
   const { mutate: joinGroup, isPending: isJoining } = useGroupJoin();
 
-  const { data: groupData, isLoading: isGroupLoading } =
-    useGroupDetail(groupId);
+  const {
+    data: groupData,
+    isLoading: isGroupLoading,
+    error: groupDetailError,
+  } = useGroupDetail(groupId);
   const { data: members = [], isLoading: isMembersLoading } =
     useGroupMembers(groupId);
   const {
@@ -60,7 +63,10 @@ const GroupDetailPage = ({ id }: Props) => {
 
   const handleDirectJoin = () => {
     if (!user) {
-      navigate({ to: "/auth/login", search: { redirect: window.location.href } });
+      navigate({
+        to: "/auth/login",
+        search: { redirect: window.location.href },
+      });
       return;
     }
     joinGroup(
@@ -68,12 +74,16 @@ const GroupDetailPage = ({ id }: Props) => {
       {
         onSuccess: () => {
           window.alert(`${groupData?.name} 그룹에 가입했습니다.`);
-          queryClient.invalidateQueries({ queryKey: ["group", "members", groupId] });
+          queryClient.invalidateQueries({
+            queryKey: ["group", "members", groupId],
+          });
         },
         onError: (error: ApiError) => {
-          window.alert(error?.response?.data?.message || "가입에 실패했습니다.");
+          window.alert(
+            error?.response?.data?.message || "가입에 실패했습니다.",
+          );
         },
-      }
+      },
     );
   };
 
@@ -89,6 +99,77 @@ const GroupDetailPage = ({ id }: Props) => {
   }
 
   if (!groupData) {
+    const errorCode = (groupDetailError as ApiError)?.response?.data?.[
+      "code"
+    ] as string | undefined;
+    const errorMessage = (groupDetailError as ApiError)?.response?.data
+      ?.message;
+
+    // GROUP_JOIN_001: 그룹 멤버가 아닌 경우 → 가입 신청 UI 표시
+    if (errorCode === "GROUP_JOIN_001") {
+      return (
+        <BaseLayout>
+          <div className="mx-auto max-w-6xl p-6">
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl font-bold text-gray-900">
+                가입이 필요한 그룹입니다
+              </h2>
+              <p className="text-muted-foreground">
+                이 그룹의 콘텐츠를 보려면 가입이 필요합니다.
+              </p>
+              {user ? (
+                <GroupJoinDialog groupId={groupId} groupName="이 그룹">
+                  <Button>
+                    <UserPlus className="size-4 mr-2" />
+                    가입 신청
+                  </Button>
+                </GroupJoinDialog>
+              ) : (
+                <Button
+                  onClick={() =>
+                    navigate({
+                      to: "/auth/login",
+                      search: { redirect: window.location.href },
+                    })
+                  }
+                >
+                  로그인하고 가입 신청
+                </Button>
+              )}
+              <div>
+                <Button onClick={() => window.history.back()} variant="outline">
+                  돌아가기
+                </Button>
+              </div>
+            </div>
+          </div>
+        </BaseLayout>
+      );
+    }
+
+    // 그 외 에러: 에러 코드와 메시지 노출
+    if (groupDetailError) {
+      return (
+        <BaseLayout>
+          <div className="mx-auto max-w-6xl p-6">
+            <div className="text-center space-y-3">
+              {errorCode && (
+                <p className="text-sm font-mono text-muted-foreground">
+                  {errorCode}
+                </p>
+              )}
+              <p className="text-red-500">
+                {errorMessage || "오류가 발생했습니다."}
+              </p>
+              <Button onClick={() => window.history.back()} variant="outline">
+                돌아가기
+              </Button>
+            </div>
+          </div>
+        </BaseLayout>
+      );
+    }
+
     return (
       <BaseLayout>
         <div className="mx-auto max-w-6xl p-6">
@@ -144,8 +225,8 @@ const GroupDetailPage = ({ id }: Props) => {
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-2xl font-bold">멤버</h2>
             <div className="flex gap-2">
-              {showJoinButton && (
-                groupData.applicationRequired ? (
+              {showJoinButton &&
+                (groupData.applicationRequired ? (
                   <GroupJoinDialog groupId={groupId} groupName={groupData.name}>
                     <Button size="sm" variant="default">
                       <UserPlus className="size-4" />
@@ -162,8 +243,7 @@ const GroupDetailPage = ({ id }: Props) => {
                     <UserPlus className="size-4" />
                     {isJoining ? "가입 중..." : "그룹 가입"}
                   </Button>
-                )
-              )}
+                ))}
               {hasManagePermission && (
                 <GroupInviteDialog groupId={groupId}>
                   <Button size="sm" variant="outline">
