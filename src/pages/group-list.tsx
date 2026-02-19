@@ -12,23 +12,12 @@ import type { GroupCategory } from "@/shared/apis/types";
 import CreateGroupDialog from "@/features/create-group/components/create-group-dialog";
 import { CardGridSkeleton } from "@/shared/components/skeletons";
 
-const GroupList = () => {
-  const [searchInput, setSearchInput] = useState("");
-  const [searchKeyword, setSearchKeyword] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<
-    GroupCategory | undefined
-  >(undefined);
+interface GroupGridProps {
+  keyword?: string;
+  category?: GroupCategory;
+}
 
-  // Debounce 검색어 처리
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setSearchKeyword(searchInput);
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [searchInput]);
-
-  // API에서 그룹 데이터 가져오기
+const GroupGrid = ({ keyword, category }: GroupGridProps) => {
   const {
     data: groupsData,
     fetchNextPage,
@@ -36,49 +25,80 @@ const GroupList = () => {
     isFetchingNextPage,
     isLoading,
     error,
-  } = useGroups({
-    keyword: searchKeyword || undefined,
-    category: selectedCategory,
-    size: 20,
-  });
-
-  // 카테고리 체크박스 핸들러
-  const handleCategoryChange = (category: GroupCategory, checked: boolean) => {
-    setSelectedCategory(checked ? category : undefined);
-  };
-
-  // // 정렬 필드 핸들러
-  // const handleSortByChange = (value: string) => {
-  //   setSortBy(value);
-  // };
-
-  // // 정렬 순서 핸들러
-  // const handleOrderChange = (value: string) => {
-  //   setOrder(value as "ASC" | "DESC");
-  // };
+  } = useGroups({ keyword, category, size: 20 });
 
   if (isLoading) {
-    return (
-      <BaseLayout>
-        <div className="space-y-6">
-          <div className="space-y-4">
-            <h1 className="text-2xl font-bold text-gray-900">그룹 목록</h1>
-          </div>
-          <CardGridSkeleton />
-        </div>
-      </BaseLayout>
-    );
+    return <CardGridSkeleton />;
   }
 
   if (error) {
     return (
-      <BaseLayout>
-        <div className="flex justify-center items-center min-h-[400px]">
-          <div className="text-red-500">데이터를 불러오는데 실패했습니다.</div>
-        </div>
-      </BaseLayout>
+      <div className="flex justify-center items-center min-h-[200px]">
+        <div className="text-red-500">데이터를 불러오는데 실패했습니다.</div>
+      </div>
     );
   }
+
+  return (
+    <>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {groupsData?.groups.map((group) => (
+          <Link
+            to="/groups/$groupId"
+            params={{ groupId: group.groupId.toString() }}
+            key={group.groupId}
+          >
+            <ThumbnailCard
+              imageUrl={group.imageUrl}
+              title={group.name}
+              category={group.category}
+              subtitle={group.description}
+            />
+          </Link>
+        ))}
+      </div>
+
+      {hasNextPage && (
+        <div className="flex justify-center">
+          <Button
+            onClick={() => fetchNextPage()}
+            disabled={isFetchingNextPage}
+            variant="outline"
+          >
+            {isFetchingNextPage ? "로딩 중..." : "더 보기"}
+          </Button>
+        </div>
+      )}
+
+      {(!groupsData?.groups || groupsData.groups.length === 0) && (
+        <div className="flex justify-center items-center min-h-[200px]">
+          <div className="text-gray-500">
+            검색 조건에 맞는 그룹이 없습니다.
+          </div>
+        </div>
+      )}
+    </>
+  );
+};
+
+const GroupList = () => {
+  const [searchInput, setSearchInput] = useState("");
+  const [searchKeyword, setSearchKeyword] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<
+    GroupCategory | undefined
+  >(undefined);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearchKeyword(searchInput);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [searchInput]);
+
+  const handleCategoryChange = (category: GroupCategory, checked: boolean) => {
+    setSelectedCategory(checked ? category : undefined);
+  };
 
   return (
     <BaseLayout>
@@ -108,7 +128,7 @@ const GroupList = () => {
           </div>
         </div>
 
-        {/* 필터 및 정렬 영역 */}
+        {/* 필터 영역 */}
         <div className="flex items-center justify-between gap-4">
           <div className="flex-1">
             <GroupFilterSection
@@ -116,72 +136,13 @@ const GroupList = () => {
               onCategoryChange={handleCategoryChange}
             />
           </div>
-
-          {/* 실질적으로 의미없는 파트 /}
-          {/* <div className="flex items-center gap-2 text-sm text-gray-600">
-            <span>정렬:</span>
-            <Select value={sortBy} onValueChange={handleSortByChange}>
-              <SelectTrigger className="w-24 h-8 text-xs">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="createdAt">생성일</SelectItem>
-                <SelectItem value="name">이름</SelectItem>
-                <SelectItem value="modifiedAt">수정일</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={order} onValueChange={handleOrderChange}>
-              <SelectTrigger className="w-20 h-8 text-xs">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="DESC">내림차순↓</SelectItem>
-                <SelectItem value="ASC">오름차순↑</SelectItem>
-              </SelectContent>
-            </Select>
-          </div> */}
         </div>
 
-        {/* 그룹 리스트 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {groupsData?.groups.map((group) => (
-            <Link
-              to="/groups/$groupId"
-              params={{ groupId: group.groupId.toString() }}
-              key={group.groupId}
-            >
-              <ThumbnailCard
-                imageUrl={group.imageUrl}
-                title={group.name}
-                category={group.category}
-                subtitle={group.description}
-              />
-            </Link>
-          ))}
-        </div>
-
-        {/* 더 보기 버튼 */}
-        {hasNextPage && (
-          <div className="flex justify-center">
-            <Button
-              onClick={() => fetchNextPage()}
-              disabled={isFetchingNextPage}
-              variant="outline"
-            >
-              {isFetchingNextPage ? "로딩 중..." : "더 보기"}
-            </Button>
-          </div>
-        )}
-
-        {/* 결과 없음 */}
-        {(!groupsData?.groups || groupsData.groups.length === 0) &&
-          !isLoading && (
-            <div className="flex justify-center items-center min-h-[200px]">
-              <div className="text-gray-500">
-                검색 조건에 맞는 그룹이 없습니다.
-              </div>
-            </div>
-          )}
+        {/* 그룹 리스트 - 로딩 중에는 그리드 영역만 스켈레톤으로 대체 */}
+        <GroupGrid
+          keyword={searchKeyword || undefined}
+          category={selectedCategory}
+        />
       </div>
     </BaseLayout>
   );
