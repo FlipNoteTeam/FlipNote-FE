@@ -67,6 +67,7 @@ const CardsetUpdateDialog = ({
       hashtag: form.hashtag?.map((tag) => tag.name) || [],
       category: form.category,
       image: form.imageRefId ? String(form.imageRefId) : undefined,
+      managers: form.managers?.length ? form.managers : undefined,
     };
 
     mutate({ groupId, cardsetId, data });
@@ -81,6 +82,7 @@ const CardsetUpdateDialog = ({
       ? cardset.hashtag.split(",").map((tag) => ({ name: tag.trim() }))
       : [],
     imageRefId: cardset.imageRefId,
+    managers: cardset.managers ?? [],
   };
 
   return (
@@ -91,6 +93,7 @@ const CardsetUpdateDialog = ({
           <DialogTitle>카드셋 수정</DialogTitle>
         </DialogHeader>
         <CardsetUpdateForm
+          groupId={groupId}
           formId={FORM_ID}
           onSubmit={handleSubmit}
           defaultValues={defaultValues}
