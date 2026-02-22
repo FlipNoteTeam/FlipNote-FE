@@ -2,7 +2,7 @@ on:
   schedule:
     - cron: "0 0 * * 5" # 매주 금요일 00:00 UTC
   workflow_dispatch:
-
+  
 permissions:
   contents: write
 
@@ -10,30 +10,30 @@ jobs:
   cleanup:
     runs-on: ubuntu-latest
     steps:
-      - name: Delete old branches
-        uses: actions/github-script@v7
+      - uses: actions/github-script@v7
         with:
           script: |
-            const owner = context.repo.owner;
-            const repo = context.repo.repo;
+            const { owner, repo } = context.repo;
             const days = 7;
             const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
 
-            const repos = github.context.payload && github.context.payload.repos ? github.context.payload.repos : [];
             const branches = await github.paginate(
-              github.rest.repos.listBranches,
+              'GET /repos/{owner}/{repo}/branches',
               { owner, repo }
             );
 
             for (const branch of branches) {
               if (branch.name === 'main' || branch.name === 'dev') continue;
 
-              const commits = await github.rest.repos.listCommits({
-                owner,
-                repo,
-                sha: branch.name,
-                per_page: 1
-              });
+              const commits = await github.request(
+                'GET /repos/{owner}/{repo}/commits',
+                {
+                  owner,
+                  repo,
+                  sha: branch.name,
+                  per_page: 1
+                }
+              );
 
               const lastCommitDate = new Date(
                 commits.data[0].commit.committer.date
@@ -41,10 +41,13 @@ jobs:
 
               if (lastCommitDate < cutoff) {
                 console.log(`Deleting ${branch.name}`);
-                await github.rest.git.deleteRef({
-                  owner,
-                  repo,
-                  ref: `heads/${branch.name}`
-                });
+                await github.request(
+                  'DELETE /repos/{owner}/{repo}/git/refs/heads/{branch}',
+                  {
+                    owner,
+                    repo,
+                    branch: branch.name
+                  }
+                );
               }
             }
