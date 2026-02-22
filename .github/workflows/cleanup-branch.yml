@@ -16,7 +16,7 @@ jobs:
             const days = 7;
             const cutoff = new Date(Date.now() - days*24*60*60*1000);
 
-            const branches = await github.paginate(github.reset.repose.listBranches, { owner, repo });
+            const branches = await github.paginate(github.reset.repos.listBranches, { owner, repo });
 
             for (const branch of branches){
               if(branch.name === 'main' || branch.name ==='dev') continue;
