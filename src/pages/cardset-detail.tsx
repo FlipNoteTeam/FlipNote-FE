@@ -8,7 +8,7 @@ import { useEffect } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import CardsetUpdateDialog from "@/features/cardset/components/cardset-update-dialog";
 import BaseLayout from "@/shared/layouts/base-layout";
-import { Heart, Star } from "lucide-react";
+import { Heart, Star, Users, ChevronRight } from "lucide-react";
 import { useCardSetLike } from "@/domain/cardsets/hooks/use-card-set-like";
 import { useCardSetBookmark } from "@/domain/cardsets/hooks/use-card-set-bookmark";
 import StudySettings from "@/features/setting-study-mode/ui/study-settings";
@@ -103,6 +103,28 @@ const CardsetDetail = ({ groupId, cardsetId }: Props) => {
   };
   return (
     <BaseLayout>
+      {/* 소속 그룹 배너 - full width */}
+      <Link
+        to="/groups/$groupId"
+        params={{ groupId: String(groupId) }}
+        className="-mx-4 -mt-6 sm:-mx-6 lg:-mx-16 lg:-mt-16 mb-8 block bg-primary/5 border-b hover:bg-primary/10 transition-colors"
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-16 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/15">
+              <Users className="w-5 h-5 text-primary" />
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground font-medium">소속 그룹</p>
+              <p className="font-bold text-base">{group?.name ?? "그룹 보기"}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-1.5 text-sm text-primary font-medium">
+            <span>그룹으로 이동</span>
+            <ChevronRight className="w-4 h-4" />
+          </div>
+        </div>
+      </Link>
       <div className="mx-auto p-6 flex flex-col sm:flex-row gap-6 justify-between">
         {/* 썸네일 영역 */}
         <div className="w-full max-w-48 sm:w-auto">
@@ -163,7 +185,7 @@ const CardsetDetail = ({ groupId, cardsetId }: Props) => {
               {cardset.publicVisible ? "공개" : "비공개"}
             </Badge>
           </div>
-          <p className="text-2xl font-bold  mt-1">{cardset.name} </p>
+          <p className="text-2xl font-bold mt-1">{cardset.name}</p>
           <div className="flex flex-wrap gap-2 mt-1">
             {hashtags.map((tag, index) => (
               <span key={index} className="text-sm">
