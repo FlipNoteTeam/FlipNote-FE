@@ -1,45 +1,38 @@
 import { Card, CardContent } from "@/shared/components/card";
 import { Button } from "@/shared/components/button";
 import { Bookmark, Heart, BookOpen } from "lucide-react";
-import {
-  mockBookmarkedCardSets,
-  mockLikedCardSets,
-} from "@/shared/mocks/cardsets";
-import { ThumbnailCard } from "@/shared/components/thumbnail-card";
 import { CardGridSkeleton } from "@/shared/components/skeletons";
+import { useMyBookmarkedCardSets } from "@/domain/study/hooks/use-my-bookmarked-card-sets";
+import { useMyLikedCardSets } from "@/domain/study/hooks/use-my-liked-card-sets";
+import type { CardSetWithBookmark, CardSetWithLike } from "@/domain/study/types";
+import { formatDistanceToNow } from "date-fns";
+import { ko } from "date-fns/locale";
 
 export const MyStudyPage = () => {
-  // TODO: 실제 API 연동 시 주석 해제
-  // const {
-  //   data: bookmarkedData,
-  //   fetchNextPage: fetchNextBookmarks,
-  //   hasNextPage: hasNextBookmarks,
-  //   isFetchingNextPage: isFetchingNextBookmarks,
-  //   isLoading: isLoadingBookmarks,
-  //   error: bookmarksError,
-  // } = useMyBookmarkedCardSets();
+  const {
+    data: bookmarkedData,
+    fetchNextPage: fetchNextBookmarks,
+    hasNextPage: hasNextBookmarks,
+    isFetchingNextPage: isFetchingNextBookmarks,
+    isLoading: isLoadingBookmarks,
+    error: bookmarksError,
+  } = useMyBookmarkedCardSets();
 
-  // const {
-  //   data: likedData,
-  //   fetchNextPage: fetchNextLikes,
-  //   hasNextPage: hasNextLikes,
-  //   isFetchingNextPage: isFetchingNextLikes,
-  //   isLoading: isLoadingLikes,
-  //   error: likesError,
-  // } = useMyLikedCardSets();
+  const {
+    data: likedData,
+    fetchNextPage: fetchNextLikes,
+    hasNextPage: hasNextLikes,
+    isFetchingNextPage: isFetchingNextLikes,
+    isLoading: isLoadingLikes,
+    error: likesError,
+  } = useMyLikedCardSets();
 
-  // Mock 데이터 사용 (개발용)
-  const bookmarkedCardSets = mockBookmarkedCardSets;
-  const likedCardSets = mockLikedCardSets;
-  const isLoadingBookmarks = false;
-  const isLoadingLikes = false;
-  const bookmarksError = null;
-  const likesError = null;
-  const hasNextBookmarks = false;
-  const hasNextLikes = false;
+  const bookmarkedCardSets = bookmarkedData?.bookmarks ?? [];
+  const likedCardSets = likedData?.likes ?? [];
 
   const renderCardSetGrid = (
-    cardSets: typeof bookmarkedCardSets | typeof likedCardSets
+    cardSets: CardSetWithBookmark[] | CardSetWithLike[],
+    timestampKey: "bookmarkedAt" | "likedAt"
   ) => {
     if (cardSets.length === 0) {
       return (
@@ -55,17 +48,28 @@ export const MyStudyPage = () => {
     }
 
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {cardSets.map((cardSet) => (
-          <ThumbnailCard
-            key={cardSet.cardSetId}
-            imageUrl={cardSet.imageUrl}
-            title={cardSet.name}
-            subtitle={cardSet.hashtag}
-            category={cardSet.category}
-            className="p-4"
-          />
-        ))}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        {cardSets.map((cardSet) => {
+          const timestamp = (cardSet as unknown as Record<string, string>)[timestampKey];
+          return (
+            <Card
+              key={cardSet.cardSetId}
+              className="hover:shadow-md transition-shadow cursor-default"
+            >
+              <CardContent className="p-4 flex flex-col gap-2">
+                <p className="font-medium text-gray-900 line-clamp-2 leading-snug">
+                  {cardSet.name}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {formatDistanceToNow(new Date(timestamp), {
+                    addSuffix: true,
+                    locale: ko,
+                  })}
+                </p>
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
     );
   };
@@ -91,11 +95,15 @@ export const MyStudyPage = () => {
           </div>
         ) : (
           <>
-            {renderCardSetGrid(bookmarkedCardSets)}
+            {renderCardSetGrid(bookmarkedCardSets, "bookmarkedAt")}
             {hasNextBookmarks && (
               <div className="flex justify-center pt-4">
-                <Button onClick={() => {}} variant="outline">
-                  더 보기
+                <Button
+                  onClick={() => fetchNextBookmarks()}
+                  disabled={isFetchingNextBookmarks}
+                  variant="outline"
+                >
+                  {isFetchingNextBookmarks ? "로딩 중..." : "더 보기"}
                 </Button>
               </div>
             )}
@@ -122,11 +130,15 @@ export const MyStudyPage = () => {
           </div>
         ) : (
           <>
-            {renderCardSetGrid(likedCardSets)}
+            {renderCardSetGrid(likedCardSets, "likedAt")}
             {hasNextLikes && (
               <div className="flex justify-center pt-4">
-                <Button onClick={() => {}} variant="outline">
-                  더 보기
+                <Button
+                  onClick={() => fetchNextLikes()}
+                  disabled={isFetchingNextLikes}
+                  variant="outline"
+                >
+                  {isFetchingNextLikes ? "로딩 중..." : "더 보기"}
                 </Button>
               </div>
             )}

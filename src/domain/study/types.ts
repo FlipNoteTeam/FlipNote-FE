@@ -11,17 +11,11 @@ export type {
 export interface CardSetWithBookmark {
   cardSetId: number;
   name: string;
-  category: string;
-  hashtag: string;
-  imageUrl?: string;
   bookmarkedAt: string;
 }
 
 export interface CardSetWithLike {
   cardSetId: number;
   name: string;
-  category: string;
-  hashtag: string;
-  imageUrl?: string;
   likedAt: string;
 }

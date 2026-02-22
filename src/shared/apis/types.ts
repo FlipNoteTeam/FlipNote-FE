@@ -106,10 +106,12 @@ export interface MyGroupJoinInfo {
 
 export interface LikeTargetResponse {
   id: number;
+  name: string;
 }
 
 export interface BookmarkTargetResponse {
   id: number;
+  name: string;
 }
 
 export interface IdResponse {

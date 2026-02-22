@@ -1,5 +1,6 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { likeApi } from "@/shared/apis/like";
+import type { CardSetWithLike } from "@/domain/study/types";
 
 export const useMyLikedCardSets = () => {
   return useInfiniteQuery({
@@ -18,7 +19,13 @@ export const useMyLikedCardSets = () => {
     select: (data) => ({
       pages: data.pages,
       pageParams: data.pageParams,
-      likes: data.pages.flatMap((page) => page.content),
+      likes: data.pages
+        .flatMap((page) => page.content)
+        .map((item): CardSetWithLike => ({
+          cardSetId: item.target.id,
+          name: item.target.name,
+          likedAt: item.likedAt,
+        })),
     }),
   });
 };
