@@ -1,5 +1,6 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { bookmarkApi } from "@/shared/apis/bookmark";
+import type { CardSetWithBookmark } from "@/domain/study/types";
 
 export const useMyBookmarkedCardSets = () => {
   return useInfiniteQuery({
@@ -18,7 +19,13 @@ export const useMyBookmarkedCardSets = () => {
     select: (data) => ({
       pages: data.pages,
       pageParams: data.pageParams,
-      bookmarks: data.pages.flatMap((page) => page.content),
+      bookmarks: data.pages
+        .flatMap((page) => page.content)
+        .map((item): CardSetWithBookmark => ({
+          cardSetId: item.target.id,
+          name: item.target.name,
+          bookmarkedAt: item.bookmarkedAt,
+        })),
     }),
   });
 };
