@@ -75,7 +75,7 @@ const GroupDetailPage = ({ id }: Props) => {
         onSuccess: () => {
           window.alert(`${groupData?.name} 그룹에 가입했습니다.`);
           queryClient.invalidateQueries({
-            queryKey: ["group", "members", groupId],
+            queryKey: ["group"],
           });
         },
         onError: (error: ApiError) => {
