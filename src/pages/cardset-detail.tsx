@@ -1,7 +1,7 @@
 import { GROUP_CATEGORY_MAP } from "@/domain/group/types";
 import { cardSetApi, groupApi } from "@/shared/apis";
 import { Button } from "@/shared/components/button";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { useGroupMembers } from "@/domain/members/hooks/use-group-members";
 import useAuthStore from "@/stores/use-auth-store";
 import { useEffect } from "react";
@@ -25,7 +25,7 @@ const CardsetDetail = ({ groupId, cardsetId }: Props) => {
   const user = useAuthStore((state) => state.user);
   const navigate = useNavigate();
 
-  const { data } = useQuery({
+  const { data } = useSuspenseQuery({
     queryKey: ["cardset", groupId, cardsetId],
     queryFn: () => cardSetApi.getCardSet(groupId, cardsetId),
   });
@@ -48,6 +48,9 @@ const CardsetDetail = ({ groupId, cardsetId }: Props) => {
 
   const { data: members = [] } = useGroupMembers(groupId);
 
+  const cardset = data?.data.data;
+  const group = groupData?.data.data;
+
   // 카드셋 좋아요 훅
   const {
     isLiked,
@@ -56,6 +59,7 @@ const CardsetDetail = ({ groupId, cardsetId }: Props) => {
   } = useCardSetLike({
     cardsetId,
     groupId,
+    initialLiked: cardset?.liked,
   });
 
   // 카드셋 즐겨찾기 훅
@@ -66,10 +70,8 @@ const CardsetDetail = ({ groupId, cardsetId }: Props) => {
   } = useCardSetBookmark({
     cardsetId,
     groupId,
+    initialBookmarked: cardset?.bookmarked,
   });
-
-  const cardset = data?.data.data;
-  const group = groupData?.data.data;
 
   useMeta({
     title: cardset ? `${cardset.name} | FlipNote` : undefined,
@@ -94,8 +96,6 @@ const CardsetDetail = ({ groupId, cardsetId }: Props) => {
     }
   }, [group, isMember, groupId, navigate]);
 
-  if (!cardset) return null;
-
   const hashtags = cardset.hashtag ? cardset.hashtag.split(",") : [];
 
   const handleClickDelete = () => {
@@ -115,8 +115,12 @@ const CardsetDetail = ({ groupId, cardsetId }: Props) => {
               <Users className="w-5 h-5 text-primary" />
             </div>
             <div>
-              <p className="text-xs text-muted-foreground font-medium">소속 그룹</p>
-              <p className="font-bold text-base">{group?.name ?? "그룹 보기"}</p>
+              <p className="text-xs text-muted-foreground font-medium">
+                소속 그룹
+              </p>
+              <p className="font-bold text-base">
+                {group?.name ?? "그룹 보기"}
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-1.5 text-sm text-primary font-medium">
