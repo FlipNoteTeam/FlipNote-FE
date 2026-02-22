@@ -29,6 +29,8 @@ export interface CardSetDetailResponse {
   modifiedAt: string;
   /** 카드셋 관리자 userId 목록 */
   managers?: number[];
+  liked: boolean;
+  bookmarked: boolean;
 }
 
 export interface CreateCardSetRequest {
