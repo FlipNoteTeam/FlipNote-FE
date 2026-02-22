@@ -19,6 +19,7 @@ jobs:
             const days = 7;
             const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
 
+            const repos = github.context.payload && github.context.payload.repos ? github.context.payload.repos : [];
             const branches = await github.paginate(
               github.rest.repos.listBranches,
               { owner, repo }
