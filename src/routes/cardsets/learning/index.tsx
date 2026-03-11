@@ -26,7 +26,7 @@ function RouteComponent() {
   // location.state에서 학습 설정 가져오기
   const { state } = useLocation();
   const studySettings = state as unknown as StudySettings | null;
-
+  console.log("SETTING", studySettings);
   // 1. state가 없는 경우[설정이 안돼있으므로 뒤로 가서 다시 설정하라고 안내해야함.]
   if (!studySettings || !studySettings.mode) {
     return (
@@ -45,7 +45,16 @@ function RouteComponent() {
 
   // 2. state가 암기 모드인경우
   if (studySettings.mode === "memorize") {
-    return <MemoizeMode settings={studySettings as MemorizeSettings & { groupId: number; cardsetId: number }} />;
+    return (
+      <MemoizeMode
+        settings={
+          studySettings as MemorizeSettings & {
+            groupId: number;
+            cardsetId: number;
+          }
+        }
+      />
+    );
   }
 
   // 3. state가 시험 모드인경우
