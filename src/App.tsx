@@ -5,7 +5,6 @@ import { routeTree } from "./routeTree.gen";
 import useAuthStore from "@/stores/use-auth-store";
 import { type AuthState } from "@/stores/use-auth-store";
 import { useEffect } from "react";
-import { LoadingOverlay } from "@/shared/components/loading-overlay";
 
 declare module "@tanstack/react-router" {
   interface Register {
@@ -37,10 +36,6 @@ function App() {
       auth.initializeAuth();
     }
   }, [auth]);
-
-  if (!auth.isInitialized) {
-    return <LoadingOverlay />;
-  }
 
   return (
     <QueryClientProvider client={queryClient}>
