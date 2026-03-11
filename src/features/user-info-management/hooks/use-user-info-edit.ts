@@ -1,7 +1,11 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { userApi, type UserUpdateRequest, type MyInfoResponse } from "@/shared/apis/user";
+import {
+  userApi,
+  type UserUpdateRequest,
+  type MyInfoResponse,
+} from "@/shared/apis/user";
 import { uploadImage } from "@/shared/lib/upload-image";
 
 export const useUserInfoEdit = () => {
@@ -53,6 +57,8 @@ export const useUserInfoEdit = () => {
           type: "USER",
         });
       }
+
+      console.log("IMAGEREFID", imageRefId);
 
       // 이미지 업로드 후 받은 imageRefId와 함께 사용자 정보 업데이트
       updateMutation.mutate({

@@ -57,7 +57,6 @@ const StudySettings = ({
   } = useForm<StudySettingsFormField>({
     resolver: zodResolver(studySettingsFormSchema),
     defaultValues: MEMORIZE_MODE_DEFAULTS,
-    shouldUnregister: true, // 조건부 필드가 언마운트되면 자동으로 등록 해제
   });
 
   const { field: modeField } = useController({
@@ -76,7 +75,9 @@ const StudySettings = ({
     if (newMode === "memorize") {
       reset(MEMORIZE_MODE_DEFAULTS);
     } else if (newMode === "test") {
-      reset(getTestModeDefaults(totalCardCount));
+      const testModeDefaultValues = getTestModeDefaults(totalCardCount);
+      console.log("TEST DEFAULT", testModeDefaultValues);
+      reset(testModeDefaultValues);
     }
   };
 
@@ -92,6 +93,8 @@ const StudySettings = ({
     // location.state로 학습 페이지로 데이터 전달
 
     // testMode가 'all'이면 randomPickCount 제거
+
+    console.log("IN", data);
     const cleanedData = { ...data };
     if (cleanedData.mode === "test" && cleanedData.testMode === "all") {
       delete cleanedData.randomPickCount;
@@ -109,6 +112,9 @@ const StudySettings = ({
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any);
   };
+  const handleError = (errorDAta) => {
+    console.log("ERROR", errorDAta);
+  };
 
   return (
     <div className="mt-8">
@@ -117,7 +123,10 @@ const StudySettings = ({
         <span>학습 모드 선택</span>
       </FormTitle>
 
-      <form className="space-y-10" onSubmit={handleSubmit(onSubmit)}>
+      <form
+        className="space-y-10"
+        onSubmit={handleSubmit(onSubmit, handleError)}
+      >
         {/* 학습 모드 선택 */}
         <div className="space-y-3">
           <ButtonCheckboxGroupField
