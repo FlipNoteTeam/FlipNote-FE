@@ -11,6 +11,6 @@ export const cardApi = {
   // 카드셋의 카드 목록 조회 (NestJS 서버)
   getCards: (cardSetId: number) =>
     nestClient.get<ApiResponse<CardResponse[]>>(
-      `/api/v1/card-sets/${cardSetId}/cards`
+      `/card-sets/${cardSetId}/cards`,
     ),
 };
