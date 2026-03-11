@@ -45,7 +45,7 @@ export const ThumbnailCard = ({
           </CardDescription>
         )}
         <div className="mt-3 flex justify-between items-center">
-          <span className="text-xs bg-indigo-100 text-indigo-900 px-1.5 py-1 rounded-md">
+          <span className="text-xs bg-indigo-100 text-indigo-900 px-2.5 py-1 rounded-full">
             {category}
           </span>
         </div>
