@@ -36,7 +36,7 @@ const Badge = (props: Props) => {
   return (
     <div
       className={cn(
-        "rounded-xl px-2 py-1 w-fit text-xs border",
+        "rounded-full px-3 py-1 w-fit text-xs border",
         colors.text,
         colors.bg,
         colors.border,
