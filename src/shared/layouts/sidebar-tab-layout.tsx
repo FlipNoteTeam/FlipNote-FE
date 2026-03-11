@@ -43,7 +43,7 @@ const Tab = ({ active = false, onClick, children, className }: TabProps) => {
     <button
       onClick={onClick}
       className={cn(
-        "w-full md:w-full whitespace-nowrap text-left px-4 py-2 rounded-lg transition-colors",
+        "w-full md:w-full whitespace-nowrap text-left px-4 py-2 rounded-xl transition-colors",
         active ? "bg-primary text-primary-foreground" : "hover:bg-gray-100",
         className
       )}
