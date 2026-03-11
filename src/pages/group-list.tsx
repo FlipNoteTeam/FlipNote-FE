@@ -5,7 +5,7 @@ import { ThumbnailCard } from "@/shared/components/thumbnail-card";
 
 import BaseLayout from "@/shared/layouts/base-layout";
 import { Link } from "@tanstack/react-router";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, CloudOff, SearchX } from "lucide-react";
 import { useGroups } from "@/features/group-search/hooks/use-groups";
 import { GroupFilterSection } from "@/features/group-search/components/group-filter-section";
 import type { GroupCategory } from "@/shared/apis/types";
@@ -25,6 +25,7 @@ const GroupGrid = ({ keyword, category }: GroupGridProps) => {
     isFetchingNextPage,
     isLoading,
     error,
+    refetch,
   } = useGroups({ keyword, category, size: 20 });
 
   if (isLoading) {
@@ -33,8 +34,17 @@ const GroupGrid = ({ keyword, category }: GroupGridProps) => {
 
   if (error) {
     return (
-      <div className="flex justify-center items-center min-h-[200px]">
-        <div className="text-red-500">데이터를 불러오는데 실패했습니다.</div>
+      <div className="flex flex-col items-center justify-center min-h-[280px] gap-4">
+        <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center">
+          <CloudOff className="w-7 h-7 text-red-300" />
+        </div>
+        <div className="text-center">
+          <p className="font-semibold text-gray-700">앗, 불러오지 못했어요</p>
+          <p className="text-sm text-gray-400 mt-1">잠시 후 다시 시도해주세요</p>
+        </div>
+        <Button variant="outline" size="sm" onClick={() => refetch()}>
+          다시 시도하기
+        </Button>
       </div>
     );
   }
@@ -71,9 +81,13 @@ const GroupGrid = ({ keyword, category }: GroupGridProps) => {
       )}
 
       {(!groupsData?.groups || groupsData.groups.length === 0) && (
-        <div className="flex justify-center items-center min-h-[200px]">
-          <div className="text-gray-500">
-            검색 조건에 맞는 그룹이 없습니다.
+        <div className="flex flex-col items-center justify-center min-h-[280px] gap-4">
+          <div className="w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center">
+            <SearchX className="w-7 h-7 text-gray-300" />
+          </div>
+          <div className="text-center">
+            <p className="font-semibold text-gray-600">그룹을 찾지 못했어요</p>
+            <p className="text-sm text-gray-400 mt-1">다른 검색어나 카테고리를 시도해보세요</p>
           </div>
         </div>
       )}
