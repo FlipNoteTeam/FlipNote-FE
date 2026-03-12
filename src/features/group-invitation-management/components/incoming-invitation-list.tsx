@@ -11,6 +11,31 @@ import {
 } from "@/domain/group/invitation";
 import { Mail, Check, X, Calendar } from "lucide-react";
 import { useState } from "react";
+import { Skeleton } from "@/shared/components/skeleton";
+import ErrorDisplay from "@/shared/components/error-display";
+import { EmptyState } from "@/shared/components/empty-state";
+
+const IncomingInvitationSkeleton = () => (
+  <div className="space-y-4">
+    {Array.from({ length: 3 }).map((_, i) => (
+      <Card key={i}>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <Skeleton className="h-5 w-1/3" />
+            <Skeleton className="h-5 w-16 rounded-full" />
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Skeleton className="h-4 w-1/2" />
+          <div className="flex gap-2">
+            <Skeleton className="h-9 w-16 rounded-lg" />
+            <Skeleton className="h-9 w-16 rounded-lg" />
+          </div>
+        </CardContent>
+      </Card>
+    ))}
+  </div>
+);
 
 const STATUS_MAP = {
   PENDING: "대기 중",
@@ -20,7 +45,7 @@ const STATUS_MAP = {
 } as const;
 
 export const IncomingInvitationList = () => {
-  const { data: invitations, isLoading, error } = useIncomingInvitations();
+  const { data: invitations, isLoading, error, refetch } = useIncomingInvitations();
   const respondToInvitation = useRespondToInvitation();
 
   const [respondingId, setRespondingId] = useState<number | null>(null);
@@ -28,7 +53,7 @@ export const IncomingInvitationList = () => {
   const handleRespond = async (
     groupId: number,
     invitationId: number,
-    status: "ACCEPTED" | "REJECTED"
+    status: "ACCEPTED" | "REJECTED",
   ) => {
     try {
       setRespondingId(invitationId);
@@ -56,35 +81,19 @@ export const IncomingInvitationList = () => {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center min-h-[200px]">
-        <div className="text-gray-500">로딩 중...</div>
-      </div>
-    );
-  }
+  if (isLoading) return <IncomingInvitationSkeleton />;
 
-  if (error) {
-    return (
-      <div className="flex justify-center items-center min-h-[200px]">
-        <div className="text-red-500">초대 목록을 불러오는데 실패했습니다.</div>
-      </div>
-    );
-  }
+  if (error) return <ErrorDisplay onRetry={refetch} />;
 
   const pendingInvitations =
     invitations?.filter((inv) => inv.status === "PENDING") || [];
 
   if (pendingInvitations.length === 0) {
     return (
-      <Card>
-        <CardContent className="p-8">
-          <div className="text-center text-gray-500">
-            <Mail className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-            <p>받은 그룹 초대가 없습니다.</p>
-          </div>
-        </CardContent>
-      </Card>
+      <EmptyState
+        icon={<Mail className="w-8 h-8" />}
+        title="받은 그룹 초대가 없습니다"
+      />
     );
   }
 
@@ -118,7 +127,7 @@ export const IncomingInvitationList = () => {
                     handleRespond(
                       invitation.groupId,
                       invitation.invitationId,
-                      "ACCEPTED"
+                      "ACCEPTED",
                     )
                   }
                   disabled={respondingId === invitation.invitationId}
@@ -132,7 +141,7 @@ export const IncomingInvitationList = () => {
                     handleRespond(
                       invitation.groupId,
                       invitation.invitationId,
-                      "REJECTED"
+                      "REJECTED",
                     )
                   }
                   disabled={respondingId === invitation.invitationId}
