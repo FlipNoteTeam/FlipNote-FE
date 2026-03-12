@@ -1,9 +1,9 @@
-import type { GroupDetailResponse } from "@/shared/apis";
-import { Card, CardContent } from "@/shared/components/card";
+import type { GroupDetail } from "@/domain/group/types";
 import { GROUP_CATEGORY_MAP } from "@/domain/group/types";
+import { Card, CardContent } from "@/shared/components/card";
 
 type GroupInfoCardProps = {
-  group: GroupDetailResponse;
+  group: GroupDetail;
 };
 
 export const GroupInfoCard = ({ group }: GroupInfoCardProps) => {

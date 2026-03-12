@@ -37,10 +37,10 @@ export const GroupUpdateManagement = ({ groupId }: Props) => {
       name: form.name,
       category: form.category,
       description: form.description,
-      applicationRequired: form.applicationRequired,
-      publicVisible: form.publicVisible,
+      joinPolicy: form.applicationRequired ? "APPROVAL" : "OPEN",
+      visibility: form.publicVisible ? "PUBLIC" : "PRIVATE",
       maxMember: form.maxMember,
-      image: form.imageRefId ? String(form.imageRefId) : undefined,
+      imageRefId: form.imageRefId,
     };
 
     mutate({ groupId, data });

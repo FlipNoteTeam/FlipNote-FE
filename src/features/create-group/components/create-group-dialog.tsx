@@ -29,10 +29,10 @@ const CreateGroupDialog = ({ renderTrigger }: Props) => {
       name: form.name,
       category: form.category,
       description: form.description ?? "",
-      applicationRequired: form.applicationRequired,
-      publicVisible: form.publicVisible,
+      joinPolicy: form.applicationRequired ? "APPROVAL" : "OPEN",
+      visibility: form.publicVisible ? "PUBLIC" : "PRIVATE",
       maxMember: form.maxMember,
-      image: form.imageRefId ? String(form.imageRefId) : undefined,
+      imageRefId: form.imageRefId ? form.imageRefId : undefined,
     };
 
     // API 요청 직전 최종 검증
@@ -45,19 +45,23 @@ const CreateGroupDialog = ({ renderTrigger }: Props) => {
     <Dialog>
       <DialogTrigger>{renderTrigger}</DialogTrigger>
       <DialogContent
-        className="max-w-2xl max-h-[90vh] overflow-y-auto"
+        className="max-w-2xl p-0"
         onInteractOutside={(e) => e.preventDefault()}
       >
-        <DialogHeader>
+        <DialogHeader className="px-6 py-6">
           <DialogTitle>그룹 생성</DialogTitle>
         </DialogHeader>
-        <CreateGroupForm formId={FORM_ID} onSubmit={handleSubmit} />
-        <Button form={FORM_ID} type="reset">
-          초기화
-        </Button>
-        <Button form={FORM_ID} type="submit">
-          생성
-        </Button>
+        <div className="max-h-[70vh] p-5 overflow-y-auto space-y-4">
+          <CreateGroupForm formId={FORM_ID} onSubmit={handleSubmit} />
+          <div className="flex gap-2 justify-end">
+            <Button form={FORM_ID} type="reset" variant="outline">
+              초기화
+            </Button>
+            <Button form={FORM_ID} type="submit">
+              생성
+            </Button>
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   );
