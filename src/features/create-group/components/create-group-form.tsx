@@ -57,14 +57,7 @@ const CreateGroupForm = ({ onSubmit, formId = "group-form" }: Props) => {
   });
 
   return (
-    <form
-      id={formId}
-      className="space-y-4"
-      onSubmit={handleSubmit((form) => {
-        console.log("AFTER VALIDATE : ", form);
-        onSubmit(form);
-      })}
-    >
+    <form id={formId} className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
       <div>
         <RequiredLabel htmlFor="name">그룹명</RequiredLabel>
         <Input
