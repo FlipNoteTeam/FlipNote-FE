@@ -1,4 +1,5 @@
 import type { GroupDetailResponse, GroupInfo } from "@/shared/apis";
+import type { GroupCategory } from "@/shared/apis/types";
 
 export type GroupBrief = {
   id: number | string;
@@ -12,11 +13,12 @@ export type GroupBrief = {
 // Api응답값과 다름. convert해서 씀.
 export type GroupDetail = {
   name: string;
+  category: GroupCategory;
   description: string;
-  requireApply: boolean;
-  public: boolean;
+  applicationRequired: boolean;
+  publicVisible: boolean;
   maxMember: number;
-  image: string;
+  imageUrl: string;
   createdAt: Date;
   modifiedAt: Date;
 };
@@ -34,7 +36,9 @@ export const GROUP_CATEGORY_MAP = {
 
 // 나머지는 모두 자동으로 파생
 export type GroupCategory = keyof typeof GROUP_CATEGORY_MAP;
-export const GROUP_CATEGORIES = Object.keys(GROUP_CATEGORY_MAP) as readonly GroupCategory[];
+export const GROUP_CATEGORIES = Object.keys(
+  GROUP_CATEGORY_MAP,
+) as readonly GroupCategory[];
 export const GROUP_CATEGORY_LABELS = Object.values(GROUP_CATEGORY_MAP);
 
 export const toGroupBrief = (apiResponse: GroupInfo): GroupBrief => {
@@ -49,14 +53,16 @@ export const toGroupBrief = (apiResponse: GroupInfo): GroupBrief => {
 };
 
 export const toGroupDetail = (
-  apiResponse: GroupDetailResponse
+  apiResponse: GroupDetailResponse,
 ): GroupDetail => {
   return {
-    ...apiResponse,
-    requireApply: apiResponse.applicationRequired ?? false,
+    name: apiResponse.name,
+    category: apiResponse.category,
+    description: apiResponse.description,
+    applicationRequired: apiResponse.joinPolicy === "APPROVAL",
+    publicVisible: apiResponse.visibility === "PUBLIC",
     maxMember: apiResponse.maxMember ?? Infinity,
-    public: apiResponse.publicVisible ?? true,
-    image: apiResponse.imageUrl ?? "",
+    imageUrl: apiResponse.imageUrl ?? "",
     createdAt: new Date(apiResponse.createdAt),
     modifiedAt: new Date(apiResponse.modifiedAt),
   };
