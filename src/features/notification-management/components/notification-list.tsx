@@ -18,12 +18,39 @@ import {
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ko } from "date-fns/locale";
+import { Skeleton } from "@/shared/components/skeleton";
+import ErrorDisplay from "@/shared/components/error-display";
+import { EmptyState } from "@/shared/components/empty-state";
+
+const NotificationSkeleton = () => (
+  <div className="space-y-3">
+    {Array.from({ length: 5 }).map((_, i) => (
+      <Card key={i}>
+        <CardHeader className="pb-3">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex items-start gap-3 flex-1">
+              <Skeleton className="h-5 w-5 rounded-full flex-shrink-0 mt-0.5" />
+              <Skeleton className="h-5 flex-1" />
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="pt-0">
+          <div className="flex gap-4">
+            <Skeleton className="h-3 w-24" />
+            <Skeleton className="h-3 w-20" />
+          </div>
+        </CardContent>
+      </Card>
+    ))}
+  </div>
+);
 
 export const NotificationList = () => {
   const {
     data,
     isLoading,
     error,
+    refetch,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
@@ -45,32 +72,16 @@ export const NotificationList = () => {
     markAllAsRead.mutate();
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center min-h-[200px]">
-        <div className="text-gray-500">로딩 중...</div>
-      </div>
-    );
-  }
+  if (isLoading) return <NotificationSkeleton />;
 
-  if (error) {
-    return (
-      <div className="flex justify-center items-center min-h-[200px]">
-        <div className="text-red-500">알림을 불러오는데 실패했습니다.</div>
-      </div>
-    );
-  }
+  if (error) return <ErrorDisplay onRetry={refetch} />;
 
   if (notifications.length === 0) {
     return (
-      <Card>
-        <CardContent className="p-8">
-          <div className="text-center text-gray-500">
-            <Bell className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-            <p>알림이 없습니다.</p>
-          </div>
-        </CardContent>
-      </Card>
+      <EmptyState
+        icon={<Bell className="w-8 h-8" />}
+        title="알림이 없습니다"
+      />
     );
   }
 

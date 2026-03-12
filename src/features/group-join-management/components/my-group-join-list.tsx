@@ -11,6 +11,29 @@ import {
 } from "@/domain/group/join-request";
 import { Users, X, Calendar, MessageSquare } from "lucide-react";
 import { useState } from "react";
+import { Skeleton } from "@/shared/components/skeleton";
+import ErrorDisplay from "@/shared/components/error-display";
+import { EmptyState } from "@/shared/components/empty-state";
+
+const MyGroupJoinSkeleton = () => (
+  <div className="space-y-4">
+    {Array.from({ length: 3 }).map((_, i) => (
+      <Card key={i}>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <Skeleton className="h-5 w-2/5" />
+            <Skeleton className="h-5 w-16 rounded-full" />
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Skeleton className="h-4 w-3/4" />
+          <Skeleton className="h-4 w-1/4" />
+          <Skeleton className="h-9 w-24 rounded-lg" />
+        </CardContent>
+      </Card>
+    ))}
+  </div>
+);
 
 const STATUS_MAP = {
   PENDING: "대기 중",
@@ -27,7 +50,7 @@ const STATUS_STYLE = {
 } as const;
 
 export const MyGroupJoinList = () => {
-  const { data: joinRequests, isLoading, error } = useMyGroupJoinList();
+  const { data: joinRequests, isLoading, error, refetch } = useMyGroupJoinList();
   const cancelJoin = useCancelGroupJoin();
   const [cancelingId, setCancelingId] = useState<number | null>(null);
 
@@ -47,32 +70,16 @@ export const MyGroupJoinList = () => {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center min-h-[200px]">
-        <div className="text-gray-500">로딩 중...</div>
-      </div>
-    );
-  }
+  if (isLoading) return <MyGroupJoinSkeleton />;
 
-  if (error) {
-    return (
-      <div className="flex justify-center items-center min-h-[200px]">
-        <div className="text-red-500">가입 신청 목록을 불러오는데 실패했습니다.</div>
-      </div>
-    );
-  }
+  if (error) return <ErrorDisplay onRetry={refetch} />;
 
   if (!joinRequests || joinRequests.length === 0) {
     return (
-      <Card>
-        <CardContent className="p-8">
-          <div className="text-center text-gray-500">
-            <Users className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-            <p>신청한 그룹이 없습니다.</p>
-          </div>
-        </CardContent>
-      </Card>
+      <EmptyState
+        icon={<Users className="w-8 h-8" />}
+        title="신청한 그룹이 없습니다"
+      />
     );
   }
 
