@@ -6,10 +6,11 @@ import { CardGridSkeleton } from "@/shared/components/skeletons";
 
 import BaseLayout from "@/shared/layouts/base-layout";
 import { Link } from "@tanstack/react-router";
-import { Search } from "lucide-react";
+import { Search, SearchX } from "lucide-react";
 import { useCardSets } from "@/domain/cardsets/hooks/use-card-sets";
 import { CardSetFilterSection } from "@/domain/cardsets/components/card-set-filter-section";
 import type { CardSetCategory } from "@/domain/cardsets/types";
+import { EmptyState } from "@/shared/components/empty-state";
 
 interface CardSetGridProps {
   keyword?: string;
@@ -66,11 +67,11 @@ const CardSetGrid = ({ keyword, category }: CardSetGridProps) => {
       )}
 
       {(!cardsetsData?.cardsets || cardsetsData.cardsets.length === 0) && (
-        <div className="flex justify-center items-center min-h-[200px]">
-          <div className="text-gray-500">
-            검색 조건에 맞는 카드셋이 없습니다.
-          </div>
-        </div>
+        <EmptyState
+          icon={<SearchX className="w-7 h-7" />}
+          title="카드셋을 찾지 못했어요"
+          description="다른 검색어나 카테고리를 시도해보세요"
+        />
       )}
     </>
   );

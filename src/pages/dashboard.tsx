@@ -9,10 +9,13 @@ import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { groupApi } from "@/shared/apis/group";
 import { mockWrongAnswerNotes } from "@/shared/mocks/wrong-answer-notes";
-import { BookOpen, Users, Calendar, AlertCircle } from "lucide-react";
+import { BookOpen, Users, Calendar, AlertCircle, SearchX } from "lucide-react";
 import { GROUP_CATEGORY_MAP } from "@/domain/group/types";
 import { ThumbnailCard } from "@/shared/components/thumbnail-card";
 import { DashboardSkeleton } from "@/shared/components/skeletons";
+import { EmptyState } from "@/shared/components/empty-state";
+import { Button } from "@/shared/components/button";
+import ErrorDisplay from "@/shared/components/error-display";
 
 const Dashboard = () => {
   // 내 그룹 조회
@@ -41,18 +44,6 @@ const Dashboard = () => {
     },
   });
 
-  if (isLoadingGroups || isLoadingOwnedGroups) {
-    return <DashboardSkeleton />;
-  }
-
-  if (groupsError || ownedGroupsError) {
-    return (
-      <div className="flex justify-center items-center min-h-[400px]">
-        <div className="text-red-500">데이터를 불러오는데 실패했습니다.</div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-8">
       {/* 헤더 */}
@@ -72,38 +63,46 @@ const Dashboard = () => {
             전체 보기
           </Link>
         </div>
-
-        {ownedGroupsData?.content && ownedGroupsData.content.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {ownedGroupsData.content.map((group) => (
-              <Link
-                to="/groups/$groupId"
-                params={{ groupId: group.groupId.toString() }}
-                key={group.groupId}
-              >
-                <ThumbnailCard
-                  imageUrl={group.imageUrl}
-                  title={group.name}
-                  subtitle={group.description}
-                  category={GROUP_CATEGORY_MAP[group.category]}
-                  className="p-4"
-                />
-              </Link>
-            ))}
-          </div>
+        {ownedGroupsError ? (
+          <ErrorDisplay />
         ) : (
-          <Card className="p-8">
-            <div className="text-center text-gray-500">
-              <Users className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-              <p>생성한 그룹이 없습니다.</p>
-              <Link
-                to="/groups/create"
-                className="text-primary hover:underline text-sm mt-2 inline-block"
-              >
-                그룹 만들기
-              </Link>
-            </div>
-          </Card>
+          <>
+            {!ownedGroupsError && isLoadingOwnedGroups && <DashboardSkeleton />}
+            {!isLoadingOwnedGroups &&
+            ownedGroupsData?.content &&
+            ownedGroupsData?.content.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {ownedGroupsData.content.map((group) => (
+                  <Link
+                    to="/groups/$groupId"
+                    params={{ groupId: group.groupId.toString() }}
+                    key={group.groupId}
+                  >
+                    <ThumbnailCard
+                      imageUrl={group.imageUrl}
+                      title={group.name}
+                      subtitle={group.description}
+                      category={GROUP_CATEGORY_MAP[group.category]}
+                      className="p-4"
+                    />
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <Card className="p-8">
+                <EmptyState
+                  icon={<SearchX className="w-7 h-7" />}
+                  title="생성한 그룹이 없어요"
+                  description="그룹을 만들어봐요!"
+                  action={
+                    <Button asChild variant={"outline"} size="sm">
+                      <Link to="/groups/create">그룹 만들기</Link>
+                    </Button>
+                  }
+                />
+              </Card>
+            )}
+          </>
         )}
       </section>
 
@@ -118,7 +117,10 @@ const Dashboard = () => {
           </Link>
         </div>
 
-        {myGroupsData?.content && myGroupsData.content.length > 0 ? (
+        {isLoadingGroups && <DashboardSkeleton />}
+        {!isLoadingGroups &&
+        myGroupsData?.content &&
+        myGroupsData.content.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {myGroupsData.content.map((group) => (
               <Link
@@ -138,18 +140,19 @@ const Dashboard = () => {
           </div>
         ) : (
           <Card className="p-8">
-            <div className="text-center text-gray-500">
-              <Users className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-              <p>가입한 그룹이 없습니다.</p>
-              <Link
-                to="/groups"
-                className="text-primary hover:underline text-sm mt-2 inline-block"
-              >
-                그룹 둘러보기
-              </Link>
-            </div>
+            <EmptyState
+              icon={<SearchX className="w-7 h-7" />}
+              title="가입한 그룹이 없어요"
+              description="다양한 그룹이 기다리고 있어요!"
+              action={
+                <Button asChild variant={"outline"} size="sm">
+                  <Link to="/groups">그룹 둘러보기</Link>
+                </Button>
+              }
+            />
           </Card>
         )}
+        {groupsError && <ErrorDisplay />}
       </section>
 
       {/* 오답노트 섹션 */}
@@ -175,7 +178,7 @@ const Dashboard = () => {
                       {note.description}
                     </CardDescription>
                   </div>
-                  <BookOpen className="w-5 h-5 text-primary flex-shrink-0 ml-2" />
+                  <BookOpen className="w-5 h-5 text-primary shrink-0 ml-2" />
                 </div>
               </CardHeader>
               <CardContent className="space-y-3">
