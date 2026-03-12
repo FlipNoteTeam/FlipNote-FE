@@ -67,7 +67,7 @@ export const GroupUpdateManagement = ({ groupId }: Props) => {
     category: groupData.category,
     description: groupData.description,
     applicationRequired: groupData.applicationRequired,
-    publicVisible: groupData.publicVisible,
+    publicVisible: groupData.visibility,
     maxMember: groupData.maxMember,
   };
 

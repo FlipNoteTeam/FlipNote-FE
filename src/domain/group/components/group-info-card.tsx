@@ -35,7 +35,7 @@ export const GroupInfoCard = ({ group }: GroupInfoCardProps) => {
                   가입 승인 필요
                 </span>
               )}
-              {group.publicVisible ? (
+              {group.visibility ? (
                 <span className="rounded-full bg-green-500/10 px-3 py-1 text-sm font-medium text-green-700 dark:text-green-400">
                   공개
                 </span>

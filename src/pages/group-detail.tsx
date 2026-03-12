@@ -182,7 +182,7 @@ const GroupDetailPage = ({ id }: Props) => {
   }
 
   // 비공개 그룹 접근 제어: 멤버가 아니면 접근 불가
-  if (!groupData.publicVisible && !isMember) {
+  if (!groupData.visibility && !isMember) {
     return (
       <BaseLayout>
         <div className="mx-auto max-w-6xl p-6">

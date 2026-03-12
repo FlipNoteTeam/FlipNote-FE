@@ -1,5 +1,4 @@
 import type { GroupDetailResponse, GroupInfo } from "@/shared/apis";
-import type { GroupCategory } from "@/shared/apis/types";
 
 export type GroupBrief = {
   id: number | string;
@@ -16,10 +15,11 @@ export type GroupDetail = {
   category: GroupCategory;
   description: string;
   applicationRequired: boolean;
-  publicVisible: boolean;
+  visibility: boolean;
   maxMember: number;
   imageUrl: string;
   createdAt: Date;
+  imageRefId?: number;
   modifiedAt: Date;
 };
 
@@ -60,9 +60,10 @@ export const toGroupDetail = (
     category: apiResponse.category,
     description: apiResponse.description,
     applicationRequired: apiResponse.joinPolicy === "APPROVAL",
-    publicVisible: apiResponse.visibility === "PUBLIC",
+    visibility: apiResponse.visibility === "PUBLIC",
     maxMember: apiResponse.maxMember ?? Infinity,
     imageUrl: apiResponse.imageUrl ?? "",
+    imageRefId: apiResponse.imageRefId,
     createdAt: new Date(apiResponse.createdAt),
     modifiedAt: new Date(apiResponse.modifiedAt),
   };
