@@ -1,7 +1,7 @@
 import { GROUP_CATEGORY_MAP } from "@/domain/group/types";
-import { cardSetApi, groupApi } from "@/shared/apis";
+import { cardSetApi } from "@/shared/apis";
 import { Button } from "@/shared/components/button";
-import { useMutation, useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { useGroupMembers } from "@/domain/members/hooks/use-group-members";
 import useAuthStore from "@/stores/use-auth-store";
 import { useEffect } from "react";
@@ -15,6 +15,7 @@ import StudySettings from "@/features/setting-study-mode/ui/study-settings";
 import { Separator } from "@/shared/components/separator";
 import Badge from "@/shared/components/badge";
 import { useMeta } from "@/shared/hooks/use-meta";
+import { useGroupDetail } from "@/domain/group/hooks/use-group-detail";
 
 type Props = {
   groupId: number;
@@ -30,10 +31,7 @@ const CardsetDetail = ({ groupId, cardsetId }: Props) => {
     queryFn: () => cardSetApi.getCardSet(groupId, cardsetId),
   });
 
-  const { data: groupData } = useQuery({
-    queryKey: ["group", groupId],
-    queryFn: () => groupApi.getGroupDetail(groupId),
-  });
+  const { data: group } = useGroupDetail(groupId);
 
   const { mutate, isPending } = useMutation({
     mutationFn: () => cardSetApi.deleteCardSet(groupId, cardsetId),
@@ -49,7 +47,6 @@ const CardsetDetail = ({ groupId, cardsetId }: Props) => {
   const { data: members = [] } = useGroupMembers(groupId);
 
   const cardset = data?.data.data;
-  const group = groupData?.data.data;
 
   // 카드셋 좋아요 훅
   const {
@@ -85,12 +82,7 @@ const CardsetDetail = ({ groupId, cardsetId }: Props) => {
 
   // 카드셋 접근 제어: 공개 + 가입 승인 필수인 그룹의 경우 멤버가 아니면 접근 불가
   useEffect(() => {
-    if (
-      group &&
-      !isMember &&
-      group.publicVisible &&
-      group.applicationRequired
-    ) {
+    if (group && !isMember && group.visibility && group.applicationRequired) {
       window.alert("이 카드셋을 보려면 그룹에 가입 신청을 해주세요.");
       navigate({ to: `/groups/${groupId}` });
     }
