@@ -7,7 +7,7 @@ import type {
   CursorPagingResponse,
 } from "@/shared/apis/types";
 
-export type GroupVisiblityOption = "PUBLIC" | "PRIVATE";
+export type GroupVisibilityOption = "PUBLIC" | "PRIVATE";
 export type GroupJoinPolicyOption = "OPEN" | "APPROVAL";
 
 interface GroupDetail {
@@ -15,7 +15,7 @@ interface GroupDetail {
   category: GroupCategory;
   description: string;
   joinPolicy: GroupJoinPolicyOption;
-  visibility: GroupVisiblityOption;
+  visibility: GroupVisibilityOption;
   maxMember: number;
   imageRefId?: number;
 }
