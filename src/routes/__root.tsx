@@ -5,6 +5,7 @@ import {
   createRootRouteWithContext,
 } from "@tanstack/react-router";
 import type { AuthState } from "@/stores/use-auth-store";
+import { ErrorBoundary } from "@/shared/components/error-boundary";
 
 interface RouterContext {
   auth: AuthState | undefined;
@@ -17,7 +18,9 @@ function RootComponent() {
   return (
     <React.Fragment>
       <HeadContent />
-      <Outlet />
+      <ErrorBoundary>
+        <Outlet />
+      </ErrorBoundary>
     </React.Fragment>
   );
 }
