@@ -1,14 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
 import { userApi } from "@/shared/apis/user";
-import { Card, CardContent } from "@/shared/components/card";
 import UserProfileView from "@/domain/user/components/user-profile-view";
 import UserProfileEditForm from "@/features/user-info-management/components/user-profile-edit-form";
 import { useUserInfoEdit } from "@/features/user-info-management/hooks/use-user-info-edit";
 import { ProfileCardSkeleton } from "@/shared/components/skeletons";
+import ErrorDisplay from "@/shared/components/error-display";
 
 const MyUserProfilePage = () => {
   // 본인 정보 조회
-  const { data: myInfo, isLoading } = useQuery({
+  const { data: myInfo, isLoading, isError, refetch } = useQuery({
     queryKey: ["myInfo"],
     queryFn: async () => {
       const response = await userApi.getMyInfo();
@@ -33,16 +33,8 @@ const MyUserProfilePage = () => {
     return <ProfileCardSkeleton />;
   }
 
-  if (!myInfo) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <Card>
-          <CardContent className="py-8">
-            <p className="text-center">사용자 정보를 찾을 수 없습니다.</p>
-          </CardContent>
-        </Card>
-      </div>
-    );
+  if (isError || !myInfo) {
+    return <ErrorDisplay onRetry={() => refetch()} />;
   }
 
   if (isEditing) {
