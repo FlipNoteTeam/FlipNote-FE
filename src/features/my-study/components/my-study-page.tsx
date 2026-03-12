@@ -7,6 +7,8 @@ import { useMyLikedCardSets } from "@/domain/study/hooks/use-my-liked-card-sets"
 import type { CardSetWithBookmark, CardSetWithLike } from "@/domain/study/types";
 import { formatDistanceToNow } from "date-fns";
 import { ko } from "date-fns/locale";
+import ErrorDisplay from "@/shared/components/error-display";
+import { EmptyState } from "@/shared/components/empty-state";
 
 export const MyStudyPage = () => {
   const {
@@ -16,6 +18,7 @@ export const MyStudyPage = () => {
     isFetchingNextPage: isFetchingNextBookmarks,
     isLoading: isLoadingBookmarks,
     error: bookmarksError,
+    refetch: refetchBookmarks,
   } = useMyBookmarkedCardSets();
 
   const {
@@ -25,6 +28,7 @@ export const MyStudyPage = () => {
     isFetchingNextPage: isFetchingNextLikes,
     isLoading: isLoadingLikes,
     error: likesError,
+    refetch: refetchLikes,
   } = useMyLikedCardSets();
 
   const bookmarkedCardSets = bookmarkedData?.bookmarks ?? [];
@@ -36,14 +40,10 @@ export const MyStudyPage = () => {
   ) => {
     if (cardSets.length === 0) {
       return (
-        <Card>
-          <CardContent className="p-8">
-            <div className="text-center text-gray-500">
-              <BookOpen className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-              <p>카드셋이 없습니다.</p>
-            </div>
-          </CardContent>
-        </Card>
+        <EmptyState
+          icon={<BookOpen className="w-8 h-8" />}
+          title="카드셋이 없습니다"
+        />
       );
     }
 
@@ -88,11 +88,7 @@ export const MyStudyPage = () => {
         {isLoadingBookmarks ? (
           <CardGridSkeleton />
         ) : bookmarksError ? (
-          <div className="flex justify-center items-center min-h-[200px]">
-            <div className="text-red-500">
-              카드셋을 불러오는데 실패했습니다.
-            </div>
-          </div>
+          <ErrorDisplay onRetry={() => refetchBookmarks()} />
         ) : (
           <>
             {renderCardSetGrid(bookmarkedCardSets, "bookmarkedAt")}
@@ -123,11 +119,7 @@ export const MyStudyPage = () => {
         {isLoadingLikes ? (
           <CardGridSkeleton />
         ) : likesError ? (
-          <div className="flex justify-center items-center min-h-[200px]">
-            <div className="text-red-500">
-              카드셋을 불러오는데 실패했습니다.
-            </div>
-          </div>
+          <ErrorDisplay onRetry={() => refetchLikes()} />
         ) : (
           <>
             {renderCardSetGrid(likedCardSets, "likedAt")}
