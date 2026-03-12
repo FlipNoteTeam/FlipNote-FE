@@ -7,51 +7,35 @@ import type {
   CursorPagingResponse,
 } from "@/shared/apis/types";
 
-// Group API 전용 타입들
-export interface GroupDetailResponse {
+export type GroupVisiblityOption = "PUBLIC" | "PRIVATE";
+export type GroupJoinPolicyOption = "OPEN" | "APPROVAL";
+
+interface GroupDetail {
   name: string;
   category: GroupCategory;
   description: string;
-  applicationRequired: boolean;
-  publicVisible: boolean;
+  joinPolicy: GroupJoinPolicyOption;
+  visibility: GroupVisiblityOption;
   maxMember: number;
+  imageRefId?: number;
+}
+
+export type GroupCreateRequest = GroupDetail;
+
+// Group API 전용 타입들
+export interface GroupDetailResponse extends GroupDetail {
   imageUrl?: string;
   createdAt: string;
   modifiedAt: string;
-}
-
-export interface GroupCreateRequest {
-  name: string;
-  category: GroupCategory;
-  description: string;
-  applicationRequired: boolean;
-  publicVisible: boolean;
-  maxMember: number;
-  image?: string;
 }
 
 export interface GroupCreateResponse {
   groupId: number;
 }
 
-export interface GroupPutRequest {
-  name: string;
-  category: GroupCategory;
-  description: string;
-  applicationRequired: boolean;
-  publicVisible: boolean;
-  maxMember: number;
-  image?: string;
-}
+export type GroupPutRequest = GroupDetail;
 
-export interface GroupPutResponse {
-  name: string;
-  category: GroupCategory;
-  description: string;
-  applicationRequired: boolean;
-  publicVisible: boolean;
-  maxMember: number;
-  imageUrl?: string;
+export interface GroupPutResponse extends GroupDetail {
   createdAt: string;
   modifiedAt: string;
 }
@@ -116,7 +100,7 @@ export const groupApi = {
   // 그룹 멤버 조회
   getGroupMembers: (groupId: number) =>
     apiClient.get<ApiResponse<FindGroupMemberResponse>>(
-      `/groups/${groupId}/members`
+      `/groups/${groupId}/members`,
     ),
 
   // 내가 만든 그룹 조회
@@ -125,22 +109,19 @@ export const groupApi = {
       "/groups/created",
       {
         params: data,
-      }
+      },
     ),
 
   // 역할 부임 (TODO: API 준비되면 엔드포인트 확인 필요)
   assignMemberRole: (
     groupId: number,
-    data: { userId: number; role: "HEAD_MANAGER" | "MANAGER" }
+    data: { userId: number; role: "HEAD_MANAGER" | "MANAGER" },
   ) =>
-    apiClient.post<ApiResponse<void>>(
-      `/groups/${groupId}/members/role`,
-      data
-    ),
+    apiClient.post<ApiResponse<void>>(`/groups/${groupId}/members/role`, data),
 
   // 역할 해제 (TODO: API 준비되면 엔드포인트 확인 필요)
   dismissMemberRole: (groupId: number, userId: number) =>
     apiClient.delete<ApiResponse<void>>(
-      `/groups/${groupId}/members/${userId}/role`
+      `/groups/${groupId}/members/${userId}/role`,
     ),
 };
