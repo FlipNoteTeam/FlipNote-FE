@@ -112,9 +112,6 @@ const StudySettings = ({
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any);
   };
-  const handleError = (errorDAta) => {
-    console.log("ERROR", errorDAta);
-  };
 
   return (
     <div className="mt-8">
@@ -123,10 +120,7 @@ const StudySettings = ({
         <span>학습 모드 선택</span>
       </FormTitle>
 
-      <form
-        className="space-y-10"
-        onSubmit={handleSubmit(onSubmit, handleError)}
-      >
+      <form className="space-y-10" onSubmit={handleSubmit(onSubmit)}>
         {/* 학습 모드 선택 */}
         <div className="space-y-3">
           <ButtonCheckboxGroupField

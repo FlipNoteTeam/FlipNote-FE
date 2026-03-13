@@ -8,7 +8,6 @@ import { Textarea } from "@/shared/components/textarea";
 import { Card } from "@/shared/components/card";
 import { useTimer } from "@/shared/hooks/use-timer";
 import { Clock, Play, Pause, Loader2 } from "lucide-react";
-import { cardApi } from "@/shared/apis/card";
 
 type StudyState = TestSettings & {
   groupId: number;
@@ -34,11 +33,32 @@ const TestMode = () => {
 
   // TODO: 카드 API 연동 후 mock 제거
   const MOCK_CARDS = [
-    { id: "1", question: "React에서 상태 관리를 위한 기본 훅은 무엇인가?", answer: "useState" },
-    { id: "2", question: "컴포넌트의 사이드 이펙트를 처리하는 훅은 무엇인가?", answer: "useEffect" },
-    { id: "3", question: "컨텍스트 값을 구독할 때 사용하는 훅은 무엇인가?", answer: "useContext" },
-    { id: "4", question: "이전 렌더링 값을 기억할 때 사용하는 훅은 무엇인가?", answer: "useRef" },
-    { id: "5", question: "비용이 큰 계산 결과를 메모이제이션할 때 사용하는 훅은 무엇인가?", answer: "useMemo" },
+    {
+      id: "1",
+      question: "React에서 상태 관리를 위한 기본 훅은 무엇인가?",
+      answer: "useState",
+    },
+    {
+      id: "2",
+      question: "컴포넌트의 사이드 이펙트를 처리하는 훅은 무엇인가?",
+      answer: "useEffect",
+    },
+    {
+      id: "3",
+      question: "컨텍스트 값을 구독할 때 사용하는 훅은 무엇인가?",
+      answer: "useContext",
+    },
+    {
+      id: "4",
+      question: "이전 렌더링 값을 기억할 때 사용하는 훅은 무엇인가?",
+      answer: "useRef",
+    },
+    {
+      id: "5",
+      question:
+        "비용이 큰 계산 결과를 메모이제이션할 때 사용하는 훅은 무엇인가?",
+      answer: "useMemo",
+    },
   ];
 
   // 카드 데이터 조회
@@ -76,8 +96,8 @@ const TestMode = () => {
   const handleAnswerChange = (questionKey: string, value: string) => {
     setAnswers((prev) =>
       prev.map((a) =>
-        a.questionKey === questionKey ? { ...a, userAnswer: value } : a
-      )
+        a.questionKey === questionKey ? { ...a, userAnswer: value } : a,
+      ),
     );
   };
 
@@ -120,7 +140,9 @@ const TestMode = () => {
 
   const handleGradeChange = (questionKey: string, isCorrect: boolean) => {
     setTestResults((prev) =>
-      prev.map((r) => (r.questionKey === questionKey ? { ...r, isCorrect } : r))
+      prev.map((r) =>
+        r.questionKey === questionKey ? { ...r, isCorrect } : r,
+      ),
     );
   };
 
@@ -130,7 +152,7 @@ const TestMode = () => {
     const score = Math.round((correctCount / totalCount) * 100);
 
     alert(
-      `채점이 완료되었습니다!\n정답: ${correctCount}/${totalCount}\n점수: ${score}점`
+      `채점이 완료되었습니다!\n정답: ${correctCount}/${totalCount}\n점수: ${score}점`,
     );
     // TODO: 결과 저장 및 결과 페이지로 이동
   };
@@ -237,7 +259,9 @@ const TestMode = () => {
                 <Clock className="h-5 w-5 text-gray-600" />
                 <span
                   className={`text-lg font-mono font-semibold ${
-                    timer.remainingSeconds < 60 ? "text-red-600" : "text-gray-900"
+                    timer.remainingSeconds < 60
+                      ? "text-red-600"
+                      : "text-gray-900"
                   }`}
                 >
                   {formatTime(timer.remainingSeconds)}
@@ -245,7 +269,9 @@ const TestMode = () => {
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => (timer.isRunning ? timer.pause() : timer.resume())}
+                  onClick={() =>
+                    timer.isRunning ? timer.pause() : timer.resume()
+                  }
                   className="h-8 w-8"
                 >
                   {timer.isRunning ? (
