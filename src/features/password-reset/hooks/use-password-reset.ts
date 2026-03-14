@@ -11,16 +11,22 @@ interface PasswordResetForm {
   passwordConfirm: string;
 }
 
-export const usePasswordReset = () => {
+interface UsePasswordResetProps {
+  defaultValue?: { token?: string };
+}
+
+export const usePasswordReset = ({ defaultValue }: UsePasswordResetProps) => {
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState<string>("");
-
+  console.log(defaultValue);
   const {
     register,
     handleSubmit,
     watch,
     formState: { errors },
-  } = useForm<PasswordResetForm>();
+  } = useForm<PasswordResetForm>({
+    defaultValues: { token: defaultValue?.token ?? "" },
+  });
 
   const password = watch("password");
 
@@ -33,7 +39,7 @@ export const usePasswordReset = () => {
     onError: (error: ApiError) => {
       setErrorMessage(
         error?.response?.data?.message ||
-          "비밀번호 재설정에 실패했습니다. 다시 시도해주세요."
+          "비밀번호 재설정에 실패했습니다. 다시 시도해주세요.",
       );
     },
   });

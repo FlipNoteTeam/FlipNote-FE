@@ -9,7 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as PasswordResetRouteImport } from './routes/password-reset'
 import { Route as GroupListRouteImport } from './routes/group-list'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CardsetListRouteImport } from './routes/cardset-list'
@@ -25,9 +25,9 @@ import { Route as GroupsGroupIdManageRouteImport } from './routes/groups/$groupI
 import { Route as CardsetsEditorIdRouteImport } from './routes/cardsets/editor/$id'
 import { Route as GroupsGroupIdCardsetsCardsetIdIndexRouteImport } from './routes/groups/$groupId/cardsets/$cardsetId/index'
 
-const ResetPasswordRoute = ResetPasswordRouteImport.update({
-  id: '/reset-password',
-  path: '/reset-password',
+const PasswordResetRoute = PasswordResetRouteImport.update({
+  id: '/password-reset',
+  path: '/password-reset',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GroupListRoute = GroupListRouteImport.update({
@@ -107,7 +107,7 @@ export interface FileRoutesByFullPath {
   '/cardset-list': typeof CardsetListRoute
   '/dashboard': typeof DashboardRoute
   '/group-list': typeof GroupListRoute
-  '/reset-password': typeof ResetPasswordRoute
+  '/password-reset': typeof PasswordResetRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
   '/groups/create': typeof GroupsCreateRoute
@@ -124,7 +124,7 @@ export interface FileRoutesByTo {
   '/cardset-list': typeof CardsetListRoute
   '/dashboard': typeof DashboardRoute
   '/group-list': typeof GroupListRoute
-  '/reset-password': typeof ResetPasswordRoute
+  '/password-reset': typeof PasswordResetRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
   '/groups/create': typeof GroupsCreateRoute
@@ -142,7 +142,7 @@ export interface FileRoutesById {
   '/cardset-list': typeof CardsetListRoute
   '/dashboard': typeof DashboardRoute
   '/group-list': typeof GroupListRoute
-  '/reset-password': typeof ResetPasswordRoute
+  '/password-reset': typeof PasswordResetRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
   '/groups/create': typeof GroupsCreateRoute
@@ -161,7 +161,7 @@ export interface FileRouteTypes {
     | '/cardset-list'
     | '/dashboard'
     | '/group-list'
-    | '/reset-password'
+    | '/password-reset'
     | '/auth/login'
     | '/auth/register'
     | '/groups/create'
@@ -178,7 +178,7 @@ export interface FileRouteTypes {
     | '/cardset-list'
     | '/dashboard'
     | '/group-list'
-    | '/reset-password'
+    | '/password-reset'
     | '/auth/login'
     | '/auth/register'
     | '/groups/create'
@@ -195,7 +195,7 @@ export interface FileRouteTypes {
     | '/cardset-list'
     | '/dashboard'
     | '/group-list'
-    | '/reset-password'
+    | '/password-reset'
     | '/auth/login'
     | '/auth/register'
     | '/groups/create'
@@ -213,7 +213,7 @@ export interface RootRouteChildren {
   CardsetListRoute: typeof CardsetListRoute
   DashboardRoute: typeof DashboardRoute
   GroupListRoute: typeof GroupListRoute
-  ResetPasswordRoute: typeof ResetPasswordRoute
+  PasswordResetRoute: typeof PasswordResetRoute
   AuthLoginRoute: typeof AuthLoginRoute
   AuthRegisterRoute: typeof AuthRegisterRoute
   GroupsCreateRoute: typeof GroupsCreateRoute
@@ -228,11 +228,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/reset-password': {
-      id: '/reset-password'
-      path: '/reset-password'
-      fullPath: '/reset-password'
-      preLoaderRoute: typeof ResetPasswordRouteImport
+    '/password-reset': {
+      id: '/password-reset'
+      path: '/password-reset'
+      fullPath: '/password-reset'
+      preLoaderRoute: typeof PasswordResetRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/group-list': {
@@ -341,7 +341,7 @@ const rootRouteChildren: RootRouteChildren = {
   CardsetListRoute: CardsetListRoute,
   DashboardRoute: DashboardRoute,
   GroupListRoute: GroupListRoute,
-  ResetPasswordRoute: ResetPasswordRoute,
+  PasswordResetRoute: PasswordResetRoute,
   AuthLoginRoute: AuthLoginRoute,
   AuthRegisterRoute: AuthRegisterRoute,
   GroupsCreateRoute: GroupsCreateRoute,

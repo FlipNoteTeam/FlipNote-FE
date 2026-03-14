@@ -1,12 +1,17 @@
+import z from "zod";
 import BaseLayout from "@/shared/layouts/base-layout";
-import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { createFileRoute, useSearch } from "@tanstack/react-router";
+
 import PasswordResetRequestForm from "@/features/password-reset/components/password-reset-request-form";
 import PasswordResetForm from "@/features/password-reset/components/password-reset-form";
 import { Button } from "@/shared/components/button";
+import { useState } from "react";
 
-export const Route = createFileRoute("/reset-password")({
+export const Route = createFileRoute("/password-reset")({
   component: RouteComponent,
+  validateSearch: z.object({
+    token: z.string().optional(),
+  }),
   head: () => ({
     meta: [
       { title: "비밀번호 재설정 | FlipNote" },
@@ -19,7 +24,14 @@ export const Route = createFileRoute("/reset-password")({
 });
 
 function RouteComponent() {
-  const [step, setStep] = useState<"request" | "reset">("request");
+  const token = useSearch({
+    select: (state) => state.token,
+    from: "/password-reset",
+  });
+
+  const [step, setStep] = useState<"request" | "reset">(
+    !token ? "request" : "reset",
+  );
 
   return (
     <BaseLayout>
@@ -44,7 +56,7 @@ function RouteComponent() {
           </>
         ) : (
           <>
-            <PasswordResetForm />
+            <PasswordResetForm token={token} />
             <div className="container mx-auto px-4 max-w-md">
               <div className="text-center">
                 <Button
