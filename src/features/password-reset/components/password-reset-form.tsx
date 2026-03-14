@@ -1,13 +1,22 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/card";
 import { Button } from "@/shared/components/button";
 import { Label } from "@/shared/components/label";
 import { Input } from "@/shared/components/input";
 import { PasswordInput } from "@/shared/components/password-input";
 import { usePasswordReset } from "../hooks/use-password-reset";
 
-const PasswordResetForm = () => {
+interface PasswordResetFormProps {
+  token?: string;
+}
+
+const PasswordResetForm = ({ token }: PasswordResetFormProps) => {
   const { register, handleSubmit, errors, password, errorMessage, isPending } =
-    usePasswordReset();
+    usePasswordReset({ defaultValue: { token } });
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-md">
@@ -48,13 +57,17 @@ const PasswordResetForm = () => {
                     message: "비밀번호는 최소 8자 이상이어야 합니다",
                   },
                   pattern: {
-                    value: /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
-                    message: "비밀번호는 영문, 숫자, 특수문자를 포함해야 합니다",
+                    value:
+                      /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
+                    message:
+                      "비밀번호는 영문, 숫자, 특수문자를 포함해야 합니다",
                   },
                 })}
               />
               {errors.password && (
-                <p className="text-sm text-red-500">{errors.password.message}</p>
+                <p className="text-sm text-red-500">
+                  {errors.password.message}
+                </p>
               )}
             </div>
 
