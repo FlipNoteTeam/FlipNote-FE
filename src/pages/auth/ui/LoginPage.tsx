@@ -124,7 +124,7 @@ const LoginPage = () => {
               <span>|</span>
               <li>
                 <Link
-                  to="/reset-password"
+                  to="/password-reset"
                   className="text-indigo-600 hover:text-indigo-700"
                 >
                   비밀번호를 잊어버리셨나요?
