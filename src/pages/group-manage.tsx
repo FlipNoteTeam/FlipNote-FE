@@ -18,7 +18,11 @@ type Props = {
   groupId: string;
 };
 
-type MenuTab = "join-requests" | "invitations" | "group-settings" | "role-management";
+type MenuTab =
+  | "join-requests"
+  | "invitations"
+  | "group-settings"
+  | "role-management";
 
 const GroupManagePage = ({ groupId }: Props) => {
   const navigate = useNavigate();
@@ -36,7 +40,7 @@ const GroupManagePage = ({ groupId }: Props) => {
   });
 
   // 현재 사용자가 그룹 OWNER인지 확인
-  const currentMember = members.find((member) => member.id === user?.userId);
+  const currentMember = members.find((member) => member.userId === user?.userId);
   const isOwner = currentMember?.role === "OWNER";
 
   if (isGroupLoading || isMembersLoading) {

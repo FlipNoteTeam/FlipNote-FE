@@ -36,7 +36,7 @@ export const GroupInvitationManagement = ({
       },
       onError: (error: ApiError) => {
         window.alert(
-          error?.response?.data?.message || "초대 취소에 실패했습니다."
+          error?.response?.data?.message || "초대 취소에 실패했습니다.",
         );
       },
     });
@@ -44,7 +44,7 @@ export const GroupInvitationManagement = ({
 
   // PENDING 상태인 초대만 필터링
   const pendingInvitations = invitations.filter(
-    (invitation) => invitation.status === "PENDING"
+    (invitation) => invitation.status === "PENDING",
   );
 
   if (isLoading) {
@@ -102,7 +102,7 @@ export const GroupInvitationManagement = ({
                     onClick={() =>
                       handleCancelInvitation(
                         invitation.invitationId,
-                        invitation.inviteeNickname || invitation.inviteeEmail
+                        invitation.inviteeNickname || invitation.inviteeEmail,
                       )
                     }
                     disabled={isDeleting}
