@@ -15,6 +15,11 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CardsetListRouteImport } from './routes/cardset-list'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as GroupsIndexRouteImport } from './routes/groups/index'
+import { Route as SocialLoginSuccessRouteImport } from './routes/social-login/success'
+import { Route as SocialLoginFailureRouteImport } from './routes/social-login/failure'
+import { Route as SocialLinkSuccessRouteImport } from './routes/social-link/success'
+import { Route as SocialLinkFailureRouteImport } from './routes/social-link/failure'
+import { Route as SocialLinkConflictRouteImport } from './routes/social-link/conflict'
 import { Route as GroupsCreateRouteImport } from './routes/groups/create'
 import { Route as AuthRegisterRouteImport } from './routes/auth/register'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
@@ -53,6 +58,31 @@ const IndexRoute = IndexRouteImport.update({
 const GroupsIndexRoute = GroupsIndexRouteImport.update({
   id: '/groups/',
   path: '/groups/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SocialLoginSuccessRoute = SocialLoginSuccessRouteImport.update({
+  id: '/social-login/success',
+  path: '/social-login/success',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SocialLoginFailureRoute = SocialLoginFailureRouteImport.update({
+  id: '/social-login/failure',
+  path: '/social-login/failure',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SocialLinkSuccessRoute = SocialLinkSuccessRouteImport.update({
+  id: '/social-link/success',
+  path: '/social-link/success',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SocialLinkFailureRoute = SocialLinkFailureRouteImport.update({
+  id: '/social-link/failure',
+  path: '/social-link/failure',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SocialLinkConflictRoute = SocialLinkConflictRouteImport.update({
+  id: '/social-link/conflict',
+  path: '/social-link/conflict',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GroupsCreateRoute = GroupsCreateRouteImport.update({
@@ -111,6 +141,11 @@ export interface FileRoutesByFullPath {
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
   '/groups/create': typeof GroupsCreateRoute
+  '/social-link/conflict': typeof SocialLinkConflictRoute
+  '/social-link/failure': typeof SocialLinkFailureRoute
+  '/social-link/success': typeof SocialLinkSuccessRoute
+  '/social-login/failure': typeof SocialLoginFailureRoute
+  '/social-login/success': typeof SocialLoginSuccessRoute
   '/groups/': typeof GroupsIndexRoute
   '/cardsets/editor/$id': typeof CardsetsEditorIdRoute
   '/groups/$groupId/manage': typeof GroupsGroupIdManageRoute
@@ -128,6 +163,11 @@ export interface FileRoutesByTo {
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
   '/groups/create': typeof GroupsCreateRoute
+  '/social-link/conflict': typeof SocialLinkConflictRoute
+  '/social-link/failure': typeof SocialLinkFailureRoute
+  '/social-link/success': typeof SocialLinkSuccessRoute
+  '/social-login/failure': typeof SocialLoginFailureRoute
+  '/social-login/success': typeof SocialLoginSuccessRoute
   '/groups': typeof GroupsIndexRoute
   '/cardsets/editor/$id': typeof CardsetsEditorIdRoute
   '/groups/$groupId/manage': typeof GroupsGroupIdManageRoute
@@ -146,6 +186,11 @@ export interface FileRoutesById {
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
   '/groups/create': typeof GroupsCreateRoute
+  '/social-link/conflict': typeof SocialLinkConflictRoute
+  '/social-link/failure': typeof SocialLinkFailureRoute
+  '/social-link/success': typeof SocialLinkSuccessRoute
+  '/social-login/failure': typeof SocialLoginFailureRoute
+  '/social-login/success': typeof SocialLoginSuccessRoute
   '/groups/': typeof GroupsIndexRoute
   '/cardsets/editor/$id': typeof CardsetsEditorIdRoute
   '/groups/$groupId/manage': typeof GroupsGroupIdManageRoute
@@ -165,6 +210,11 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/register'
     | '/groups/create'
+    | '/social-link/conflict'
+    | '/social-link/failure'
+    | '/social-link/success'
+    | '/social-login/failure'
+    | '/social-login/success'
     | '/groups/'
     | '/cardsets/editor/$id'
     | '/groups/$groupId/manage'
@@ -182,6 +232,11 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/register'
     | '/groups/create'
+    | '/social-link/conflict'
+    | '/social-link/failure'
+    | '/social-link/success'
+    | '/social-login/failure'
+    | '/social-login/success'
     | '/groups'
     | '/cardsets/editor/$id'
     | '/groups/$groupId/manage'
@@ -199,6 +254,11 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/register'
     | '/groups/create'
+    | '/social-link/conflict'
+    | '/social-link/failure'
+    | '/social-link/success'
+    | '/social-login/failure'
+    | '/social-login/success'
     | '/groups/'
     | '/cardsets/editor/$id'
     | '/groups/$groupId/manage'
@@ -217,6 +277,11 @@ export interface RootRouteChildren {
   AuthLoginRoute: typeof AuthLoginRoute
   AuthRegisterRoute: typeof AuthRegisterRoute
   GroupsCreateRoute: typeof GroupsCreateRoute
+  SocialLinkConflictRoute: typeof SocialLinkConflictRoute
+  SocialLinkFailureRoute: typeof SocialLinkFailureRoute
+  SocialLinkSuccessRoute: typeof SocialLinkSuccessRoute
+  SocialLoginFailureRoute: typeof SocialLoginFailureRoute
+  SocialLoginSuccessRoute: typeof SocialLoginSuccessRoute
   GroupsIndexRoute: typeof GroupsIndexRoute
   CardsetsEditorIdRoute: typeof CardsetsEditorIdRoute
   GroupsGroupIdManageRoute: typeof GroupsGroupIdManageRoute
@@ -268,6 +333,41 @@ declare module '@tanstack/react-router' {
       path: '/groups'
       fullPath: '/groups/'
       preLoaderRoute: typeof GroupsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/social-login/success': {
+      id: '/social-login/success'
+      path: '/social-login/success'
+      fullPath: '/social-login/success'
+      preLoaderRoute: typeof SocialLoginSuccessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/social-login/failure': {
+      id: '/social-login/failure'
+      path: '/social-login/failure'
+      fullPath: '/social-login/failure'
+      preLoaderRoute: typeof SocialLoginFailureRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/social-link/success': {
+      id: '/social-link/success'
+      path: '/social-link/success'
+      fullPath: '/social-link/success'
+      preLoaderRoute: typeof SocialLinkSuccessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/social-link/failure': {
+      id: '/social-link/failure'
+      path: '/social-link/failure'
+      fullPath: '/social-link/failure'
+      preLoaderRoute: typeof SocialLinkFailureRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/social-link/conflict': {
+      id: '/social-link/conflict'
+      path: '/social-link/conflict'
+      fullPath: '/social-link/conflict'
+      preLoaderRoute: typeof SocialLinkConflictRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/groups/create': {
@@ -345,6 +445,11 @@ const rootRouteChildren: RootRouteChildren = {
   AuthLoginRoute: AuthLoginRoute,
   AuthRegisterRoute: AuthRegisterRoute,
   GroupsCreateRoute: GroupsCreateRoute,
+  SocialLinkConflictRoute: SocialLinkConflictRoute,
+  SocialLinkFailureRoute: SocialLinkFailureRoute,
+  SocialLinkSuccessRoute: SocialLinkSuccessRoute,
+  SocialLoginFailureRoute: SocialLoginFailureRoute,
+  SocialLoginSuccessRoute: SocialLoginSuccessRoute,
   GroupsIndexRoute: GroupsIndexRoute,
   CardsetsEditorIdRoute: CardsetsEditorIdRoute,
   GroupsGroupIdManageRoute: GroupsGroupIdManageRoute,
