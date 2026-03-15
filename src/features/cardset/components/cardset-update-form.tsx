@@ -15,6 +15,7 @@ import { Label } from "@/shared/components/label";
 import { uploadImage } from "@/shared/lib/upload-image";
 import { useGroupMembers } from "@/domain/members/hooks/use-group-members";
 import { MemberSelectDialog } from "@/domain/members/components/member-select-dialog";
+import type { SelectableMember } from "@/domain/members/components/member-select-dialog";
 import type { GroupMemberInfo } from "@/shared/apis";
 
 import { UserPlus, X } from "lucide-react";
@@ -26,7 +27,6 @@ const ROLE_LABEL_MAP: Record<GroupMemberInfo["role"], string> = {
   OWNER: "소유자",
   HEAD_MANAGER: "총괄 매니저",
   MANAGER: "매니저",
-  STAFF: "스태프",
   MEMBER: "일반 회원",
 };
 
@@ -92,13 +92,18 @@ const CardsetUpdateForm = ({
 
   const selectedManagerIds: number[] = managersField.value ?? [];
   const selectedManagers = members.filter((m) =>
-    selectedManagerIds.includes(m.id)
+    selectedManagerIds.includes(m.userId)
   );
-  const availableManagers = members
-    .filter((m) => !selectedManagerIds.includes(m.id))
-    .map((m) => ({ ...m, subtitle: ROLE_LABEL_MAP[m.role] }));
+  const availableManagers: SelectableMember[] = members
+    .filter((m) => !selectedManagerIds.includes(m.userId))
+    .map((m) => ({
+      id: m.userId,
+      name: m.nickname,
+      profile: m.profileImage,
+      subtitle: ROLE_LABEL_MAP[m.role],
+    }));
 
-  const addManager = (member: GroupMemberInfo) => {
+  const addManager = (member: SelectableMember) => {
     managersField.onChange([...selectedManagerIds, member.id]);
     setManagerDialogOpen(false);
   };
@@ -207,21 +212,21 @@ const CardsetUpdateForm = ({
           <div className="flex flex-wrap gap-2 mb-2">
             {selectedManagers.map((m) => (
               <div
-                key={m.id}
+                key={m.userId}
                 className="flex items-center gap-1.5 bg-accent rounded-full pl-1.5 pr-2 py-1 text-sm"
               >
                 <img
                   src={
-                    m.profile ||
-                    `https://api.dicebear.com/7.x/avataaars/svg?seed=${m.name}`
+                    m.profileImage ||
+                    `https://api.dicebear.com/7.x/avataaars/svg?seed=${m.nickname}`
                   }
-                  alt={m.name}
+                  alt={m.nickname}
                   className="size-5 rounded-full object-cover"
                 />
-                <span>{m.name}</span>
+                <span>{m.nickname}</span>
                 <button
                   type="button"
-                  onClick={() => removeManager(m.id)}
+                  onClick={() => removeManager(m.userId)}
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
                   <X className="size-3" />

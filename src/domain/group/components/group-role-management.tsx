@@ -11,6 +11,7 @@ import Badge from "@/shared/components/badge";
 import { UserMinus, UserPlus } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 import type { ApiError, GroupMemberInfo } from "@/shared/apis";
+import type { SelectableMember } from "@/domain/members/components/member-select-dialog";
 
 type AssignableRole = "HEAD_MANAGER" | "MANAGER";
 
@@ -33,7 +34,6 @@ const ROLE_LABEL_MAP: Record<GroupMemberInfo["role"], string> = {
   OWNER: "소유자",
   HEAD_MANAGER: "총괄 매니저",
   MANAGER: "매니저",
-  STAFF: "스태프",
   MEMBER: "일반 회원",
 };
 
@@ -57,7 +57,7 @@ export const GroupRoleManagement = ({ groupId }: Props) => {
 
   // HEAD_MANAGER 탭: MEMBER와 MANAGER 부임 가능 (승급)
   // MANAGER 탭: MEMBER만 부임 가능
-  const assignableMembers = members
+  const assignableMembers: SelectableMember[] = members
     .filter((m) => {
       if (m.role === "OWNER" || m.role === activeTab) return false;
       if (activeTab === "HEAD_MANAGER") {
@@ -65,9 +65,14 @@ export const GroupRoleManagement = ({ groupId }: Props) => {
       }
       return m.role === "MEMBER";
     })
-    .map((m) => ({ ...m, subtitle: ROLE_LABEL_MAP[m.role] }));
+    .map((m) => ({
+      id: m.userId,
+      name: m.nickname,
+      profile: m.profileImage,
+      subtitle: ROLE_LABEL_MAP[m.role],
+    }));
 
-  const handleAssign = (member: GroupMemberInfo) => {
+  const handleAssign = (member: SelectableMember) => {
     assignRole(
       { userId: member.id, role: activeTab },
       {
@@ -87,14 +92,14 @@ export const GroupRoleManagement = ({ groupId }: Props) => {
   const handleDismiss = (member: GroupMemberInfo) => {
     if (
       !window.confirm(
-        `${member.name}님의 ${config.label} 직책을 해제하시겠습니까?`,
+        `${member.nickname}님의 ${config.label} 직책을 해제하시겠습니까?`,
       )
     )
       return;
 
-    dismissRole(member.id, {
+    dismissRole(member.userId, {
       onSuccess: () => {
-        window.alert(`${member.name}님의 직책을 해제했습니다.`);
+        window.alert(`${member.nickname}님의 직책을 해제했습니다.`);
       },
       onError: (error: ApiError) => {
         window.alert(
@@ -207,19 +212,19 @@ export const GroupRoleManagement = ({ groupId }: Props) => {
         ) : (
           <div className="space-y-2">
             {currentRoleMembers.map((member) => (
-              <Card key={member.id}>
+              <Card key={member.memberId}>
                 <CardContent className="flex items-center justify-between py-3 px-4">
                   <div className="flex items-center gap-3">
                     <img
                       src={
-                        member.profile ||
-                        `https://api.dicebear.com/7.x/avataaars/svg?seed=${member.name}`
+                        member.profileImage ||
+                        `https://api.dicebear.com/7.x/avataaars/svg?seed=${member.nickname}`
                       }
-                      alt={member.name}
+                      alt={member.nickname}
                       className="size-9 rounded-full object-cover shrink-0"
                     />
                     <div>
-                      <p className="font-medium text-sm">{member.name}</p>
+                      <p className="font-medium text-sm">{member.nickname}</p>
                       <Badge colorVariant={config.badgeColor} className="mt-1">
                         {config.label}
                       </Badge>
