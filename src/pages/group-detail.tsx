@@ -1,4 +1,4 @@
-import { Plus, UserPlus, Settings } from "lucide-react";
+import { Plus, UserPlus, Settings, Wind, PersonStanding } from "lucide-react";
 import { Button } from "@/shared/components/button";
 import {
   Carousel,
@@ -24,6 +24,7 @@ import { GroupDetailSkeleton } from "@/shared/components/skeletons";
 import { useMeta } from "@/shared/hooks/use-meta";
 import { useQueryClient } from "@tanstack/react-query";
 import type { ApiError } from "@/shared/apis";
+import { EmptyState } from "@/shared/components/empty-state";
 
 type Props = { id: string };
 
@@ -41,6 +42,7 @@ const GroupDetailPage = ({ id }: Props) => {
   } = useGroupDetail(groupId);
   const { data: members = [], isLoading: isMembersLoading } =
     useGroupMembers(groupId);
+
   const {
     data: cardSetsData,
     isLoading: isCardsetsLoading,
@@ -52,8 +54,10 @@ const GroupDetailPage = ({ id }: Props) => {
   // 모든 페이지의 카드셋을 하나의 배열로 합치기
   const cardSets = cardSetsData?.pages.flatMap((page) => page.content) ?? [];
 
-  // 현재 사용자가 그룹 멤버인지 확인 및 역할 체크
-  const currentMember = members.find((member) => member.id === user?.userId);
+  // 현재 사용자가 그룹 멤버인지 확인 및 역할 체크 -> 현재 사용자의 역할 찾는 api가 필요함.
+  const currentMember = members.find(
+    (member) => member.userId === user?.userId,
+  );
   const isMember = !!currentMember;
   const isOwner = currentMember?.role === "OWNER";
   const hasManagePermission = isOwner; // OWNER만 관리 권한
@@ -264,8 +268,8 @@ const GroupDetailPage = ({ id }: Props) => {
               <CarouselContent>
                 {members.map((member) => (
                   <CarouselItem
-                    key={member.id}
-                    className="md:basis-1/3 lg:basis-1/5"
+                    key={member.userId}
+                    className="basis-1/2 md:basis-1/3 lg:basis-1/5"
                   >
                     <MemberCard member={member} />
                   </CarouselItem>
@@ -275,9 +279,11 @@ const GroupDetailPage = ({ id }: Props) => {
               <CarouselNext />
             </Carousel>
           ) : (
-            <p className="text-muted-foreground text-center py-8">
-              멤버가 없습니다.
-            </p>
+            <EmptyState
+              icon={<PersonStanding />}
+              title="멤버가 없어요"
+              description="친구를 초대해보세요!"
+            />
           )}
         </section>
 
@@ -334,9 +340,11 @@ const GroupDetailPage = ({ id }: Props) => {
               )}
             </>
           ) : (
-            <p className="text-muted-foreground text-center py-8">
-              카드셋이 없습니다.
-            </p>
+            <EmptyState
+              icon={<Wind />}
+              title="카드셋이 없어요"
+              description="카드셋을 생성해보세요!"
+            />
           )}
         </section>
       </div>
