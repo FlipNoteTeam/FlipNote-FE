@@ -41,7 +41,7 @@ export interface GroupPutResponse extends GroupDetail {
 }
 
 export interface FindGroupMemberResponse {
-  groupMembers: GroupMemberInfo[];
+  memberInfoList: GroupMemberInfo[];
 }
 
 export interface GetMyOwnedGroupsRequest {

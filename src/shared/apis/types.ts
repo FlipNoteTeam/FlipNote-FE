@@ -60,6 +60,8 @@ export type GroupInvitationStatus =
 export type LikeTargetType = "card_set";
 export type BookmarkTargetType = "card_sets";
 
+export type ROLE = "OWNER" | "HEAD_MANAGER" | "MANAGER" | "MEMBER";
+
 // 기본 엔티티 타입들
 export interface User {
   userId: number;
@@ -82,10 +84,11 @@ export interface GroupInfo {
 }
 
 export interface GroupMemberInfo {
-  id: number;
-  role: "OWNER" | "HEAD_MANAGER" | "MANAGER" | "STAFF" | "MEMBER";
-  name: string;
-  profile?: string;
+  memberId: number;
+  userId: number;
+  role: ROLE;
+  nickname: string;
+  profileImage?: string;
 }
 
 export interface GroupJoinInfo {
