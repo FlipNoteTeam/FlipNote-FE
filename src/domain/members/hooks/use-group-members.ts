@@ -6,7 +6,7 @@ export const useGroupMembers = (groupId: number) => {
     queryKey: ["group", "members", groupId],
     queryFn: async () => {
       const response = await groupApi.getGroupMembers(groupId);
-      return response.data.data.groupMembers;
+      return response.data.data.memberInfoList;
     },
     enabled: !!groupId,
   });
