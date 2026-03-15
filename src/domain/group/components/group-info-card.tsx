@@ -27,9 +27,6 @@ export const GroupInfoCard = ({ group }: GroupInfoCardProps) => {
               <span className="rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary">
                 {GROUP_CATEGORY_MAP[group.category]}
               </span>
-              <span className="text-muted-foreground text-sm">
-                최대 {group.maxMember}명
-              </span>
               {group.applicationRequired && (
                 <span className="rounded-full bg-yellow-500/10 px-3 py-1 text-sm font-medium text-yellow-700 dark:text-yellow-400">
                   가입 승인 필요
@@ -44,6 +41,9 @@ export const GroupInfoCard = ({ group }: GroupInfoCardProps) => {
                   비공개
                 </span>
               )}
+              <span className="text-muted-foreground text-sm">
+                최대 {group.maxMember}명
+              </span>
             </div>
           </div>
           <p className="text-muted-foreground leading-relaxed">
