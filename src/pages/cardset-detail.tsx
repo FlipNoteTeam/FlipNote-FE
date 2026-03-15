@@ -78,7 +78,7 @@ const CardsetDetail = ({ groupId, cardsetId }: Props) => {
   });
 
   // 현재 사용자가 그룹 멤버인지 확인
-  const isMember = members.some((member) => member.id === user?.userId);
+  const isMember = members.some((member) => member.userId === user?.userId);
 
   // 카드셋 접근 제어: 공개 + 가입 승인 필수인 그룹의 경우 멤버가 아니면 접근 불가
   useEffect(() => {
