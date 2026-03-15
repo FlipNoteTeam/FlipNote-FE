@@ -62,20 +62,11 @@ export const IncomingInvitationList = () => {
         invitationId,
         status,
       });
-      window.alert({
-        title:
-          status === "ACCEPTED" ? "초대를 수락했습니다" : "초대를 거절했습니다",
-        description:
-          status === "ACCEPTED"
-            ? "그룹에 가입되었습니다."
-            : "초대를 거절했습니다.",
-      });
+      window.alert(
+        status === "ACCEPTED" ? "초대를 수락했습니다." : "초대를 거절했습니다.",
+      );
     } catch {
-      window.alert({
-        title: "오류가 발생했습니다",
-        description: "초대 응답에 실패했습니다. 다시 시도해주세요.",
-        variant: "destructive",
-      });
+      window.alert("초대 응답에 실패했습니다. 다시 시도해주세요.");
     } finally {
       setRespondingId(null);
     }
