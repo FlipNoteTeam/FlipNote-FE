@@ -36,6 +36,10 @@ const GroupDetailPage = ({ id }: Props) => {
   const currentMember = members.find((m) => m.userId === user?.userId);
   const isMember = !!currentMember;
   const isOwner = currentMember?.role === "OWNER";
+  const canManage =
+    currentMember?.role === "OWNER" ||
+    currentMember?.role === "HEAD_MANAGER" ||
+    currentMember?.role === "MANAGER";
 
   useMeta({
     title: groupData ? `${groupData.name} | FlipNote` : undefined,
@@ -76,7 +80,7 @@ const GroupDetailPage = ({ id }: Props) => {
       <div className="mx-auto max-w-6xl space-y-8 p-6">
         <GroupInfoCard group={groupData} />
 
-        {isOwner && (
+        {canManage && (
           <div className="flex justify-end">
             <Link to="/groups/$groupId/manage" params={{ groupId: id }}>
               <Button variant="outline" size="sm">

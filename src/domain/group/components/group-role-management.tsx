@@ -1,16 +1,13 @@
 import { useState } from "react";
 import { useGroupMembers } from "@/domain/members/hooks/use-group-members";
-import {
-  useAssignMemberRole,
-  useDismissMemberRole,
-} from "@/domain/group/hooks/use-group-role-management";
+import { useModifyMemberRole } from "@/domain/group/hooks/use-group-role-management";
 import { MemberSelectDialog } from "@/domain/members/components/member-select-dialog";
 import { Card, CardContent } from "@/shared/components/card";
 import { Button } from "@/shared/components/button";
 import Badge from "@/shared/components/badge";
 import { UserMinus, UserPlus } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
-import type { ApiError, GroupMemberInfo } from "@/shared/apis";
+import type { ApiError, GroupMemberInfo, ROLE } from "@/shared/apis";
 import type { SelectableMember } from "@/domain/members/components/member-select-dialog";
 
 type AssignableRole = "HEAD_MANAGER" | "MANAGER";
@@ -39,42 +36,47 @@ const ROLE_LABEL_MAP: Record<GroupMemberInfo["role"], string> = {
 
 type Props = {
   groupId: number;
+  currentUserRole: ROLE;
 };
 
-export const GroupRoleManagement = ({ groupId }: Props) => {
-  const [activeTab, setActiveTab] = useState<AssignableRole>("HEAD_MANAGER");
+export const GroupRoleManagement = ({ groupId, currentUserRole }: Props) => {
+  const assignableTabs: AssignableRole[] =
+    currentUserRole === "OWNER" ? ["HEAD_MANAGER", "MANAGER"] : ["MANAGER"];
+
+  const [activeTab, setActiveTab] = useState<AssignableRole>(assignableTabs[0]);
   const [dialogOpen, setDialogOpen] = useState(false);
 
+  // 역할 변경 시 현재 탭이 접근 불가하면 첫 탭으로 초기화
+  const effectiveTab = assignableTabs.includes(activeTab) ? activeTab : assignableTabs[0];
+
   const { data: members = [], isLoading } = useGroupMembers(groupId);
-  const { mutate: assignRole, isPending: isAssigning } =
-    useAssignMemberRole(groupId);
-  const { mutate: dismissRole, isPending: isDismissing } =
-    useDismissMemberRole(groupId);
+  const { mutate: modifyRole, isPending: isModifying } =
+    useModifyMemberRole(groupId);
 
-  const config = ROLE_CONFIG[activeTab];
+  const config = ROLE_CONFIG[effectiveTab];
 
-  const currentRoleMembers = members.filter((m) => m.role === activeTab);
+  const currentRoleMembers = members.filter((m) => m.role === effectiveTab);
 
   // HEAD_MANAGER 탭: MEMBER와 MANAGER 부임 가능 (승급)
   // MANAGER 탭: MEMBER만 부임 가능
   const assignableMembers: SelectableMember[] = members
     .filter((m) => {
-      if (m.role === "OWNER" || m.role === activeTab) return false;
-      if (activeTab === "HEAD_MANAGER") {
-        return m.role === "MEMBER" || m.role === "MANAGER";
+      if (m.role === "OWNER" || m.role === effectiveTab) return false;
+      if (effectiveTab === "HEAD_MANAGER") {
+        return m.role === "MANAGER" || m.role === "MEMBER";
       }
       return m.role === "MEMBER";
     })
     .map((m) => ({
-      id: m.userId,
+      id: m.memberId,
       name: m.nickname,
       profile: m.profileImage,
       subtitle: ROLE_LABEL_MAP[m.role],
     }));
 
   const handleAssign = (member: SelectableMember) => {
-    assignRole(
-      { userId: member.id, role: activeTab },
+    modifyRole(
+      { memberId: member.id, role: effectiveTab },
       {
         onSuccess: () => {
           window.alert(`${member.name}님을 ${config.label}로 부임했습니다.`);
@@ -97,21 +99,24 @@ export const GroupRoleManagement = ({ groupId }: Props) => {
     )
       return;
 
-    dismissRole(member.userId, {
-      onSuccess: () => {
-        window.alert(`${member.nickname}님의 직책을 해제했습니다.`);
+    modifyRole(
+      { memberId: member.memberId, role: "MEMBER" },
+      {
+        onSuccess: () => {
+          window.alert(`${member.nickname}님의 직책을 해제했습니다.`);
+        },
+        onError: (error: ApiError) => {
+          window.alert(
+            error?.response?.data?.message || "직책 해제에 실패했습니다.",
+          );
+        },
       },
-      onError: (error: ApiError) => {
-        window.alert(
-          error?.response?.data?.message || "직책 해제에 실패했습니다.",
-        );
-      },
-    });
+    );
   };
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center min-h-[200px]">
+      <div className="flex justify-center items-center min-h-50">
         <p className="text-gray-500">로딩 중...</p>
       </div>
     );
@@ -160,13 +165,13 @@ export const GroupRoleManagement = ({ groupId }: Props) => {
 
       {/* 내부 탭 */}
       <div className="border-b flex">
-        {(["HEAD_MANAGER", "MANAGER"] as const).map((role) => (
+        {assignableTabs.map((role) => (
           <button
             key={role}
             onClick={() => setActiveTab(role)}
             className={cn(
               "px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors",
-              activeTab === role
+              effectiveTab === role
                 ? "border-primary text-primary"
                 : "border-transparent text-gray-500 hover:text-gray-700",
             )}
@@ -234,7 +239,7 @@ export const GroupRoleManagement = ({ groupId }: Props) => {
                     variant="outline"
                     size="sm"
                     onClick={() => handleDismiss(member)}
-                    disabled={isDismissing}
+                    disabled={isModifying}
                   >
                     <UserMinus className="size-4 mr-1" />
                     해제
@@ -252,9 +257,9 @@ export const GroupRoleManagement = ({ groupId }: Props) => {
         onOpenChange={setDialogOpen}
         members={assignableMembers}
         onSelect={handleAssign}
-        isLoading={isAssigning}
+        isLoading={isModifying}
         title={`${config.label} 부임`}
-        description={`${config.label}로 부임할 멤버를 선택하세요. 직책은 한 명당 하나만 부여됩니다.`}
+        description={`${config.label}로 부임할 멤버를 선택하세요.`}
       />
     </div>
   );
