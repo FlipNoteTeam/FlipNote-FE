@@ -36,13 +36,14 @@ const useAuthStore = create<AuthState & AuthAction>()(
         const user = userResponse.data?.data || null;
         get().setUser(user);
 
-        // FCM 토큰 등록 및 포그라운드 메시지 리스너 설정
-        const {
-          registerFCMToken,
-          initializeForegroundMessageListener,
-        } = await import("@/shared/services/fcm-service");
-        await registerFCMToken();
-        initializeForegroundMessageListener();
+        // FCM은 UI critical path에서 분리 - 백그라운드 처리
+        import("@/shared/services/fcm-service").then(
+          ({ registerFCMToken, initializeForegroundMessageListener }) => {
+            registerFCMToken().then(() => {
+              initializeForegroundMessageListener();
+            });
+          }
+        );
       } catch (error) {
         console.error("사용자 정보 조회 실패:", error);
         get().clearUser();
