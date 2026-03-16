@@ -19,7 +19,7 @@ export const useCardSetBookmark = ({
 
   // 즐겨찾기 추가 mutation
   const bookmarkMutation = useMutation({
-    mutationFn: () => bookmarkApi.addBookmark("card_sets", cardsetId),
+    mutationFn: () => bookmarkApi.addBookmark("card_set", cardsetId),
     onMutate: async () => {
       // 이전 상태 저장
       previousStateRef.current = isBookmarked;
@@ -45,7 +45,7 @@ export const useCardSetBookmark = ({
 
   // 즐겨찾기 제거 mutation
   const unbookmarkMutation = useMutation({
-    mutationFn: () => bookmarkApi.deleteBookmark("card_sets", cardsetId),
+    mutationFn: () => bookmarkApi.deleteBookmark("card_set", cardsetId),
     onMutate: async () => {
       // 이전 상태 저장
       previousStateRef.current = isBookmarked;
