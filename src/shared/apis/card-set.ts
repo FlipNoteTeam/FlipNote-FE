@@ -24,6 +24,14 @@ export interface CardSetSummaryResponse {
   bookmarkCount: number;
   createdAt: string;
   updatedAt: string;
+  liked: boolean;
+  bookmarked: boolean;
+  managers: {
+    id: number;
+    email: string;
+    nickname: string;
+    profileImageUrl: string;
+  }[];
 }
 
 export interface CardSetDetailResponse {
@@ -41,10 +49,17 @@ export interface CardSetDetailResponse {
   bookmarkCount: number;
   createdAt: string;
   updatedAt: string;
+  liked: boolean;
+  bookmarked: boolean;
+  managers: {
+    id: number;
+    email: string;
+    nickname: string;
+    profileImageUrl: string;
+  }[];
+
   /** 카드셋 관리자 userId 목록 */
   // managers?: number[];
-  // liked: boolean;
-  // bookmarked: boolean;
 }
 
 export interface CreateCardSetRequest {
@@ -57,6 +72,7 @@ export interface CreateCardSetRequest {
   cardCount: number;
   /** 카드셋 관리자 userId 목록 */
   // managers?: number[];
+  managerIds?: number[];
 }
 
 export interface CreateCardSetResponse {
