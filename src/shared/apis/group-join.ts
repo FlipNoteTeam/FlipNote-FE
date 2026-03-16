@@ -35,11 +35,16 @@ export interface GroupJoinRespondResponse {
 export const groupJoinApi = {
   // 가입 신청 요청
   joinRequest: (groupId: number, data?: GroupJoinRequest) =>
-    apiClient.post<ApiResponse<GroupJoinResponse>>(`/groups/${groupId}/joins`, data),
+    apiClient.post<ApiResponse<GroupJoinResponse>>(
+      `/groups/${groupId}/joins`,
+      data ?? { joinIntro: "" },
+    ),
 
   // 그룹 내 가입 신청 리스트 조회
   getGroupJoinList: (groupId: number) =>
-    apiClient.get<ApiResponse<GroupJoinListResponse>>(`/groups/${groupId}/joins`),
+    apiClient.get<ApiResponse<GroupJoinListResponse>>(
+      `/groups/${groupId}/joins`,
+    ),
 
   // 내가 신청한 가입신청 리스트 조회
   getMyGroupJoinList: () =>
@@ -49,11 +54,11 @@ export const groupJoinApi = {
   respondToJoinRequest: (
     groupId: number,
     joinId: number,
-    data: GroupJoinRespondRequest
+    data: GroupJoinRespondRequest,
   ) =>
     apiClient.patch<ApiResponse<GroupJoinRespondResponse>>(
       `/groups/${groupId}/joins/${joinId}`,
-      data
+      data,
     ),
 
   // 가입 신청 삭제(취소)

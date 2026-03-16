@@ -42,7 +42,10 @@ export const GroupMemberSection = ({
 
   const handleDirectJoin = () => {
     if (!userId) {
-      navigate({ to: "/auth/login", search: { redirect: window.location.href } });
+      navigate({
+        to: "/auth/login",
+        search: { redirect: window.location.href },
+      });
       return;
     }
     joinGroup(
@@ -53,7 +56,9 @@ export const GroupMemberSection = ({
           queryClient.invalidateQueries({ queryKey: ["group"] });
         },
         onError: (error: ApiError) => {
-          window.alert(error?.response?.data?.message || "가입에 실패했습니다.");
+          window.alert(
+            error?.response?.data?.message || "가입에 실패했습니다.",
+          );
         },
       },
     );
