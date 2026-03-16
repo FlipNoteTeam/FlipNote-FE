@@ -13,6 +13,8 @@ import type { ApiError } from "@/shared/apis";
 import { GroupMemberSection } from "@/features/group-detail/components/group-member-section";
 import { GroupCardsetSection } from "@/features/group-detail/components/group-cardset-section";
 import { GroupDetailErrorView } from "@/features/group-detail/components/group-detail-error-view";
+import { ErrorBoundary } from "@/shared/components/error-boundary";
+import ErrorDisplay from "@/shared/components/error-display";
 
 type Props = { id: string };
 
@@ -20,9 +22,14 @@ const GroupDetailPage = ({ id }: Props) => {
   const groupId = Number(id);
   const user = useAuthStore((state) => state.user);
 
-  const { data: groupData, isLoading: isGroupLoading, error: groupDetailError } =
-    useGroupDetail(groupId);
-  const { data: members = [], isLoading: isMembersLoading } = useGroupMembers(groupId);
+  const {
+    data: groupData,
+    isLoading: isGroupLoading,
+    error: groupDetailError,
+  } = useGroupDetail(groupId);
+  const { data: members = [], isLoading: isMembersLoading } =
+    useGroupMembers(groupId);
+
   const {
     data: cardSetsData,
     isLoading: isCardsetsLoading,
@@ -100,14 +107,16 @@ const GroupDetailPage = ({ id }: Props) => {
           userId={user?.userId}
         />
 
-        <GroupCardsetSection
-          groupId={groupId}
-          cardSets={cardSets}
-          hasManagePermission={isOwner}
-          hasNextPage={hasNextPage}
-          isFetchingNextPage={isFetchingNextPage}
-          onFetchNextPage={fetchNextPage}
-        />
+        <ErrorBoundary fallback={<ErrorDisplay />}>
+          <GroupCardsetSection
+            groupId={groupId}
+            cardSets={cardSets}
+            hasManagePermission={isOwner}
+            hasNextPage={hasNextPage}
+            isFetchingNextPage={isFetchingNextPage}
+            onFetchNextPage={fetchNextPage}
+          />
+        </ErrorBoundary>
       </div>
     </BaseLayout>
   );
