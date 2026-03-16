@@ -89,7 +89,7 @@ const CardsetCreateForm = ({
 
   const selectedManagerIds: number[] = managersField.value ?? [];
   const selectedManagers = members.filter((m) =>
-    selectedManagerIds.includes(m.userId)
+    selectedManagerIds.includes(m.userId),
   );
   const availableManagers: SelectableMember[] = members
     .filter((m) => !selectedManagerIds.includes(m.userId))
@@ -114,7 +114,7 @@ const CardsetCreateForm = ({
 
     if (!file) return;
     try {
-      const imageRefId = await uploadImage({ file, type: "GROUP" });
+      const imageRefId = await uploadImage({ file, type: "CARD_SET" });
       if (imageRefId) setValue("imageRefId", imageRefId);
     } catch (e) {
       console.error(e);
@@ -256,3 +256,5 @@ const CardsetCreateForm = ({
 };
 
 export default CardsetCreateForm;
+
+// 말을 해야겠쥐 !!

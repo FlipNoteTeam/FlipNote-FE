@@ -39,14 +39,12 @@ const CardsetUpdateDialog = ({
 
   const { mutate } = useMutation({
     mutationFn: ({
-      groupId,
       cardsetId,
       data,
     }: {
-      groupId: number;
       cardsetId: number;
       data: CardSetUpdateRequest;
-    }) => cardSetApi.updateCardSet(groupId, cardsetId, data),
+    }) => cardSetApi.updateCardSet(cardsetId, data),
     onSuccess: () => {
       // 카드셋 상세 정보 다시 불러오기
       queryClient.invalidateQueries({
@@ -63,26 +61,25 @@ const CardsetUpdateDialog = ({
   const handleSubmit = (form: CardsetUpdateFormField) => {
     const data: CardSetUpdateRequest = {
       name: form.name,
-      publicVisible: form.publicVisible ?? true,
-      hashtag: form.hashtag?.map((tag) => tag.name) || [],
+      visibility: (form.publicVisible ?? true) ? "PUBLIC" : "PRIVATE",
+      hashtag: form.hashtag?.map((tag) => `#${tag.name}`).join(" ") ?? "",
       category: form.category,
-      image: form.imageRefId ? String(form.imageRefId) : undefined,
-      managers: form.managers?.length ? form.managers : undefined,
+      imageRefId: form.imageRefId ? form.imageRefId : undefined,
     };
 
-    mutate({ groupId, cardsetId, data });
+    mutate({ cardsetId, data });
   };
 
   // 기존 카드셋 데이터를 폼 초기값으로 변환
   const defaultValues: Partial<CardsetUpdateFormField> = {
     name: cardset.name,
-    publicVisible: cardset.publicVisible,
+    publicVisible: cardset.visibility === "PUBLIC",
     category: cardset.category as unknown as GroupCategory,
     hashtag: cardset.hashtag
       ? cardset.hashtag.split(",").map((tag) => ({ name: tag.trim() }))
       : [],
-    imageRefId: cardset.imageRefId,
-    managers: cardset.managers ?? [],
+    imageRefId: cardset.imageRefId ? Number(cardset.imageRefId) : undefined,
+    managers: [],
   };
 
   return (
