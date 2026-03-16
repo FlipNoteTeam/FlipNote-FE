@@ -14,7 +14,7 @@ type CardSetItem = {
   visibility: "PUBLIC" | "PRIVATE";
   category: string;
   hashtag: string;
-  imageRefId: string;
+  imageRefId: number;
   imageUrl?: string;
   // 수정가능성 높음
   cardCount: number;
