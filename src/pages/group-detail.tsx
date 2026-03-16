@@ -39,7 +39,7 @@ const GroupDetailPage = ({ id }: Props) => {
   const cardSets =
     cardSetsData?.pages.flatMap((page) => {
       // page.content가 생기면 뒤에 page 제거
-      return page.content ?? page;
+      return page;
     }) ?? [];
 
   const currentMember = members.find((m) => m.userId === user?.userId);
