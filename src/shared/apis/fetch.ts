@@ -27,7 +27,7 @@ apiClient.interceptors.response.use(
       "/auth/refresh",
     ];
     const shouldSkipRefresh = skipRefreshUrls.some((url) =>
-      originalRequest.url?.includes(url)
+      originalRequest.url?.includes(url),
     );
 
     // 401 에러 시 토큰 갱신 시도 (단, 특정 API는 제외)
@@ -56,11 +56,11 @@ apiClient.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 export default apiClient;
 
-export const nestClient = axios.create({
-  baseURL:"http://localhost:3000"
-})
+// export const nestClient = axios.create({
+//   baseURL:"http://localhost:3000"
+// })

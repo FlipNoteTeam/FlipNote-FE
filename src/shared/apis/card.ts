@@ -1,4 +1,4 @@
-import { nestClient } from "@/shared/apis/fetch";
+import apiClient from "@/shared/apis/fetch";
 import type { ApiResponse } from "@/shared/apis/types";
 
 export interface CardResponse {
@@ -10,7 +10,5 @@ export interface CardResponse {
 export const cardApi = {
   // 카드셋의 카드 목록 조회 (NestJS 서버)
   getCards: (cardSetId: number) =>
-    nestClient.get<ApiResponse<CardResponse[]>>(
-      `/card-sets/${cardSetId}/cards`,
-    ),
+    apiClient.get<ApiResponse<CardResponse[]>>(`/card-sets/${cardSetId}/cards`),
 };
