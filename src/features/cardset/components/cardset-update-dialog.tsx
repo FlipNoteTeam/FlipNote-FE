@@ -76,7 +76,7 @@ const CardsetUpdateDialog = ({
     publicVisible: cardset.visibility === "PUBLIC",
     category: cardset.category as unknown as GroupCategory,
     hashtag: cardset.hashtag
-      ? cardset.hashtag.split(",").map((tag) => ({ name: tag.trim() }))
+      ? cardset.hashtag.split(" ").map((tag) => ({ name: tag.replace(/^#/, "") }))
       : [],
     imageRefId: cardset.imageRefId ? Number(cardset.imageRefId) : undefined,
     managers: [],
