@@ -103,12 +103,11 @@ export interface CardResponse {
 export const cardSetApi = {
   // 카드셋 목록 조회(검색)
   getCardSets: (params: CardSetSearchRequest) =>
-    apiClient.get<ApiResponse<PagingResponse<CardSetSummaryResponse>>>(
-      "/card-sets",
-      {
-        params,
-      },
-    ),
+    //@TODO paging 처리 추가되면 아래 주석 해제
+    // apiClient.get<ApiResponse<PagingResponse<CardSetSummaryResponse>>>(
+    apiClient.get<ApiResponse<CardSetSummaryResponse>>("/card-sets", {
+      params,
+    }),
 
   // 그룹의 카드셋 목록 조회
   getGroupCardSets: (groupId: number, params?: PaginationRequest) =>
