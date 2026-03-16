@@ -69,7 +69,7 @@ export interface CreateCardSetRequest {
   category: GroupCategory;
   hashtag: string;
   imageRefId?: number;
-  cardCount: number;
+  // cardCount: number;
   /** 카드셋 관리자 userId 목록 */
   // managers?: number[];
   managerIds?: number[];
