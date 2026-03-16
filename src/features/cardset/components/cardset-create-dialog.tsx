@@ -10,6 +10,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/shared/components/dialog";
+import useAuthStore from "@/stores/use-auth-store";
 import { useMutation } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 
@@ -21,6 +22,7 @@ type Props = {
 };
 
 const CardsetCreateDialog = ({ groupId, renderTrigger }: Props) => {
+  const user = useAuthStore((state) => state.user);
   const { mutate } = useMutation({
     mutationFn: (data: CreateCardSetRequest) => cardSetApi.createCardSet(data),
   });
@@ -30,11 +32,13 @@ const CardsetCreateDialog = ({ groupId, renderTrigger }: Props) => {
       name: form.name,
       groupId,
       visibility: (form.publicVisible ?? true) ? "PUBLIC" : "PRIVATE",
-      hashtag:
-        form.hashtag?.map((tag) => `#${tag.name}`).join(" ") ?? "",
+      hashtag: form.hashtag?.map((tag) => `#${tag.name}`).join(" ") ?? "",
       category: form.category,
       imageRefId: form.imageRefId ? form.imageRefId : undefined,
-      cardCount: 0,
+      cardCount: 10,
+      managerIds: user?.userId
+        ? [user.userId, ...form.managers.filter((id) => id !== user.userId)]
+        : [...form.managers],
     };
 
     mutate(data);
