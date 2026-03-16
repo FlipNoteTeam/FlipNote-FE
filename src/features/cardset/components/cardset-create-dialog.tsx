@@ -35,7 +35,7 @@ const CardsetCreateDialog = ({ groupId, renderTrigger }: Props) => {
       hashtag: form.hashtag?.map((tag) => `#${tag.name}`).join(" ") ?? "",
       category: form.category,
       imageRefId: form.imageRefId ? form.imageRefId : undefined,
-      cardCount: 10,
+      // cardCount: 10,
       managerIds: user?.userId
         ? [user.userId, ...form.managers.filter((id) => id !== user.userId)]
         : [...form.managers],
