@@ -10,7 +10,8 @@ type UploadImageProps = {
 export const uploadImage = async ({ file, type }: UploadImageProps) => {
   const fileName = await getFullHashFileName(file);
   const res = await imageApi.getPresignedUrl({ fileName, type });
-  const { imageRefId, url } = res.data.data;
+
+  const { imageRefId, url } = res.data;
 
   await axios.put(url, file, {
     headers: { "Content-Type": file.type },

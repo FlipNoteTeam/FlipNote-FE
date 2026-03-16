@@ -6,41 +6,57 @@ import type {
   PaginationRequest,
 } from "@/shared/apis/types";
 
+type CARDSET_VISIBILITY = "PRIVATE" | "PUBLIC";
+
 // CardSet API 전용 타입들
 export interface CardSetSummaryResponse {
-  cardSetId: number;
-  groupId: number;
+  id: number;
   name: string;
+  groupId: number;
+  visibility: CARDSET_VISIBILITY;
   category: string;
   hashtag: string;
+  imageRefId: string;
   imageUrl?: string;
+  // 수정가능성 높음
+  cardCount: number;
+  likeCount: number;
+  bookmarkCount: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CardSetDetailResponse {
-  cardSetId: number;
-  groupId: number;
+  id: number;
   name: string;
-  category: GroupCategory;
+  groupId: number;
+  visibility: CARDSET_VISIBILITY;
+  category: string;
   hashtag: string;
+  imageRefId: string;
   imageUrl?: string;
-  imageRefId?: number;
-  publicVisible: boolean;
+  // 수정가능성 높음
+  cardCount: number;
+  likeCount: number;
+  bookmarkCount: number;
   createdAt: string;
-  modifiedAt: string;
+  updatedAt: string;
   /** 카드셋 관리자 userId 목록 */
-  managers?: number[];
-  liked: boolean;
-  bookmarked: boolean;
+  // managers?: number[];
+  // liked: boolean;
+  // bookmarked: boolean;
 }
 
 export interface CreateCardSetRequest {
   name: string;
-  publicVisible: boolean;
+  groupId: number;
+  visibility: "PRIVATE" | "PUBLIC";
   category: GroupCategory;
-  hashtag: string[];
+  hashtag: string;
   imageRefId?: number;
+  cardCount: number;
   /** 카드셋 관리자 userId 목록 */
-  managers?: number[];
+  // managers?: number[];
 }
 
 export interface CreateCardSetResponse {
@@ -49,12 +65,12 @@ export interface CreateCardSetResponse {
 
 export interface CardSetUpdateRequest {
   name: string;
-  publicVisible: boolean;
+  visibility: "PUBLIC" | "PRIVATE";
   category: GroupCategory;
-  hashtag: string[];
-  image?: string;
+  hashtag: string;
+  imageRefId?: number;
   /** 카드셋 관리자 userId 목록 */
-  managers?: number[];
+  // managers?: number[];
 }
 
 export interface CardSetSearchRequest extends PaginationRequest {
@@ -86,30 +102,21 @@ export const cardSetApi = {
     ),
 
   // 카드셋 생성
-  createCardSet: (groupId: number, data: CreateCardSetRequest) =>
-    apiClient.post<ApiResponse<CreateCardSetResponse>>(
-      `/groups/${groupId}/card-sets`,
-      data,
-    ),
+  createCardSet: (data: CreateCardSetRequest) =>
+    apiClient.post<ApiResponse<CreateCardSetResponse>>(`card-sets`, data),
 
   // 카드셋 상세 조회
-  getCardSet: (groupId: number, cardSetId: number) =>
-    apiClient.get<ApiResponse<CardSetDetailResponse>>(
-      `/groups/${groupId}/card-sets/${cardSetId}`,
-    ),
+  getCardSet: (cardSetId: number) =>
+    apiClient.get<ApiResponse<CardSetDetailResponse>>(`card-sets/${cardSetId}`),
 
   // 카드셋 수정
-  updateCardSet: (
-    groupId: number,
-    cardSetId: number,
-    data: CardSetUpdateRequest,
-  ) =>
+  updateCardSet: (cardSetId: number, data: CardSetUpdateRequest) =>
     apiClient.put<ApiResponse<CardSetDetailResponse>>(
-      `/groups/${groupId}/card-sets/${cardSetId}`,
+      `card-sets/${cardSetId}`,
       data,
     ),
 
   // 카드셋 삭제
-  deleteCardSet: (groupId: number, cardSetId: number) =>
-    apiClient.delete<ApiResponse>(`/groups/${groupId}/card-sets/${cardSetId}`),
+  deleteCardSet: (cardSetId: number) =>
+    apiClient.delete<ApiResponse>(`card-sets/${cardSetId}`),
 };

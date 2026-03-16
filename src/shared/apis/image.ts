@@ -1,7 +1,6 @@
 import apiClient from "@/shared/apis/fetch";
-import type { ApiResponse } from "@/shared/apis/types";
 
-export type IMAGE_UPLOAD_TYPE = "GROUP" | "USER";
+export type IMAGE_UPLOAD_TYPE = "GROUP" | "USER" | "CARD_SET";
 
 // Image API 전용 타입들
 export interface ImageUploadRequestDto {
@@ -17,5 +16,5 @@ export interface ImageUploadResponseDto {
 export const imageApi = {
   // 이미지 업로드 URL 생성 (S3 Presigned URL)
   getPresignedUrl: (data: ImageUploadRequestDto) =>
-    apiClient.post<ApiResponse<ImageUploadResponseDto>>("/images/upload", data),
+    apiClient.post<ImageUploadResponseDto>("/images/upload", data),
 };
