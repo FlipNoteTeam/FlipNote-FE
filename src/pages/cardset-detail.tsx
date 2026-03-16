@@ -56,8 +56,7 @@ const CardsetDetail = ({ groupId, cardsetId }: Props) => {
   } = useCardSetLike({
     cardsetId,
     groupId,
-    // @TODO: API 응답에 liked 필드 추가되면 cardset.liked로 교체
-    initialLiked: false,
+    initialLiked: cardset.liked,
   });
 
   // 카드셋 즐겨찾기 훅
@@ -68,8 +67,7 @@ const CardsetDetail = ({ groupId, cardsetId }: Props) => {
   } = useCardSetBookmark({
     cardsetId,
     groupId,
-    // @TODO: API 응답에 bookmarked 필드 추가되면 cardset.bookmarked로 교체
-    initialBookmarked: false,
+    initialBookmarked: cardset.bookmarked,
   });
 
   useMeta({
