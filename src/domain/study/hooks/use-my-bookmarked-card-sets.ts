@@ -6,7 +6,7 @@ export const useMyBookmarkedCardSets = () => {
   return useInfiniteQuery({
     queryKey: ["bookmarks", "card_sets"],
     queryFn: async ({ pageParam = 1 }) => {
-      const response = await bookmarkApi.getBookmarks("card_sets", {
+      const response = await bookmarkApi.getBookmarks("card_set", {
         page: pageParam,
         size: 12,
       });
@@ -21,11 +21,13 @@ export const useMyBookmarkedCardSets = () => {
       pageParams: data.pageParams,
       bookmarks: data.pages
         .flatMap((page) => page.content)
-        .map((item): CardSetWithBookmark => ({
-          cardSetId: item.target.id,
-          name: item.target.name,
-          bookmarkedAt: item.bookmarkedAt,
-        })),
+        .map(
+          (item): CardSetWithBookmark => ({
+            cardSetId: item.target.id,
+            name: item.target.name,
+            bookmarkedAt: item.bookmarkedAt,
+          }),
+        ),
     }),
   });
 };

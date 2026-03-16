@@ -58,7 +58,7 @@ export type GroupInvitationStatus =
   | "REJECTED"
   | "EXPIRED";
 export type LikeTargetType = "card_set";
-export type BookmarkTargetType = "card_sets";
+export type BookmarkTargetType = "card_set";
 
 export type ROLE = "OWNER" | "HEAD_MANAGER" | "MANAGER" | "MEMBER";
 
