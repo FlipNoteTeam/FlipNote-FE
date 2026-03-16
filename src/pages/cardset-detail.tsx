@@ -90,7 +90,7 @@ const CardsetDetail = ({ groupId, cardsetId }: Props) => {
     }
   }, [group, isMember, groupId, navigate]);
 
-  const hashtags = cardset.hashtag ? cardset.hashtag.split(",") : [];
+  const hashtags = cardset.hashtag ? cardset.hashtag.split(" ") : [];
 
   const handleClickDelete = () => {
     mutate();
@@ -187,7 +187,7 @@ const CardsetDetail = ({ groupId, cardsetId }: Props) => {
           <div className="flex flex-wrap gap-2 mt-1">
             {hashtags.map((tag, index) => (
               <span key={index} className="text-sm">
-                #{tag.trim()}
+                {tag.trim()}
               </span>
             ))}
           </div>

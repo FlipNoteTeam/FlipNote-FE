@@ -43,14 +43,7 @@ const CardSetGrid = ({ keyword, category }: CardSetGridProps) => {
               imageUrl={cardset.imageUrl}
               title={cardset.name}
               category={cardset.category}
-              subtitle={
-                cardset.hashtag
-                  ? `${cardset.hashtag
-                      .split(",")
-                      .map((tag) => `#${tag}`)
-                      .join(" ")}`
-                  : undefined
-              }
+              subtitle={cardset.hashtag || undefined}
             />
           </Link>
         ))}
