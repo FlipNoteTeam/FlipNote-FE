@@ -6,7 +6,7 @@ import { Label } from "@/shared/components/label";
 import { useYjs } from "@/shared/socket/use-yjs";
 import type { CardData } from "@/shared/socket/card-types";
 import * as Y from "yjs";
-import { nestClient } from "@/shared/apis/fetch";
+import apiClient from "@/shared/apis/fetch";
 
 type CardsetEditorProps = {
   cardsetId: string;
@@ -270,14 +270,22 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
   };
 
   // Awareness에서 다른 사용자들 추출 (자신 제외)
-  const selfClientId = (awarenessStates.get(0) as { clientId?: number })?.clientId;
+  const selfClientId = (awarenessStates.get(0) as { clientId?: number })
+    ?.clientId;
   const collaborators = Array.from(awarenessStates.entries())
     .filter(([clientId]) => clientId !== selfClientId) // 자신 제외
     .map(([clientId, state]) => {
-      const stateObj = state as { user?: { id: string; name: string }; field?: string; cardIndex?: number };
+      const stateObj = state as {
+        user?: { id: string; name: string };
+        field?: string;
+        cardIndex?: number;
+      };
       return {
         clientId,
-        user: stateObj.user || { id: `user-${clientId}`, name: `User ${clientId}` },
+        user: stateObj.user || {
+          id: `user-${clientId}`,
+          name: `User ${clientId}`,
+        },
         field: stateObj.field as "question" | "answer" | undefined,
         cardIndex: stateObj.cardIndex as number | undefined,
       };
@@ -493,7 +501,7 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
                 type={"button"}
                 onClick={(e) => {
                   e.preventDefault();
-                  nestClient.post(`/api/v1/card-sets/${cardsetId}`);
+                  apiClient.post(`/v1/card-sets/${cardsetId}`);
                 }}
               >
                 저장하기
