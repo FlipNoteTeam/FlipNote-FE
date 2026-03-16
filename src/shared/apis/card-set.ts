@@ -16,7 +16,7 @@ export interface CardSetSummaryResponse {
   visibility: CARDSET_VISIBILITY;
   category: string;
   hashtag: string;
-  imageRefId: string;
+  imageRefId: number;
   imageUrl?: string;
   // 수정가능성 높음
   cardCount: number;
@@ -33,7 +33,7 @@ export interface CardSetDetailResponse {
   visibility: CARDSET_VISIBILITY;
   category: string;
   hashtag: string;
-  imageRefId: string;
+  imageRefId: number;
   imageUrl?: string;
   // 수정가능성 높음
   cardCount: number;
