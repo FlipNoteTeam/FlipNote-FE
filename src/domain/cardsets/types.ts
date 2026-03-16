@@ -29,7 +29,7 @@ export const toCardSetBrief = (
   apiResponse: CardSetSummaryResponse
 ): CardSetBrief => {
   return {
-    id: apiResponse.cardSetId,
+    id: apiResponse.id,
     name: apiResponse.name,
     category: apiResponse.category,
     hashtag: apiResponse.hashtag,

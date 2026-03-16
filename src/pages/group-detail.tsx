@@ -13,8 +13,6 @@ import type { ApiError } from "@/shared/apis";
 import { GroupMemberSection } from "@/features/group-detail/components/group-member-section";
 import { GroupCardsetSection } from "@/features/group-detail/components/group-cardset-section";
 import { GroupDetailErrorView } from "@/features/group-detail/components/group-detail-error-view";
-import { ErrorBoundary } from "@/shared/components/error-boundary";
-import ErrorDisplay from "@/shared/components/error-display";
 
 type Props = { id: string };
 
@@ -38,7 +36,11 @@ const GroupDetailPage = ({ id }: Props) => {
     isFetchingNextPage,
   } = useGroupCardsets(groupId);
 
-  const cardSets = cardSetsData?.pages.flatMap((page) => page.content) ?? [];
+  const cardSets =
+    cardSetsData?.pages.flatMap((page) => {
+      // page.content가 생기면 뒤에 page 제거
+      return page.content ?? page;
+    }) ?? [];
 
   const currentMember = members.find((m) => m.userId === user?.userId);
   const isMember = !!currentMember;
@@ -107,16 +109,14 @@ const GroupDetailPage = ({ id }: Props) => {
           userId={user?.userId}
         />
 
-        <ErrorBoundary fallback={<ErrorDisplay />}>
-          <GroupCardsetSection
-            groupId={groupId}
-            cardSets={cardSets}
-            hasManagePermission={isOwner}
-            hasNextPage={hasNextPage}
-            isFetchingNextPage={isFetchingNextPage}
-            onFetchNextPage={fetchNextPage}
-          />
-        </ErrorBoundary>
+        <GroupCardsetSection
+          groupId={groupId}
+          cardSets={cardSets}
+          hasManagePermission={isOwner}
+          hasNextPage={hasNextPage}
+          isFetchingNextPage={isFetchingNextPage}
+          onFetchNextPage={fetchNextPage}
+        />
       </div>
     </BaseLayout>
   );

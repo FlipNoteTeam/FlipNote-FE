@@ -28,13 +28,13 @@ const CardsetDetail = ({ groupId, cardsetId }: Props) => {
 
   const { data } = useSuspenseQuery({
     queryKey: ["cardset", groupId, cardsetId],
-    queryFn: () => cardSetApi.getCardSet(groupId, cardsetId),
+    queryFn: () => cardSetApi.getCardSet(cardsetId),
   });
 
   const { data: group } = useGroupDetail(groupId);
 
   const { mutate, isPending } = useMutation({
-    mutationFn: () => cardSetApi.deleteCardSet(groupId, cardsetId),
+    mutationFn: () => cardSetApi.deleteCardSet(cardsetId),
     onSuccess: () => {
       alert("카드셋 삭제에 성공했습니다.");
       navigate({ to: "/cardset-list" });
@@ -56,7 +56,8 @@ const CardsetDetail = ({ groupId, cardsetId }: Props) => {
   } = useCardSetLike({
     cardsetId,
     groupId,
-    initialLiked: cardset?.liked,
+    // @TODO: API 응답에 liked 필드 추가되면 cardset.liked로 교체
+    initialLiked: false,
   });
 
   // 카드셋 즐겨찾기 훅
@@ -67,7 +68,8 @@ const CardsetDetail = ({ groupId, cardsetId }: Props) => {
   } = useCardSetBookmark({
     cardsetId,
     groupId,
-    initialBookmarked: cardset?.bookmarked,
+    // @TODO: API 응답에 bookmarked 필드 추가되면 cardset.bookmarked로 교체
+    initialBookmarked: false,
   });
 
   useMeta({
@@ -176,9 +178,9 @@ const CardsetDetail = ({ groupId, cardsetId }: Props) => {
         {/* 카드셋 메타정보 영역 */}
         <div className="flex-1 space-y-4">
           <div className="flex gap-2">
-            <Badge>{GROUP_CATEGORY_MAP[cardset.category]}</Badge>
-            <Badge colorVariant={cardset.publicVisible ? "green" : "red"}>
-              {cardset.publicVisible ? "공개" : "비공개"}
+            <Badge>{GROUP_CATEGORY_MAP[cardset.category as keyof typeof GROUP_CATEGORY_MAP]}</Badge>
+            <Badge colorVariant={cardset.visibility === "PUBLIC" ? "green" : "red"}>
+              {cardset.visibility === "PUBLIC" ? "공개" : "비공개"}
             </Badge>
           </div>
           <p className="text-2xl font-bold mt-1">{cardset.name}</p>
@@ -191,7 +193,7 @@ const CardsetDetail = ({ groupId, cardsetId }: Props) => {
           </div>
           <div>
             <span className="text-xs text-gray-500">
-              마지막 수정일 : {cardset.modifiedAt}
+              마지막 수정일 : {cardset.updatedAt}
             </span>
           </div>
           <div className="flex gap-2 justify-end flex-wrap">
