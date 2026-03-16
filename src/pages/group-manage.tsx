@@ -1,80 +1,98 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import BaseLayout from "@/shared/layouts/base-layout";
 import { GroupJoinManagement } from "@/domain/group/components/group-join-management";
 import { GroupInvitationManagement } from "@/domain/group/components/group-invitation-management";
 import { GroupUpdateManagement } from "@/domain/group/components/group-update-management";
 import { GroupRoleManagement } from "@/domain/group/components/group-role-management";
 import { useGroupDetail } from "@/domain/group/hooks/use-group-detail";
-import { useGroupMembers } from "@/domain/members/hooks/use-group-members";
-import useAuthStore from "@/stores/use-auth-store";
+import { useMyGroupRole } from "@/domain/group/hooks/use-my-group-role";
 import { Button } from "@/shared/components/button";
 import { ChevronLeft } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { SidebarTabLayout } from "@/shared/layouts/sidebar-tab-layout";
 import { PageSkeleton } from "@/shared/components/skeletons";
 import { useMeta } from "@/shared/hooks/use-meta";
+import type { ROLE } from "@/shared/apis";
 
-type Props = {
-  groupId: string;
+type Props = { groupId: string };
+
+type ManageTab = "group-settings" | "join-requests" | "invitations" | "role-management";
+
+const TAB_LABELS: Record<ManageTab, string> = {
+  "group-settings": "그룹 정보 수정",
+  "join-requests": "가입 신청 관리",
+  invitations: "초대 관리",
+  "role-management": "권한 관리",
 };
 
-type MenuTab =
-  | "join-requests"
-  | "invitations"
-  | "group-settings"
-  | "role-management";
+// 역할별 접근 가능한 탭 목록
+const ACCESSIBLE_TABS: Record<string, ManageTab[]> = {
+  OWNER: ["group-settings", "join-requests", "invitations", "role-management"],
+  HEAD_MANAGER: ["group-settings", "join-requests", "invitations", "role-management"],
+  MANAGER: ["join-requests", "invitations"],
+};
+
+const getAccessibleTabs = (role: ROLE): ManageTab[] => ACCESSIBLE_TABS[role] ?? [];
+
+const getDefaultTab = (role: ROLE): ManageTab =>
+  role === "MANAGER" ? "join-requests" : "group-settings";
+
+const CAN_MANAGE: ROLE[] = ["OWNER", "HEAD_MANAGER", "MANAGER"];
 
 const GroupManagePage = ({ groupId }: Props) => {
   const navigate = useNavigate();
   const groupIdNum = Number(groupId);
-  const user = useAuthStore((state) => state.user);
-  const [activeTab, setActiveTab] = useState<MenuTab>("group-settings");
 
-  const { data: groupData, isLoading: isGroupLoading } =
-    useGroupDetail(groupIdNum);
-  const { data: members = [], isLoading: isMembersLoading } =
-    useGroupMembers(groupIdNum);
+  const { data: groupData, isLoading: isGroupLoading } = useGroupDetail(groupIdNum);
+  const { data: myRole, isLoading: isRoleLoading } = useMyGroupRole(groupIdNum);
 
   useMeta({
     title: groupData ? `${groupData.name} 관리 | FlipNote` : undefined,
   });
 
-  // 현재 사용자가 그룹 OWNER인지 확인
-  const currentMember = members.find((member) => member.userId === user?.userId);
-  const isOwner = currentMember?.role === "OWNER";
+  const [activeTab, setActiveTab] = useState<ManageTab>("group-settings");
 
-  if (isGroupLoading || isMembersLoading) {
+  const role = myRole?.role;
+
+  // 역할이 로드되면 접근 불가 탭에 있을 경우 기본 탭으로 이동
+  useEffect(() => {
+    if (!role) return;
+    setActiveTab((prev) => {
+      const accessible = getAccessibleTabs(role);
+      return accessible.includes(prev) ? prev : getDefaultTab(role);
+    });
+  }, [role]);
+
+  if (isGroupLoading || isRoleLoading) {
     return <PageSkeleton />;
   }
 
-  // OWNER가 아니면 접근 불가
-  if (!isOwner) {
+  if (!role || !CAN_MANAGE.includes(role)) {
     return (
       <BaseLayout>
-        <div className="mx-auto max-w-6xl p-6">
-          <div className="text-center space-y-4">
-            <h2 className="text-2xl font-bold text-gray-900">접근 권한 없음</h2>
-            <p className="text-muted-foreground">
-              그룹 관리는 그룹장만 접근할 수 있습니다.
-            </p>
-            <Button onClick={() => navigate({ to: `/groups/${groupId}` })}>
-              그룹으로 돌아가기
-            </Button>
-          </div>
+        <div className="mx-auto max-w-6xl p-6 text-center space-y-4">
+          <h2 className="text-2xl font-bold">접근 권한 없음</h2>
+          <p className="text-muted-foreground">
+            그룹 관리는 소유자 및 매니저만 접근할 수 있습니다.
+          </p>
+          <Button onClick={() => navigate({ to: "/groups/$groupId", params: { groupId } })}>
+            그룹으로 돌아가기
+          </Button>
         </div>
       </BaseLayout>
     );
   }
 
+  const accessibleTabs = getAccessibleTabs(role);
+
   return (
     <BaseLayout>
       <div className="mx-auto max-w-7xl p-6">
-        {/* 헤더 */}
         <div className="mb-6">
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => navigate({ to: `/groups/${groupId}` })}
+            onClick={() => navigate({ to: "/groups/$groupId", params: { groupId } })}
             className="mb-2"
           >
             <ChevronLeft className="size-4 mr-1" />
@@ -84,33 +102,17 @@ const GroupManagePage = ({ groupId }: Props) => {
           <p className="text-gray-600 mt-1">{groupData?.name}</p>
         </div>
 
-        {/* 레이아웃: 좌측 메뉴 + 우측 콘텐츠 */}
         <SidebarTabLayout>
           <SidebarTabLayout.Sidebar>
-            <SidebarTabLayout.Tab
-              active={activeTab === "group-settings"}
-              onClick={() => setActiveTab("group-settings")}
-            >
-              그룹 정보 수정
-            </SidebarTabLayout.Tab>
-            <SidebarTabLayout.Tab
-              active={activeTab === "join-requests"}
-              onClick={() => setActiveTab("join-requests")}
-            >
-              가입 신청 관리
-            </SidebarTabLayout.Tab>
-            <SidebarTabLayout.Tab
-              active={activeTab === "invitations"}
-              onClick={() => setActiveTab("invitations")}
-            >
-              초대 관리
-            </SidebarTabLayout.Tab>
-            <SidebarTabLayout.Tab
-              active={activeTab === "role-management"}
-              onClick={() => setActiveTab("role-management")}
-            >
-              권한 관리
-            </SidebarTabLayout.Tab>
+            {accessibleTabs.map((tab) => (
+              <SidebarTabLayout.Tab
+                key={tab}
+                active={activeTab === tab}
+                onClick={() => setActiveTab(tab)}
+              >
+                {TAB_LABELS[tab]}
+              </SidebarTabLayout.Tab>
+            ))}
           </SidebarTabLayout.Sidebar>
 
           <SidebarTabLayout.Content>
@@ -124,7 +126,7 @@ const GroupManagePage = ({ groupId }: Props) => {
               <GroupInvitationManagement groupId={groupIdNum} />
             )}
             {activeTab === "role-management" && (
-              <GroupRoleManagement groupId={groupIdNum} />
+              <GroupRoleManagement groupId={groupIdNum} currentUserRole={role} />
             )}
           </SidebarTabLayout.Content>
         </SidebarTabLayout>
