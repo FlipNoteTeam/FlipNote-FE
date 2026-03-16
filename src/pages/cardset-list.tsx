@@ -11,6 +11,8 @@ import { useCardSets } from "@/domain/cardsets/hooks/use-card-sets";
 import { CardSetFilterSection } from "@/domain/cardsets/components/card-set-filter-section";
 import type { CardSetCategory } from "@/domain/cardsets/types";
 import { EmptyState } from "@/shared/components/empty-state";
+import { ErrorBoundary } from "@/shared/components/error-boundary";
+import ErrorDisplay from "@/shared/components/error-display";
 
 interface CardSetGridProps {
   keyword?: string;
@@ -130,14 +132,15 @@ const CardSetList = () => {
             />
           </div>
         </div>
-
-        {/* 카드셋 리스트 - 로딩 중에는 그리드 영역만 스켈레톤으로 대체 */}
-        <Suspense fallback={<CardGridSkeleton />}>
-          <CardSetGrid
-            keyword={searchKeyword || undefined}
-            category={selectedCategory}
-          />
-        </Suspense>
+        <ErrorBoundary fallback={<ErrorDisplay />}>
+          {/* 카드셋 리스트 - 로딩 중에는 그리드 영역만 스켈레톤으로 대체 */}
+          <Suspense fallback={<CardGridSkeleton />}>
+            <CardSetGrid
+              keyword={searchKeyword || undefined}
+              category={selectedCategory}
+            />
+          </Suspense>
+        </ErrorBoundary>
       </div>
     </BaseLayout>
   );
