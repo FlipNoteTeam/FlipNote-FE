@@ -2,10 +2,13 @@ import { io, Socket } from "socket.io-client";
 
 class SocketManager {
   private socket: Socket | null = null;
-  private url: string;
+  private origin: string;
+  private path: string;
 
   constructor() {
-    this.url = import.meta.env.VITE_SOCKET_URL;
+    const socketUrl = new URL(import.meta.env.VITE_SOCKET_URL);
+    this.origin = socketUrl.origin;
+    this.path = socketUrl.pathname;
   }
 
   connect(token?: string): Socket {
@@ -13,7 +16,8 @@ class SocketManager {
       return this.socket;
     }
 
-    this.socket = io(this.url, {
+    this.socket = io(this.origin, {
+      path: this.path,
       autoConnect: true,
       reconnection: true,
       reconnectionAttempts: 5,
