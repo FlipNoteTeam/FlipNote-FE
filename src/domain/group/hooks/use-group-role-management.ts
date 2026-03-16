@@ -1,24 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { groupApi } from "@/shared/apis/group";
+import type { ROLE } from "@/shared/apis";
 
-export const useAssignMemberRole = (groupId: number) => {
+export const useModifyMemberRole = (groupId: number) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: { userId: number; role: "HEAD_MANAGER" | "MANAGER" }) =>
-      groupApi.assignMemberRole(groupId, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["group", "members", groupId],
-      });
-    },
-  });
-};
-
-export const useDismissMemberRole = (groupId: number) => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (userId: number) =>
-      groupApi.dismissMemberRole(groupId, userId),
+    mutationFn: (data: { memberId: number; role: ROLE }) =>
+      groupApi.changeMemberRole(groupId, data.memberId, { role: data.role }),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["group", "members", groupId],
