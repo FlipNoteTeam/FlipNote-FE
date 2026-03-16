@@ -7,7 +7,7 @@ import { Plus, Wind } from "lucide-react";
 
 type CardSetItem = {
   cardSetId: number;
-  groupId: number;
+  groupId?: number;
   imageUrl?: string;
   name: string;
   category: string;
@@ -56,7 +56,7 @@ export const GroupCardsetSection = ({
                 key={cardSet.cardSetId}
                 to="/groups/$groupId/cardsets/$cardsetId"
                 params={{
-                  groupId: String(cardSet.groupId),
+                  groupId: String(groupId),
                   cardsetId: String(cardSet.cardSetId),
                 }}
               >
