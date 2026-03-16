@@ -5,6 +5,7 @@ import type {
   GroupInfo,
   GroupMemberInfo,
   CursorPagingResponse,
+  ROLE,
 } from "@/shared/apis/types";
 
 export type GroupVisibilityOption = "PUBLIC" | "PRIVATE";
@@ -60,6 +61,11 @@ export interface GetMyOwnedGroupsResponse {
   imageRefId: number;
 }
 
+export interface GetMyRoleReponse {
+  role: ROLE;
+  permissions: string[];
+}
+
 interface GroupListParams {
   keyword?: string /** 없는 값임 ㅎ */;
   category?: string;
@@ -112,16 +118,20 @@ export const groupApi = {
       },
     ),
 
-  // 역할 부임 (TODO: API 준비되면 엔드포인트 확인 필요)
-  assignMemberRole: (
+  // 역할 수정
+  changeMemberRole: (
     groupId: number,
-    data: { userId: number; role: "HEAD_MANAGER" | "MANAGER" },
+    memberId: number,
+    data: { role: Omit<ROLE, "OWNER"> },
   ) =>
-    apiClient.post<ApiResponse<void>>(`/groups/${groupId}/members/role`, data),
+    apiClient.put<ApiResponse<void>>(
+      `/groups/${groupId}/members/${memberId}`,
+      data,
+    ),
 
-  // 역할 해제 (TODO: API 준비되면 엔드포인트 확인 필요)
-  dismissMemberRole: (groupId: number, userId: number) =>
-    apiClient.delete<ApiResponse<void>>(
-      `/groups/${groupId}/members/${userId}/role`,
+  // 그룹 내 ROLE 조회
+  getMyRole: (groupId: number) =>
+    apiClient.get<ApiResponse<GetMyRoleReponse>>(
+      `/groups/${groupId}/permissions`,
     ),
 };
