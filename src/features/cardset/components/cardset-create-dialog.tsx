@@ -22,26 +22,22 @@ type Props = {
 
 const CardsetCreateDialog = ({ groupId, renderTrigger }: Props) => {
   const { mutate } = useMutation({
-    mutationFn: ({
-      groupId,
-      data,
-    }: {
-      groupId: number;
-      data: CreateCardSetRequest;
-    }) => cardSetApi.createCardSet(groupId, data),
+    mutationFn: (data: CreateCardSetRequest) => cardSetApi.createCardSet(data),
   });
 
   const handleSubmit = (form: CardsetCreateFormField) => {
     const data: CreateCardSetRequest = {
       name: form.name,
-      publicVisible: form.publicVisible ?? true,
-      hashtag: form.hashtag?.map((tag) => tag.name) || [],
+      groupId,
+      visibility: (form.publicVisible ?? true) ? "PUBLIC" : "PRIVATE",
+      hashtag:
+        form.hashtag?.map((tag) => `#${tag.name}`).join(" ") ?? "",
       category: form.category,
       imageRefId: form.imageRefId ? form.imageRefId : undefined,
-      managers: form.managers?.length ? form.managers : undefined,
+      cardCount: 0,
     };
 
-    mutate({ groupId, data });
+    mutate(data);
   };
 
   return (
@@ -51,17 +47,21 @@ const CardsetCreateDialog = ({ groupId, renderTrigger }: Props) => {
         <DialogHeader>
           <DialogTitle>카드셋 생성</DialogTitle>
         </DialogHeader>
-        <CardsetCreateForm
-          groupId={groupId}
-          formId={FORM_ID}
-          onSubmit={handleSubmit}
-        />
-        <Button form={FORM_ID} type="reset">
-          초기화
-        </Button>
-        <Button form={FORM_ID} type="submit">
-          생성
-        </Button>
+        <div className="max-h-[70vh] overflow-y-auto mb-4 space-y-4 ">
+          <CardsetCreateForm
+            groupId={groupId}
+            formId={FORM_ID}
+            onSubmit={handleSubmit}
+          />
+          <div className="flex justify-end gap-2">
+            <Button form={FORM_ID} variant="outline" type="reset">
+              초기화
+            </Button>
+            <Button form={FORM_ID} type="submit">
+              생성
+            </Button>
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   );
