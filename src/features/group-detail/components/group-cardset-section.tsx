@@ -75,9 +75,7 @@ export const GroupCardsetSection = ({
                     imageUrl={cardSet.imageUrl}
                     title={cardSet.name}
                     category={cardSet.category}
-                    subtitle={
-                      cardSet.hashtag ? `#${cardSet.hashtag}` : undefined
-                    }
+                    subtitle={cardSet.hashtag || undefined}
                   />
                 </Link>
               ))}
