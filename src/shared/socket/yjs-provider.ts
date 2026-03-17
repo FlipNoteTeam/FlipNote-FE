@@ -190,17 +190,27 @@ export class YjsProvider {
       console.log("[SYNC] raw message type:", typeof message, message instanceof ArrayBuffer ? "ArrayBuffer" : message instanceof Uint8Array ? "Uint8Array" : Array.isArray(message) ? "Array" : "other");
       console.log("[SYNC] raw message:", message);
 
-      const jsonString = new TextDecoder().decode(message);
-      const message2 = JSON.parse(jsonString);
+      let cardsetId: string;
+      let updateBinary: Uint8Array;
 
-      const { cardsetId, update } = message2;
-
-      console.log("[SYNC] decoded:", message2);
-      console.log("[SYNC] cardsetId:", cardsetId, "/ update type:", typeof update, Array.isArray(update) ? `Array(${update.length})` : "");
-
-      // update is number[]
-      const updateBinary = new Uint8Array(update);
-      console.log("[SYNC] updateBinary:", updateBinary);
+      if (
+        typeof message === "object" &&
+        message !== null &&
+        "update" in message &&
+        "cardsetId" in message
+      ) {
+        // 새 포맷: Socket.io가 자동 파싱한 JS 객체 {cardsetId, update: ArrayBuffer | number[]}
+        cardsetId = message.cardsetId;
+        updateBinary = new Uint8Array(message.update);
+        console.log("[SYNC] new format - cardsetId:", cardsetId, "/ update:", updateBinary);
+      } else {
+        // 구 포맷: Buffer → TextDecoder → JSON parse
+        const jsonString = new TextDecoder().decode(message);
+        const parsed = JSON.parse(jsonString);
+        cardsetId = parsed.cardsetId;
+        updateBinary = new Uint8Array(parsed.update);
+        console.log("[SYNC] legacy format - cardsetId:", cardsetId, "/ update:", updateBinary);
+      }
 
       Y.applyUpdate(this.doc, updateBinary, this);
 
