@@ -23,6 +23,7 @@ class SocketManager {
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,
       timeout: 30000, // 연결 타임아웃 30초
+      withCredentials: true,
       auth: {
         token: token || localStorage.getItem("auth_token"),
       },
