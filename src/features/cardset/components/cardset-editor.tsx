@@ -322,7 +322,38 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
   );
 
   return (
-    <div className="min-h-dvh h-screen flex bg-gray-50">
+    <div className="min-h-dvh h-screen flex bg-gray-50 relative">
+      {/* 소켓 연결 실패 오버레이 */}
+      {connectionError && (
+        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center">
+          <div className="bg-white rounded-2xl shadow-2xl p-10 flex flex-col items-center gap-6 max-w-sm w-full mx-4">
+            <div className="w-14 h-14 rounded-full bg-red-100 flex items-center justify-center">
+              <svg
+                className="w-7 h-7 text-red-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
+                />
+              </svg>
+            </div>
+            <div className="text-center">
+              <p className="text-gray-900 font-semibold text-lg">연결 실패</p>
+              <p className="text-gray-500 text-sm mt-1">
+                소켓 연결을 실패했습니다. 다시 시도해주세요.
+              </p>
+            </div>
+            <Button onClick={handleCollaborationConnect} className="w-full">
+              다시 시도
+            </Button>
+          </div>
+        </div>
+      )}
       {/* Left Sidebar - Card List */}
       <div className="w-96 bg-white border-r border-gray-200 flex flex-col fixed top-0 left-0 h-screen">
         <div className="p-6 border-b border-gray-200">
