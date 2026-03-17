@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import { Button } from "@/shared/components/button";
 import {
   Card,
@@ -29,10 +30,10 @@ export const GroupJoinManagement = ({ groupId }: GroupJoinManagementProps) => {
       { joinId, status: "ACCEPT" },
       {
         onSuccess: () => {
-          window.alert("가입 신청을 승인했습니다.");
+          toast.success("가입 신청을 승인했습니다.");
         },
         onError: (error: ApiError) => {
-          window.alert(
+          toast.error(
             error?.response?.data?.message || "승인에 실패했습니다."
           );
         },
@@ -48,10 +49,10 @@ export const GroupJoinManagement = ({ groupId }: GroupJoinManagementProps) => {
       { joinId, status: "REJECT" },
       {
         onSuccess: () => {
-          window.alert("가입 신청을 거절했습니다.");
+          toast.success("가입 신청을 거절했습니다.");
         },
         onError: (error: ApiError) => {
-          window.alert(
+          toast.error(
             error?.response?.data?.message || "거절에 실패했습니다."
           );
         },

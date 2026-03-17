@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import { GROUP_CATEGORY_MAP } from "@/domain/group/types";
 import { type GroupCategory } from "@/shared/apis";
 import { Button } from "@/shared/components/button";
@@ -163,7 +164,7 @@ const GroupForm = ({
               if (imageRefId) setValue("imageRefId", imageRefId);
             } catch (e) {
               console.error(e);
-              window.alert("이미지 업로드를 실패했습니다. 재시도해주세요.");
+              toast.error("이미지 업로드를 실패했습니다. 재시도해주세요.");
             }
           }}
         />

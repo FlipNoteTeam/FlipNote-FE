@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import GroupDeleteDialog from "@/domain/group/components/group-delete-dialog";
 import GroupForm, {
   type GroupFormField,
@@ -25,10 +26,10 @@ export const GroupUpdateManagement = ({ groupId }: Props) => {
     }) => groupApi.updateGroup(groupId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["group", groupId] });
-      window.alert("그룹 정보가 수정되었습니다.");
+      toast.success("그룹 정보가 수정되었습니다.");
     },
     onError: () => {
-      window.alert("그룹 정보 수정에 실패했습니다. 다시 시도해주세요.");
+      toast.error("그룹 정보 수정에 실패했습니다. 다시 시도해주세요.");
     },
   });
 

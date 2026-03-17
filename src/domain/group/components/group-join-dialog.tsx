@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import { useState } from "react";
 import {
   Dialog,
@@ -54,12 +55,12 @@ export const GroupJoinDialog = ({
       },
       {
         onSuccess: () => {
-          window.alert(`${groupName} 그룹에 가입 신청했습니다.`);
+          toast.success(`${groupName} 그룹에 가입 신청했습니다.`);
           setOpen(false);
           setJoinIntro("");
         },
         onError: (error: ApiError) => {
-          window.alert(
+          toast.error(
             error?.response?.data?.message || "가입 신청에 실패했습니다."
           );
         },

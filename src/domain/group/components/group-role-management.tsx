@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import { useState } from "react";
 import { useGroupMembers } from "@/domain/members/hooks/use-group-members";
 import { useModifyMemberRole } from "@/domain/group/hooks/use-group-role-management";
@@ -79,11 +80,11 @@ export const GroupRoleManagement = ({ groupId, currentUserRole }: Props) => {
       { memberId: member.id, role: effectiveTab },
       {
         onSuccess: () => {
-          window.alert(`${member.name}님을 ${config.label}로 부임했습니다.`);
+          toast.success(`${member.name}님을 ${config.label}로 부임했습니다.`);
           setDialogOpen(false);
         },
         onError: (error: ApiError) => {
-          window.alert(
+          toast.error(
             error?.response?.data?.message || "역할 부임에 실패했습니다.",
           );
         },
@@ -103,10 +104,10 @@ export const GroupRoleManagement = ({ groupId, currentUserRole }: Props) => {
       { memberId: member.memberId, role: "MEMBER" },
       {
         onSuccess: () => {
-          window.alert(`${member.nickname}님의 직책을 해제했습니다.`);
+          toast.success(`${member.nickname}님의 직책을 해제했습니다.`);
         },
         onError: (error: ApiError) => {
-          window.alert(
+          toast.error(
             error?.response?.data?.message || "직책 해제에 실패했습니다.",
           );
         },

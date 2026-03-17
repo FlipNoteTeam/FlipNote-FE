@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import { useState } from "react";
 import {
   Dialog,
@@ -32,7 +33,7 @@ export const GroupInviteDialog = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim()) {
-      window.alert("이메일을 입력해주세요.");
+      toast.error("이메일을 입력해주세요.");
       return;
     }
 
@@ -40,12 +41,12 @@ export const GroupInviteDialog = ({
       { email: email.trim() },
       {
         onSuccess: () => {
-          window.alert("초대를 보냈습니다.");
+          toast.success("초대를 보냈습니다.");
           setEmail("");
           setOpen(false);
         },
         onError: (error: ApiError) => {
-          window.alert(
+          toast.error(
             error.response?.data?.message || "초대 전송에 실패했습니다."
           );
         },
