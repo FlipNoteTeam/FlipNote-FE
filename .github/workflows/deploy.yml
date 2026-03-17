@@ -23,7 +23,7 @@ jobs:
         run: npm ci
 
       - name: Create .env file
-        run: echo "${{secrets.FE_ENV}}" > .env
+        run: echo "${{secrets.FE_ENV}}" > .env.production
 
       - name: Build React app
         run: npm run build

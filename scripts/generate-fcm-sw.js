@@ -12,31 +12,37 @@ const envFile = path.resolve(__dirname, `../.env.${mode}`);
 console.log(`\n🔧 Generating Service Worker for ${mode} mode...`);
 
 // .env 파일 파싱
-const envConfig = {};
-if (fs.existsSync(envFile)) {
-  const envContent = fs.readFileSync(envFile, "utf-8");
-  envContent.split("\n").forEach((line) => {
+const parseEnvFile = (filePath) => {
+  const config = {};
+  if (!fs.existsSync(filePath)) return config;
+  const content = fs.readFileSync(filePath, "utf-8");
+  content.split("\n").forEach((line) => {
     const trimmed = line.trim();
     if (trimmed && !trimmed.startsWith("#")) {
       const [key, ...values] = trimmed.split("=");
-      if (key) {
-        envConfig[key.trim()] = values.join("=").trim();
-      }
+      if (key) config[key.trim()] = values.join("=").trim();
     }
   });
-} else {
-  console.warn(`⚠️  Warning: ${envFile} not found`);
-}
+  return config;
+};
 
-// Firebase 설정 추출
+// .env → .env.{mode} 순서로 읽어 병합 (mode 파일이 우선)
+const baseEnvFile = path.resolve(__dirname, "../.env");
+const baseConfig = parseEnvFile(baseEnvFile);
+const modeConfig = fs.existsSync(envFile)
+  ? parseEnvFile(envFile)
+  : (() => { console.warn(`⚠️  Warning: ${envFile} not found, falling back to .env`); return {}; })();
+const envConfig = { ...baseConfig, ...modeConfig };
+
+// Firebase 설정 추출 (process.env도 최종 fallback)
 const firebaseConfig = {
-  apiKey: envConfig.VITE_FIREBASE_API_KEY || "",
-  authDomain: envConfig.VITE_FIREBASE_AUTH_DOMAIN || "",
-  projectId: envConfig.VITE_FIREBASE_PROJECT_ID || "",
-  storageBucket: envConfig.VITE_FIREBASE_STORAGE_BUCKET || "",
-  messagingSenderId: envConfig.VITE_FIREBASE_MESSAGING_SENDER_ID || "",
-  appId: envConfig.VITE_FIREBASE_APP_ID || "",
-  measurementId: envConfig.VITE_FIREBASE_MEASUREMENT_ID || "",
+  apiKey: envConfig.VITE_FIREBASE_API_KEY || process.env.VITE_FIREBASE_API_KEY || "",
+  authDomain: envConfig.VITE_FIREBASE_AUTH_DOMAIN || process.env.VITE_FIREBASE_AUTH_DOMAIN || "",
+  projectId: envConfig.VITE_FIREBASE_PROJECT_ID || process.env.VITE_FIREBASE_PROJECT_ID || "",
+  storageBucket: envConfig.VITE_FIREBASE_STORAGE_BUCKET || process.env.VITE_FIREBASE_STORAGE_BUCKET || "",
+  messagingSenderId: envConfig.VITE_FIREBASE_MESSAGING_SENDER_ID || process.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "",
+  appId: envConfig.VITE_FIREBASE_APP_ID || process.env.VITE_FIREBASE_APP_ID || "",
+  measurementId: envConfig.VITE_FIREBASE_MEASUREMENT_ID || process.env.VITE_FIREBASE_MEASUREMENT_ID || "",
 };
 
 // Service Worker 템플릿
