@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import {
   Card,
   CardContent,
@@ -62,9 +63,9 @@ export const MyGroupJoinList = () => {
     try {
       setCancelingId(joinId);
       await cancelJoin.mutateAsync({ groupId, joinId });
-      window.alert("가입 신청이 취소되었습니다.");
+      toast.success("가입 신청이 취소되었습니다.");
     } catch {
-      window.alert("가입 신청 취소에 실패했습니다. 다시 시도해주세요.");
+      toast.error("가입 신청 취소에 실패했습니다. 다시 시도해주세요.");
     } finally {
       setCancelingId(null);
     }

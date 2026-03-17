@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import {
   Card,
   CardContent,
@@ -62,11 +63,11 @@ export const IncomingInvitationList = () => {
         invitationId,
         status,
       });
-      window.alert(
+      toast.success(
         status === "ACCEPTED" ? "초대를 수락했습니다." : "초대를 거절했습니다.",
       );
     } catch {
-      window.alert("초대 응답에 실패했습니다. 다시 시도해주세요.");
+      toast.error("초대 응답에 실패했습니다. 다시 시도해주세요.");
     } finally {
       setRespondingId(null);
     }

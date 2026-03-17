@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import { userApi } from "@/shared/apis";
 import { Button } from "@/shared/components/button";
 import {
@@ -38,7 +39,7 @@ const WithdrawDialog = () => {
     onError: (error) => {
       console.log("ERROR", error);
 
-      window.alert("회원탈퇴에 실패했습니다. 다시 시도해주세요.");
+      toast.error("회원탈퇴에 실패했습니다. 다시 시도해주세요.");
     },
   });
 
