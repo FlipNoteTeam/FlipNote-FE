@@ -1,18 +1,35 @@
-import { useState, useEffect, useRef } from "react";
-import { Card } from "@/shared/components/card";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/shared/components/button";
 import { Textarea } from "@/shared/components/textarea";
-import { Label } from "@/shared/components/label";
 import { useYjs } from "@/shared/socket/use-yjs";
 import type { CardData } from "@/shared/socket/card-types";
 import * as Y from "yjs";
 import apiClient from "@/shared/apis/fetch";
+import useAuthStore from "@/stores/use-auth-store";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Plus,
+  X,
+  Wifi,
+  WifiOff,
+  Loader2,
+  Save,
+  GripVertical,
+  TriangleAlert,
+  RefreshCw,
+} from "lucide-react";
 
 type CardsetEditorProps = {
   cardsetId: string;
 };
 
+const SIDEBAR_MIN = 180;
+const SIDEBAR_MAX = 520;
+const SIDEBAR_DEFAULT = 250;
+
 export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
+  const user = useAuthStore((state: ReturnType<typeof useAuthStore.getState>) => state.user);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [focusedField, setFocusedField] = useState<
     "question" | "answer" | null
@@ -25,16 +42,19 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
   const answerTextRef = useRef<Y.Text | null>(null);
   const isUpdatingRef = useRef(false);
 
+  // 사이드바 상태
+  const [sidebarWidth, setSidebarWidth] = useState(SIDEBAR_DEFAULT);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const isDraggingRef = useRef(false);
+  const dragStartXRef = useRef(0);
+  const dragStartWidthRef = useRef(0);
+
   // 소켓 연결 전 fallback용 로컬 카드
   const [localCards, setLocalCards] = useState<CardData[]>([
-    {
-      id: "local-initial",
-      question: "",
-      answer: "",
-    },
+    { id: "local-initial", question: "", answer: "" },
   ]);
 
-  // Yjs 협업 기능 - 카드셋 전체를 하나의 Doc으로 관리
+  // Yjs 협업 기능
   const {
     isConnected,
     hasAccess,
@@ -48,42 +68,67 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
     getCardQuestionText,
     getCardAnswerText,
   } = useYjs({
-    cardsetId: cardsetId,
-    userId: `user-1`, // 임시 사용자 ID
+    cardsetId,
+    userId: user ? String(user.userId) : "",
     autoConnect: true,
   });
 
-  // 좌측 프리뷰용 실시간 카드 상태
   const [previewCards, setPreviewCards] = useState<CardData[]>([]);
 
-  // 연결된 경우 Yjs 카드 사용, 아니면 로컬 카드 사용
   const cards = hasAccess && yjsCards.length > 0 ? yjsCards : localCards;
   const currentCard = cards[currentCardIndex];
 
-  // Yjs 연결 시 초기 카드가 없으면 추가
+  // 드래그 리사이즈
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDraggingRef.current) return;
+      const delta = e.clientX - dragStartXRef.current;
+      const newWidth = Math.min(
+        SIDEBAR_MAX,
+        Math.max(SIDEBAR_MIN, dragStartWidthRef.current + delta),
+      );
+      setSidebarWidth(newWidth);
+    };
+    const handleMouseUp = () => {
+      isDraggingRef.current = false;
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    };
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, []);
+
+  const handleDragStart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    isDraggingRef.current = true;
+    dragStartXRef.current = e.clientX;
+    dragStartWidthRef.current = sidebarWidth;
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+  };
+
+  // Yjs 연결 시 초기 카드
   useEffect(() => {
     if (hasAccess && yjsCards.length === 0) {
       addCard({ question: "", answer: "" });
     }
   }, [hasAccess, yjsCards.length, addCard]);
 
-  // 좌측 프리뷰용 실시간 업데이트: 모든 카드의 Y.Text에 observer 등록
+  // 프리뷰 카드 업데이트
   useEffect(() => {
     if (!hasAccess || cards.length === 0) {
       setPreviewCards(localCards);
       return;
     }
-
-    // 초기 프리뷰 카드 설정
     setPreviewCards(cards);
-
     const observers: Array<() => void> = [];
-
-    // 각 카드의 question과 answer Y.Text에 observer 등록
     cards.forEach((_, index) => {
       const questionText = getCardQuestionText(index);
       const answerText = getCardAnswerText(index);
-
       if (questionText && answerText) {
         const updatePreview = () => {
           setPreviewCards((prev) => {
@@ -98,94 +143,55 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
             return newCards;
           });
         };
-
         questionText.observe(updatePreview);
         answerText.observe(updatePreview);
-
         observers.push(() => {
           questionText.unobserve(updatePreview);
           answerText.unobserve(updatePreview);
         });
       }
     });
+    return () => observers.forEach((cleanup) => cleanup());
+  }, [hasAccess, cards, getCardQuestionText, getCardAnswerText, localCards]);
 
-    return () => {
-      observers.forEach((cleanup) => cleanup());
-    };
-  }, [
-    hasAccess,
-    cards.length,
-    getCardQuestionText,
-    getCardAnswerText,
-    localCards,
-  ]);
-
-  // 카드 전환 시 값 로드 및 Y.Text observe 설정
+  // 카드 전환 시 Y.Text observe 설정
   useEffect(() => {
     if (!currentCard) return;
-
     if (hasAccess) {
-      // Yjs 모드: Y.Text observe 설정
       const questionText = getCardQuestionText(currentCardIndex);
       const answerText = getCardAnswerText(currentCardIndex);
-
       if (!questionText || !answerText) return;
-
       questionTextRef.current = questionText;
       answerTextRef.current = answerText;
-
-      // 초기 값 설정
       setQuestionValue(questionText.toString());
       setAnswerValue(answerText.toString());
-
-      // Y.Text 변경 감지
       const questionObserver = () => {
-        if (!isUpdatingRef.current) {
-          setQuestionValue(questionText.toString());
-        }
+        if (!isUpdatingRef.current) setQuestionValue(questionText.toString());
       };
-
       const answerObserver = () => {
-        if (!isUpdatingRef.current) {
-          setAnswerValue(answerText.toString());
-        }
+        if (!isUpdatingRef.current) setAnswerValue(answerText.toString());
       };
-
       questionText.observe(questionObserver);
       answerText.observe(answerObserver);
-
       return () => {
         questionText.unobserve(questionObserver);
         answerText.unobserve(answerObserver);
       };
     } else {
-      // 로컬 모드: 로컬 카드 값 로드
       setQuestionValue(currentCard.question);
       setAnswerValue(currentCard.answer);
     }
-  }, [
-    currentCardIndex,
-    hasAccess,
-    currentCard,
-    getCardQuestionText,
-    getCardAnswerText,
-  ]);
+  }, [currentCardIndex, hasAccess, currentCard, getCardQuestionText, getCardAnswerText]);
 
   const handleQuestionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newValue = e.target.value;
-
     if (hasAccess && questionTextRef.current) {
-      // Yjs 연결 시: Y.Text 업데이트
       const oldValue = questionValue;
       isUpdatingRef.current = true;
-
-      const delta = getDelta(oldValue, newValue);
-      applyDelta(questionTextRef.current, delta);
-
+      applyDelta(questionTextRef.current, getDelta(oldValue, newValue));
       setQuestionValue(newValue);
       isUpdatingRef.current = false;
     } else {
-      // 로컬 모드: localCards 상태 업데이트
       setQuestionValue(newValue);
       setLocalCards((prev) =>
         prev.map((card, idx) =>
@@ -197,19 +203,13 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
 
   const handleAnswerChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newValue = e.target.value;
-
     if (hasAccess && answerTextRef.current) {
-      // Yjs 연결 시: Y.Text 업데이트
       const oldValue = answerValue;
       isUpdatingRef.current = true;
-
-      const delta = getDelta(oldValue, newValue);
-      applyDelta(answerTextRef.current, delta);
-
+      applyDelta(answerTextRef.current, getDelta(oldValue, newValue));
       setAnswerValue(newValue);
       isUpdatingRef.current = false;
     } else {
-      // 로컬 모드: localCards 상태 업데이트
       setAnswerValue(newValue);
       setLocalCards((prev) =>
         prev.map((card, idx) =>
@@ -221,20 +221,11 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
 
   const handleAddCard = () => {
     if (hasAccess) {
-      // Yjs 모드: Yjs에 카드 추가
-      addCard({
-        question: "새 질문을 입력하세요",
-        answer: "새 답변을 입력하세요",
-      });
+      addCard({ question: "", answer: "" });
     } else {
-      // 로컬 모드: localCards에 카드 추가
       setLocalCards((prev) => [
         ...prev,
-        {
-          id: `local-${Date.now()}`,
-          question: "새 질문을 입력하세요",
-          answer: "새 답변을 입력하세요",
-        },
+        { id: `local-${Date.now()}`, question: "", answer: "" },
       ]);
     }
     setCurrentCardIndex(cards.length);
@@ -242,431 +233,425 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
 
   const handleDeleteCard = (index: number) => {
     if (cards.length <= 1) return;
-
     if (hasAccess) {
-      // Yjs 모드: Yjs에서 카드 삭제
       deleteCard(index);
     } else {
-      // 로컬 모드: localCards에서 카드 삭제
       setLocalCards((prev) => prev.filter((_, i) => i !== index));
     }
-
     if (currentCardIndex >= cards.length - 1) {
       setCurrentCardIndex(Math.max(0, cards.length - 2));
     }
   };
 
-  // 협업 연결 시도
-  const handleCollaborationConnect = async () => {
+  const handleCollaborationConnect = useCallback(async () => {
     try {
-      const success = await connect();
-
-      if (success) {
-        console.log("협업 모드 연결 성공");
-      }
+      await connect();
     } catch (error) {
       console.error("협업 모드 연결 실패:", error);
     }
-  };
+  }, [connect]);
 
-  // Awareness에서 다른 사용자들 추출 (자신 제외)
-  const selfClientId = (awarenessStates.get(0) as { clientId?: number })
-    ?.clientId;
+  // Awareness
+  const selfClientId = (awarenessStates.get(0) as { clientId?: number })?.clientId;
   const collaborators = Array.from(awarenessStates.entries())
-    .filter(([clientId]) => clientId !== selfClientId) // 자신 제외
+    .filter(([clientId]) => clientId !== selfClientId)
     .map(([clientId, state]) => {
-      const stateObj = state as {
+      const s = state as {
         user?: { id: string; name: string };
         field?: string;
         cardIndex?: number;
       };
       return {
         clientId,
-        user: stateObj.user || {
-          id: `user-${clientId}`,
-          name: `User ${clientId}`,
-        },
-        field: stateObj.field as "question" | "answer" | undefined,
-        cardIndex: stateObj.cardIndex as number | undefined,
+        user: s.user || { id: `user-${clientId}`, name: `User ${clientId}` },
+        field: s.field as "question" | "answer" | undefined,
+        cardIndex: s.cardIndex as number | undefined,
       };
     })
-    .filter((collab) => collab.user); // user 정보가 있는 것만
+    .filter((c) => c.user);
 
-  // 사용자별 고유한 색상 생성
   const getUserColor = (userId: string) => {
     const colors = [
-      "bg-blue-500",
-      "bg-green-500",
-      "bg-purple-500",
-      "bg-pink-500",
-      "bg-yellow-500",
-      "bg-red-500",
-      "bg-indigo-500",
-      "bg-teal-500",
+      "bg-violet-500", "bg-emerald-500", "bg-blue-500",
+      "bg-pink-500", "bg-amber-500", "bg-cyan-500",
     ];
-    const hash = userId
-      .split("")
-      .reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const hash = userId.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
     return colors[hash % colors.length];
   };
 
-  // 현재 카드를 편집 중인 협업자 찾기
-  const currentCardCollaborators = collaborators.filter(
-    (collab) => collab.cardIndex === currentCardIndex,
-  );
-  const questionEditors = currentCardCollaborators.filter(
-    (collab) => collab.field === "question",
-  );
-  const answerEditors = currentCardCollaborators.filter(
-    (collab) => collab.field === "answer",
-  );
+  const currentCardCollaborators = collaborators.filter((c) => c.cardIndex === currentCardIndex);
+  const questionEditors = currentCardCollaborators.filter((c) => c.field === "question");
+  const answerEditors = currentCardCollaborators.filter((c) => c.field === "answer");
+
+  const activeSidebarWidth = isSidebarCollapsed ? 56 : sidebarWidth;
+
+  const connectionStatus = isConnected && hasAccess
+    ? "connected"
+    : connectionError
+      ? "error"
+      : "disconnected";
 
   return (
-    <div className="min-h-dvh h-screen flex bg-gray-50 relative">
+    <div className="h-screen flex bg-gray-50 overflow-hidden relative">
       {/* 소켓 연결 실패 오버레이 */}
       {connectionError && (
-        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center">
-          <div className="bg-white rounded-2xl shadow-2xl p-10 flex flex-col items-center gap-6 max-w-sm w-full mx-4">
-            <div className="w-14 h-14 rounded-full bg-red-100 flex items-center justify-center">
-              <svg
-                className="w-7 h-7 text-red-500"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
-                />
-              </svg>
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center">
+          <div className="bg-white rounded-2xl shadow-2xl p-10 flex flex-col items-center gap-5 max-w-sm w-full mx-4">
+            <div className="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center">
+              <TriangleAlert className="w-7 h-7 text-red-500" />
             </div>
             <div className="text-center">
-              <p className="text-gray-900 font-semibold text-lg">연결 실패</p>
-              <p className="text-gray-500 text-sm mt-1">
-                소켓 연결을 실패했습니다. 다시 시도해주세요.
+              <p className="text-gray-900 font-semibold text-base">연결 실패</p>
+              <p className="text-gray-500 text-sm mt-1 leading-relaxed">
+                소켓 연결을 실패했습니다.<br />다시 시도해주세요.
               </p>
             </div>
-            <Button onClick={handleCollaborationConnect} className="w-full">
+            <Button
+              onClick={handleCollaborationConnect}
+              className="w-full flex items-center justify-center gap-2"
+            >
+              <RefreshCw className="w-4 h-4" />
               다시 시도
             </Button>
           </div>
         </div>
       )}
-      {/* Left Sidebar - Card List */}
-      <div className="w-96 bg-white border-r border-gray-200 flex flex-col fixed top-0 left-0 h-screen">
-        <div className="p-6 border-b border-gray-200">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-md font-semibold text-gray-900">카드 목록</h2>
-            <Button
-              onClick={handleAddCard}
-              size="sm"
-              variant="ghost"
-              className="px-4 py-2"
-            >
-              + 추가
-            </Button>
-          </div>
 
-          {/* 협업 상태 표시 */}
-          <div className="flex flex-col gap-3">
-            <div className="flex items-center gap-2">
-              <div
-                className={`w-2 h-2 rounded-full ${
-                  isConnected && hasAccess
-                    ? "bg-green-500"
-                    : connectionError
-                      ? "bg-red-500"
-                      : "bg-gray-400"
-                }`}
-              />
-              <span className="text-xs text-gray-500">
-                {isConnected && hasAccess
-                  ? "협업 모드 활성"
-                  : connectionError
-                    ? "연결 실패"
-                    : "협업 모드 비활성"}
-              </span>
-              {!isConnected && (
-                <Button
-                  onClick={handleCollaborationConnect}
-                  size="sm"
-                  variant="outline"
-                  className="ml-2 px-2 py-1 text-xs"
+      {/* ── Left Sidebar ── */}
+      <aside
+        className="bg-white border-r border-gray-100 flex flex-col fixed top-0 left-0 h-screen z-10 transition-[width] duration-200 ease-in-out overflow-hidden"
+        style={{ width: activeSidebarWidth }}
+      >
+        {/* Sidebar Header */}
+        <div className="flex items-center justify-between px-3 h-14 border-b border-gray-100 shrink-0">
+          {!isSidebarCollapsed && (
+            <>
+              <span className="text-sm font-semibold text-gray-700 ml-1">카드 목록</span>
+              <div className="flex items-center gap-1">
+                {/* 협업 상태 */}
+                <div
+                  title={
+                    connectionStatus === "connected"
+                      ? "협업 모드 활성"
+                      : connectionStatus === "error"
+                        ? "연결 실패"
+                        : "연결 중..."
+                  }
+                  className={`w-7 h-7 flex items-center justify-center rounded-md ${
+                    connectionStatus === "connected"
+                      ? "text-emerald-500"
+                      : connectionStatus === "error"
+                        ? "text-red-400"
+                        : "text-gray-300"
+                  }`}
                 >
-                  연결
-                </Button>
-              )}
-            </div>
-
-            {/* 협업자 표시 */}
-            {isConnected && hasAccess && collaborators.length > 0 && (
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-gray-500">협업 중:</span>
-                <div className="flex -space-x-2">
-                  {collaborators.map((collab) => (
-                    <div
-                      key={collab.clientId}
-                      className="relative group"
-                      title={`${collab.user.name}${collab.cardIndex !== undefined ? ` - 카드 ${collab.cardIndex + 1} ${collab.field === "question" ? "질문" : "답변"} 편집 중` : ""}`}
-                    >
-                      <div
-                        className={`w-7 h-7 rounded-full ${getUserColor(collab.user.id)} flex items-center justify-center text-white text-xs font-bold border-2 border-white shadow-sm`}
-                      >
-                        {collab.user.name.charAt(0).toUpperCase()}
-                      </div>
-                      {/* 툴팁 */}
-                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                        {collab.user.name}
-                        {collab.cardIndex !== undefined && (
-                          <div className="text-gray-300">
-                            카드 {collab.cardIndex + 1} ·{" "}
-                            {collab.field === "question" ? "질문" : "답변"}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="flex-1 overflow-y-auto p-6 space-y-4">
-          {(hasAccess ? previewCards : localCards).map((card, index) => {
-            // 이 카드를 편집 중인 협업자 찾기
-            const editingCollaborators = collaborators.filter(
-              (collab) => collab.cardIndex === index,
-            );
-            const isBeingEdited = editingCollaborators.length > 0;
-
-            return (
-              <Card
-                key={card.id}
-                className={`cursor-pointer transition-all duration-200 ${
-                  index === currentCardIndex
-                    ? "ring-2 ring-blue-500 border-blue-200 bg-blue-50"
-                    : isBeingEdited
-                      ? "ring-2 ring-green-400 border-green-200 bg-green-50"
-                      : "hover:border-gray-300 hover:shadow-md"
-                }`}
-                onClick={() => setCurrentCardIndex(index)}
-              >
-                <div className="p-5">
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="text-sm font-semibold text-gray-600 bg-gray-100 px-2 py-1 rounded">
-                      카드 {index + 1}
-                    </span>
-                    {(hasAccess ? previewCards : localCards).length > 1 && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteCard(index);
-                        }}
-                        className="text-gray-400 hover:text-red-500 h-6 w-6 p-0"
-                      >
-                        ×
-                      </Button>
-                    )}
-                  </div>
-                  <div className="space-y-3">
-                    <div>
-                      <p className="text-xs font-medium text-gray-500 mb-1">
-                        질문
-                      </p>
-                      <p className="text-sm text-gray-900 line-clamp-2 leading-relaxed">
-                        {card.question || "질문을 입력하세요"}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs font-medium text-gray-500 mb-1">
-                        답변
-                      </p>
-                      <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed">
-                        {card.answer || "답변을 입력하세요"}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* 협업자 편집 중 표시 */}
-                  {isBeingEdited && (
-                    <div className="mt-3 pt-3 border-t border-green-200">
-                      <div className="flex items-center gap-1 flex-wrap">
-                        <span className="text-xs text-green-600 font-medium">
-                          편집 중:
-                        </span>
-                        {editingCollaborators.map((collab) => (
-                          <span
-                            key={collab.clientId}
-                            className="text-xs text-green-700 bg-green-100 px-2 py-0.5 rounded-full"
-                          >
-                            {collab.user.name} (
-                            {collab.field === "question" ? "질문" : "답변"})
-                          </span>
-                        ))}
-                      </div>
-                    </div>
+                  {connectionStatus === "connected" ? (
+                    <Wifi className="w-3.5 h-3.5" />
+                  ) : connectionStatus === "error" ? (
+                    <WifiOff className="w-3.5 h-3.5" />
+                  ) : (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
                   )}
                 </div>
-              </Card>
+                {/* 카드 추가 */}
+                <button
+                  onClick={handleAddCard}
+                  className="w-7 h-7 flex items-center justify-center rounded-md text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
+                  title="카드 추가"
+                >
+                  <Plus className="w-4 h-4" />
+                </button>
+              </div>
+            </>
+          )}
+          {/* 접기/펴기 토글 */}
+          <button
+            onClick={() => setIsSidebarCollapsed((prev) => !prev)}
+            className={`w-7 h-7 flex items-center justify-center rounded-md text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer shrink-0 ${isSidebarCollapsed ? "mx-auto" : ""}`}
+            title={isSidebarCollapsed ? "사이드바 펼치기" : "사이드바 접기"}
+          >
+            {isSidebarCollapsed ? (
+              <ChevronRight className="w-4 h-4" />
+            ) : (
+              <ChevronLeft className="w-4 h-4" />
+            )}
+          </button>
+        </div>
+
+        {/* Card List */}
+        <div className="flex-1 overflow-y-auto py-3 px-2 space-y-1">
+          {(hasAccess ? previewCards : localCards).map((card, index) => {
+            const editingCollaborators = collaborators.filter((c) => c.cardIndex === index);
+            const isActive = index === currentCardIndex;
+            const isEdited = editingCollaborators.length > 0;
+
+            if (isSidebarCollapsed) {
+              return (
+                <button
+                  key={card.id}
+                  onClick={() => setCurrentCardIndex(index)}
+                  className={`w-9 h-9 mx-auto flex items-center justify-center rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
+                    isActive
+                      ? "bg-indigo-600 text-white"
+                      : "text-gray-500 hover:bg-gray-100"
+                  }`}
+                >
+                  {index + 1}
+                </button>
+              );
+            }
+
+            return (
+              <div
+                key={card.id}
+                onClick={() => setCurrentCardIndex(index)}
+                className={`group relative rounded-xl p-3 cursor-pointer transition-all duration-150 ${
+                  isActive
+                    ? "bg-indigo-50 ring-1 ring-indigo-200"
+                    : isEdited
+                      ? "bg-emerald-50 ring-1 ring-emerald-200"
+                      : "hover:bg-gray-50"
+                }`}
+              >
+                <div className="flex items-start justify-between gap-2 mb-2">
+                  <span
+                    className={`text-xs font-semibold px-1.5 py-0.5 rounded-md ${
+                      isActive
+                        ? "bg-indigo-600 text-white"
+                        : "bg-gray-100 text-gray-500"
+                    }`}
+                  >
+                    {index + 1}
+                  </span>
+                  {(hasAccess ? previewCards : localCards).length > 1 && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteCard(index);
+                      }}
+                      className="opacity-0 group-hover:opacity-100 w-5 h-5 flex items-center justify-center rounded text-gray-300 hover:text-red-400 hover:bg-red-50 transition-all cursor-pointer"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  )}
+                </div>
+                <div className="space-y-1.5">
+                  <p className="text-xs text-gray-700 line-clamp-2 leading-relaxed font-medium">
+                    {card.question || (
+                      <span className="text-gray-300 font-normal">질문 없음</span>
+                    )}
+                  </p>
+                  <p className="text-xs text-gray-400 line-clamp-1 leading-relaxed">
+                    {card.answer || <span className="text-gray-300">답변 없음</span>}
+                  </p>
+                </div>
+                {isEdited && (
+                  <div className="mt-2 flex gap-1 flex-wrap">
+                    {editingCollaborators.map((c) => (
+                      <span
+                        key={c.clientId}
+                        className="text-[10px] text-emerald-600 bg-emerald-100 px-1.5 py-0.5 rounded-full"
+                      >
+                        {c.user.name}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
             );
           })}
         </div>
-      </div>
 
-      {/* Main Editor Area */}
-      <div className="flex-1 flex flex-col ml-96">
-        {/* Header */}
-        <div className="bg-white border-b border-gray-200 px-8 py-6">
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-gray-900">
-              카드 {currentCardIndex + 1} 편집
-            </h1>
-            <div className="flex items-center gap-3 text-sm text-gray-500 bg-gray-100 px-3 py-2 rounded-lg">
-              <span>총 {cards.length}개 카드</span>
-              <Button
-                type={"button"}
-                onClick={(e) => {
-                  e.preventDefault();
-                  apiClient.post(`/v1/card-sets/${cardsetId}`);
-                }}
-              >
-                저장하기
-              </Button>
+        {/* Collaborators (expanded only) */}
+        {!isSidebarCollapsed && isConnected && hasAccess && collaborators.length > 0 && (
+          <div className="px-4 py-3 border-t border-gray-100 flex items-center gap-2">
+            <span className="text-xs text-gray-400">함께 편집 중</span>
+            <div className="flex -space-x-1.5">
+              {collaborators.map((c) => (
+                <div
+                  key={c.clientId}
+                  title={c.user.name}
+                  className={`w-6 h-6 rounded-full ${getUserColor(c.user.id)} flex items-center justify-center text-white text-[10px] font-bold border-2 border-white`}
+                >
+                  {c.user.name.charAt(0).toUpperCase()}
+                </div>
+              ))}
             </div>
           </div>
-        </div>
+        )}
+
+        {/* Drag handle */}
+        {!isSidebarCollapsed && (
+          <div
+            onMouseDown={handleDragStart}
+            className="absolute right-0 top-0 h-full w-1 cursor-col-resize group flex items-center justify-center hover:bg-indigo-400/30 transition-colors"
+          >
+            <GripVertical className="w-3 h-3 text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity" />
+          </div>
+        )}
+      </aside>
+
+      {/* ── Main Editor ── */}
+      <main
+        className="flex flex-col h-screen transition-[margin] duration-200 ease-in-out"
+        style={{ marginLeft: activeSidebarWidth, width: `calc(100% - ${activeSidebarWidth}px)` }}
+      >
+        {/* Header */}
+        <header className="bg-white border-b border-gray-100 px-8 flex items-center justify-between h-14 shrink-0">
+          <div className="flex items-center gap-3">
+            <h1 className="text-sm font-semibold text-gray-900">
+              카드 {currentCardIndex + 1}
+            </h1>
+            <span className="text-xs text-gray-300">/</span>
+            <span className="text-xs text-gray-400">총 {cards.length}개</span>
+          </div>
+          <Button
+            size="sm"
+            onClick={() => apiClient.post(`/v1/card-sets/${cardsetId}`)}
+            className="flex items-center gap-1.5 h-8 px-3 text-xs"
+          >
+            <Save className="w-3.5 h-3.5" />
+            저장하기
+          </Button>
+        </header>
 
         {/* Editor Content */}
-        <div className="flex-1 p-16 bg-gray-50">
-          <div className="max-w-6xl mx-auto">
-            {currentCard && (
-              <Card className="p-12 bg-white shadow-xl rounded-2xl border-0">
-                <div className="space-y-16">
-                  {/* Question Section */}
-                  <div
-                    className={`p-10 rounded-2xl border-3 transition-all duration-200 relative ${
-                      focusedField === "question"
-                        ? "border-blue-500 bg-blue-50 shadow-2xl"
-                        : questionEditors.length > 0
-                          ? "border-green-500 bg-green-50 shadow-lg"
-                          : "border-gray-200 bg-gray-50 hover:border-gray-300 hover:shadow-lg"
-                    }`}
-                  >
-                    {/* 협업자 표시 뱃지 */}
-                    {questionEditors.length > 0 && (
-                      <div className="absolute -top-3 -right-3 flex -space-x-1">
-                        {questionEditors.map((editor) => (
-                          <div
-                            key={editor.clientId}
-                            className={`w-8 h-8 rounded-full ${getUserColor(editor.user.id)} flex items-center justify-center text-white text-xs font-bold border-2 border-white shadow-md`}
-                            title={`${editor.user.name} 편집 중`}
-                          >
-                            {editor.user.name.charAt(0).toUpperCase()}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                    <Label
-                      htmlFor="question"
-                      className="text-3xl font-bold mb-8 block text-gray-800"
-                    >
-                      질문
-                    </Label>
-                    <Textarea
-                      id="question"
-                      value={questionValue}
-                      onChange={handleQuestionChange}
-                      onFocus={() => {
-                        setFocusedField("question");
-                        if (hasAccess)
-                          setAwareness("question", currentCardIndex);
-                      }}
-                      onBlur={() => setFocusedField(null)}
-                      className="w-full min-h-56 text-2xl leading-relaxed resize-none border-0 bg-transparent focus:ring-0 focus:outline-none placeholder-gray-400"
-                      placeholder="질문을 입력하세요..."
-                    />
-                  </div>
-
-                  {/* Answer Section */}
-                  <div
-                    className={`p-10 rounded-2xl border-3 transition-all duration-200 relative ${
-                      focusedField === "answer"
-                        ? "border-blue-500 bg-blue-50 shadow-2xl"
-                        : answerEditors.length > 0
-                          ? "border-green-500 bg-green-50 shadow-lg"
-                          : "border-gray-200 bg-gray-50 hover:border-gray-300 hover:shadow-lg"
-                    }`}
-                  >
-                    {/* 협업자 표시 뱃지 */}
-                    {answerEditors.length > 0 && (
-                      <div className="absolute -top-3 -right-3 flex -space-x-1">
-                        {answerEditors.map((editor) => (
-                          <div
-                            key={editor.clientId}
-                            className={`w-8 h-8 rounded-full ${getUserColor(editor.user.id)} flex items-center justify-center text-white text-xs font-bold border-2 border-white shadow-md`}
-                            title={`${editor.user.name} 편집 중`}
-                          >
-                            {editor.user.name.charAt(0).toUpperCase()}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                    <Label
-                      htmlFor="answer"
-                      className="text-3xl font-bold mb-8 block text-gray-800"
-                    >
-                      답변
-                    </Label>
-                    <Textarea
-                      id="answer"
-                      value={answerValue}
-                      onChange={handleAnswerChange}
-                      onFocus={() => {
-                        setFocusedField("answer");
-                        if (hasAccess) setAwareness("answer", currentCardIndex);
-                      }}
-                      onBlur={() => setFocusedField(null)}
-                      className="w-full min-h-56 text-2xl leading-relaxed resize-none border-0 bg-transparent focus:ring-0 focus:outline-none placeholder-gray-400"
-                      placeholder="답변을 입력하세요..."
-                    />
-                  </div>
-                </div>
-              </Card>
-            )}
-          </div>
+        <div className="flex-1 overflow-y-auto">
+          {currentCard && (
+            <div className="max-w-2xl mx-auto px-6 py-10">
+              <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+                {/* Question */}
+                <EditorField
+                  id="question"
+                  label="질문"
+                  value={questionValue}
+                  onChange={handleQuestionChange}
+                  onFocus={() => {
+                    setFocusedField("question");
+                    if (hasAccess) setAwareness("question", currentCardIndex);
+                  }}
+                  onBlur={() => setFocusedField(null)}
+                  isFocused={focusedField === "question"}
+                  editors={questionEditors}
+                  getUserColor={getUserColor}
+                  placeholder="질문을 입력하세요..."
+                />
+                <div className="border-t border-gray-200" />
+                {/* Answer */}
+                <EditorField
+                  id="answer"
+                  label="답변"
+                  value={answerValue}
+                  onChange={handleAnswerChange}
+                  onFocus={() => {
+                    setFocusedField("answer");
+                    if (hasAccess) setAwareness("answer", currentCardIndex);
+                  }}
+                  onBlur={() => setFocusedField(null)}
+                  isFocused={focusedField === "answer"}
+                  editors={answerEditors}
+                  getUserColor={getUserColor}
+                  placeholder="답변을 입력하세요..."
+                />
+              </div>
+            </div>
+          )}
         </div>
-      </div>
+      </main>
     </div>
   );
 }
 
-// 두 문자열의 차이를 계산
+// ── Sub-component ──
+
+type EditorFieldProps = {
+  id: string;
+  label: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  onFocus: () => void;
+  onBlur: () => void;
+  isFocused: boolean;
+  editors: Array<{ clientId: number; user: { id: string; name: string } }>;
+  getUserColor: (id: string) => string;
+  placeholder: string;
+};
+
+function EditorField({
+  id,
+  label,
+  value,
+  onChange,
+  onFocus,
+  onBlur,
+  isFocused,
+  editors,
+  getUserColor,
+  placeholder,
+}: EditorFieldProps) {
+  return (
+    <div
+      className={`bg-white transition-colors duration-150 ${
+        isFocused
+          ? "bg-indigo-50/40"
+          : editors.length > 0
+            ? "bg-emerald-50/40"
+            : ""
+      }`}
+    >
+      <div className="flex items-center justify-between px-5 pt-4 pb-1">
+        <label
+          htmlFor={id}
+          className="text-xs font-semibold text-gray-500 uppercase tracking-wider"
+        >
+          {label}
+        </label>
+        {editors.length > 0 && (
+          <div className="flex items-center gap-1.5">
+            <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <div className="flex -space-x-1">
+              {editors.map((e) => (
+                <div
+                  key={e.clientId}
+                  title={`${e.user.name} 편집 중`}
+                  className={`w-5 h-5 rounded-full ${getUserColor(e.user.id)} flex items-center justify-center text-white text-[9px] font-bold border border-white`}
+                >
+                  {e.user.name.charAt(0).toUpperCase()}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+      <Textarea
+        id={id}
+        value={value}
+        onChange={onChange}
+        onFocus={onFocus}
+        onBlur={onBlur}
+        className="w-full min-h-40 text-base leading-relaxed resize-none border-0 bg-transparent focus:ring-0 focus:outline-none px-5 pb-5 pt-2 text-gray-800 placeholder:text-gray-400"
+        placeholder={placeholder}
+      />
+    </div>
+  );
+}
+
+// ── Utilities ──
+
 function getDelta(
   oldStr: string,
   newStr: string,
 ): { index: number; delete: number; insert: string } {
   let i = 0;
   const minLen = Math.min(oldStr.length, newStr.length);
-
-  // 앞에서부터 같은 부분 찾기
-  while (i < minLen && oldStr[i] === newStr[i]) {
-    i++;
-  }
-
+  while (i < minLen && oldStr[i] === newStr[i]) i++;
   let j = 0;
-  // 뒤에서부터 같은 부분 찾기
   while (
     j < minLen - i &&
     oldStr[oldStr.length - 1 - j] === newStr[newStr.length - 1 - j]
   ) {
     j++;
   }
-
   return {
     index: i,
     delete: oldStr.length - i - j,
@@ -674,15 +659,10 @@ function getDelta(
   };
 }
 
-// Y.Text에 delta 적용
 function applyDelta(
   ytext: Y.Text,
   delta: { index: number; delete: number; insert: string },
 ) {
-  if (delta.delete > 0) {
-    ytext.delete(delta.index, delta.delete);
-  }
-  if (delta.insert.length > 0) {
-    ytext.insert(delta.index, delta.insert);
-  }
+  if (delta.delete > 0) ytext.delete(delta.index, delta.delete);
+  if (delta.insert.length > 0) ytext.insert(delta.index, delta.insert);
 }
