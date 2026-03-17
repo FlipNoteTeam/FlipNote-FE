@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import type { GroupCategory } from "@/domain/group/types";
 import CardsetUpdateForm, {
   type CardsetUpdateFormField,
@@ -51,10 +52,10 @@ const CardsetUpdateDialog = ({
         queryKey: ["cardset", groupId, cardsetId],
       });
       setOpen(false);
-      window.alert("카드셋이 수정되었습니다.");
+      toast.success("카드셋이 수정되었습니다.");
     },
     onError: () => {
-      window.alert("카드셋 수정에 실패했습니다. 다시 시도해주세요.");
+      toast.error("카드셋 수정에 실패했습니다. 다시 시도해주세요.");
     },
   });
 

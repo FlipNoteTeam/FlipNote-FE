@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import { GROUP_CATEGORY_MAP } from "@/domain/group/types";
 import { cardSetApi } from "@/shared/apis";
 import { Button } from "@/shared/components/button";
@@ -83,7 +84,7 @@ const CardsetDetail = ({ groupId, cardsetId }: Props) => {
   // 카드셋 접근 제어: 공개 + 가입 승인 필수인 그룹의 경우 멤버가 아니면 접근 불가
   useEffect(() => {
     if (group && !isMember && group.visibility && group.applicationRequired) {
-      window.alert("이 카드셋을 보려면 그룹에 가입 신청을 해주세요.");
+      toast.info("이 카드셋을 보려면 그룹에 가입 신청을 해주세요.");
       navigate({ to: `/groups/${groupId}` });
     }
   }, [group, isMember, groupId, navigate]);

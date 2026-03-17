@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import { GROUP_CATEGORY_MAP, type GroupCategory } from "@/domain/group/types";
 import {
   ButtonCheckbox,
@@ -122,7 +123,7 @@ const CardsetUpdateForm = ({
     } catch (e) {
       console.error(e);
       /** @todo 커스텀 에러 다이얼로그로 변경 */
-      window.alert("이미지 업로드를 실패했습니다. 재시도해주세요.");
+      toast.error("이미지 업로드를 실패했습니다. 재시도해주세요.");
     }
   };
 

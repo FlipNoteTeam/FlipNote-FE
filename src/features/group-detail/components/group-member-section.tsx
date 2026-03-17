@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import { GroupInviteDialog } from "@/domain/group/components/group-invite-dialog";
 import { GroupJoinDialog } from "@/domain/group/components/group-join-dialog";
 import { useGroupJoin } from "@/domain/group/hooks/use-group-join";
@@ -52,11 +53,11 @@ export const GroupMemberSection = ({
       { groupId },
       {
         onSuccess: () => {
-          window.alert(`${group.name} 그룹에 가입했습니다.`);
+          toast.success(`${group.name} 그룹에 가입했습니다.`);
           queryClient.invalidateQueries({ queryKey: ["group"] });
         },
         onError: (error: ApiError) => {
-          window.alert(
+          toast.error(
             error?.response?.data?.message || "가입에 실패했습니다.",
           );
         },
