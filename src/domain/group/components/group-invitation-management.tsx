@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import { Button } from "@/shared/components/button";
 import {
   Card,
@@ -32,10 +33,10 @@ export const GroupInvitationManagement = ({
 
     deleteInvitation(invitationId, {
       onSuccess: () => {
-        window.alert("초대를 취소했습니다.");
+        toast.success("초대를 취소했습니다.");
       },
       onError: (error: ApiError) => {
-        window.alert(
+        toast.error(
           error?.response?.data?.message || "초대 취소에 실패했습니다.",
         );
       },
