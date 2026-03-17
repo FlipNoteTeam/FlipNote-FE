@@ -230,15 +230,20 @@ export class YjsProvider {
     });
 
     // Awareness 메시지 처리
-    this.socket.on("awareness", (message: AwarenessMessage) => {
+    this.socket.on("awareness", (message: any) => {
       if (!this.hasAccess) return;
 
       console.log("[EVENT] awareness");
       console.log("[AWARENESS] raw type:", typeof message, "/ value:", message);
 
-      const { awareness } = message;
-      console.log("[AWARENESS] awareness field:", awareness);
-      awarenessProtocol.applyAwarenessUpdate(this.awareness, awareness, this);
+      // 백엔드가 { data: { cardsetId, awareness: number[] } } 형태로 전송
+      const awarenessData = message?.data?.awareness ?? message?.awareness;
+      console.log("[AWARENESS] awareness field:", awarenessData);
+
+      if (!awarenessData) return;
+
+      const awarenessUpdate = new Uint8Array(awarenessData);
+      awarenessProtocol.applyAwarenessUpdate(this.awareness, awarenessUpdate, this);
     });
 
     // 토큰 만료 처리
