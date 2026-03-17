@@ -173,13 +173,26 @@ export class YjsProvider {
       this.hasAccess = false;
     });
 
-    // join-cardset 응답 처리
+    // join-cardset 응답 처리 — 나중에 접속한 유저의 초기 상태 동기화
     this.socket.on(
       "cardset-state",
       (data: { cardsetId: string; cards: any[] }) => {
         console.log("[EVENT] cardset-state");
         console.log("[CARDSET-STATE] data:", data);
-        // 서버에서 보낸 초기 상태는 무시 (Yjs sync로 받을 것)
+
+        // cardsArray가 비어있을 때만 초기화 (이미 sync로 데이터를 받은 경우 스킵)
+        if (data.cards?.length > 0 && this.cardsArray.length === 0) {
+          console.log("[CARDSET-STATE] Initializing Y.Doc from cardset-state");
+          this.doc.transact(() => {
+            data.cards.forEach((card) => {
+              const cardMap = new Y.Map();
+              cardMap.set("id", card.id);
+              cardMap.set("question", new Y.Text(card.question || ""));
+              cardMap.set("answer", new Y.Text(card.answer || ""));
+              this.cardsArray.push([cardMap]);
+            });
+          }, this);
+        }
       }
     );
 
