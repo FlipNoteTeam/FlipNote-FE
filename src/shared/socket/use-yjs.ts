@@ -40,14 +40,16 @@ export function useYjs(options: UseYjsOptions) {
 
           // Awareness 변경 리스너 설정
           provider.onAwarenessChange((states) => {
-            setAwarenessStates(Object.assign({}, states));
+            setAwarenessStates(Object.assign(new Map(), states));
           });
 
           // 초기 카드 로드
           setCards(provider.getCards());
 
           // 초기 Awareness 로드
-          setAwarenessStates(Object.assign({}, provider.getAwarenessStates()));
+          setAwarenessStates(
+            Object.assign(new Map(), provider.getAwarenessStates()),
+          );
 
           return true;
         }
