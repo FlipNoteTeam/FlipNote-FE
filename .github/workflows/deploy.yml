@@ -27,6 +27,8 @@ jobs:
 
       - name: Build React app
         run: npm run build
+        env:
+          NODE_ENV: production
 
       # AWS Credentials 설정
       - name: Configure AWS Credentials
