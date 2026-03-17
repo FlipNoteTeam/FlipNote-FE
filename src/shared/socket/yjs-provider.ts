@@ -183,25 +183,37 @@ export class YjsProvider {
     this.socket.on("sync", (message: SyncMessage) => {
       if (!this.hasAccess) return;
 
-      // console.log("[YJS❤️] Received sync from server", message);
-
-      // const { update } = message;
-      //console.log("[YJS❤]SYNC update raw =", update, Array.isArray(update), update.length);
+      console.log("[EVENT] sync");
+      console.log("[SYNC] raw message type:", typeof message, message instanceof ArrayBuffer ? "ArrayBuffer" : message instanceof Uint8Array ? "Uint8Array" : Array.isArray(message) ? "Array" : "other");
+      console.log("[SYNC] raw message:", message);
 
       const jsonString = new TextDecoder().decode(message);
       const message2 = JSON.parse(jsonString);
 
       const { cardsetId, update } = message2;
 
+      console.log("[SYNC] decoded:", message2);
+      console.log("[SYNC] cardsetId:", cardsetId, "/ update type:", typeof update, Array.isArray(update) ? `Array(${update.length})` : "");
+
       // update is number[]
       const updateBinary = new Uint8Array(update);
-
-      console.log("[SYNC BLOB DECODED]", message2);
-      console.log("[SYNC BINARY]", updateBinary);
+      console.log("[SYNC] updateBinary:", updateBinary);
 
       Y.applyUpdate(this.doc, updateBinary, this);
 
-      // Y.applyUpdate(this.doc, update, this);
+      // applyUpdate 후 cardsArray 상태 확인
+      console.log("[SYNC] cardsArray.length after applyUpdate:", this.cardsArray.length);
+      this.cardsArray.forEach((item, index) => {
+        console.log(`[SYNC] cardsArray[${index}] type:`, item?.constructor?.name, "/ instanceof Y.Map:", item instanceof Y.Map, "/ value:", item);
+        if (item instanceof Y.Map) {
+          console.log(`[SYNC] cardsArray[${index}] keys:`, Array.from(item.keys()));
+          console.log(`[SYNC] cardsArray[${index}].get('id'):`, item.get("id"), typeof item.get("id"));
+          console.log(`[SYNC] cardsArray[${index}].get('question'):`, item.get("question"), "instanceof Y.Text:", item.get("question") instanceof Y.Text);
+          console.log(`[SYNC] cardsArray[${index}].get('answer'):`, item.get("answer"), "instanceof Y.Text:", item.get("answer") instanceof Y.Text);
+        } else {
+          console.log(`[SYNC] cardsArray[${index}] plain value:`, JSON.stringify(item));
+        }
+      });
     });
 
     // Awareness 메시지 처리
