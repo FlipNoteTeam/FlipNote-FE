@@ -12,6 +12,7 @@ import type {
   AwarenessMessage,
   LeaveCardsetMessage,
   SyncMessage,
+  ServerAwarenessMessage,
 } from "./yjs-types";
 import type { CardData } from "./card-types";
 
@@ -230,7 +231,7 @@ export class YjsProvider {
     });
 
     // Awareness 메시지 처리
-    this.socket.on("awareness", (message: any) => {
+    this.socket.on("awareness", (message: ServerAwarenessMessage) => {
       if (!this.hasAccess) return;
 
       console.log("[EVENT] awareness");

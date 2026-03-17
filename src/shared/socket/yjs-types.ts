@@ -51,6 +51,14 @@ export interface AwarenessMessage extends YjsMessage {
   };
 }
 
+// Server → Client: Awareness 수신 포맷 (백엔드가 { data: { cardsetId, awareness: number[] } } 형태로 전송)
+export interface ServerAwarenessMessage {
+  data: {
+    cardsetId: string;
+    awareness: number[];
+  };
+}
+
 // Client → Server: 인증
 export interface AuthMessage extends YjsMessage {
   type: "auth";
