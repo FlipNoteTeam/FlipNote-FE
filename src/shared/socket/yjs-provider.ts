@@ -162,10 +162,12 @@ export class YjsProvider {
     if (!this.socket) return;
 
     this.socket.on("connect", () => {
+      console.log("[EVENT] connect");
       this.isConnected = true;
     });
 
-    this.socket.on("disconnect", () => {
+    this.socket.on("disconnect", (reason: string) => {
+      console.log("[EVENT] disconnect / reason:", reason);
       this.isConnected = false;
       this.hasAccess = false;
     });
@@ -174,7 +176,8 @@ export class YjsProvider {
     this.socket.on(
       "cardset-state",
       (data: { cardsetId: string; cards: any[] }) => {
-        console.log("[YJS] Received cardset state", data);
+        console.log("[EVENT] cardset-state");
+        console.log("[CARDSET-STATE] data:", data);
         // 서버에서 보낸 초기 상태는 무시 (Yjs sync로 받을 것)
       }
     );
@@ -220,19 +223,37 @@ export class YjsProvider {
     this.socket.on("awareness", (message: AwarenessMessage) => {
       if (!this.hasAccess) return;
 
+      console.log("[EVENT] awareness");
+      console.log("[AWARENESS] raw type:", typeof message, "/ value:", message);
+
       const { awareness } = message;
+      console.log("[AWARENESS] awareness field:", awareness);
       awarenessProtocol.applyAwarenessUpdate(this.awareness, awareness, this);
     });
 
     // 토큰 만료 처리
     this.socket.on("expired", () => {
+      console.log("[EVENT] expired");
       this.hasAccess = false;
       this.disconnect();
+    });
+
+    // 에러 처리
+    this.socket.on("error", (message: any) => {
+      console.log("[EVENT] error");
+      console.log("[ERROR] raw type:", typeof message, "/ value:", message);
+      try {
+        const decoded = new TextDecoder().decode(message);
+        console.log("[ERROR] decoded:", JSON.parse(decoded));
+      } catch {
+        console.log("[ERROR] could not decode as JSON");
+      }
     });
   }
 
   private sendMessage({ type, data }: YjsMessage): void {
     if (this.socket?.connected) {
+      console.log("[EMIT]", type, "/ data:", data);
       this.socket.emit(type, data);
     }
   }
