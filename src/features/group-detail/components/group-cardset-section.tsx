@@ -1,3 +1,4 @@
+import type { CardSetCategory } from "@/domain/cardsets/types";
 import CardsetCreateDialog from "@/features/cardset/components/cardset-create-dialog";
 import { Button } from "@/shared/components/button";
 import { EmptyState } from "@/shared/components/empty-state";
@@ -5,14 +6,14 @@ import { ErrorBoundary } from "@/shared/components/error-boundary";
 import ErrorDisplay from "@/shared/components/error-display";
 import { ThumbnailCard } from "@/shared/components/thumbnail-card";
 import { Link } from "@tanstack/react-router";
-import { Plus, Wind } from "lucide-react";
+import { Plus, Wind, Heart, Bookmark } from "lucide-react";
 
 type CardSetItem = {
   cardSetId: number;
   name: string;
   groupId: number;
   visibility: "PUBLIC" | "PRIVATE";
-  category: string;
+  category: CardSetCategory;
   hashtag: string;
   imageRefId: number;
   imageUrl?: string;
@@ -76,6 +77,18 @@ export const GroupCardsetSection = ({
                     title={cardSet.name}
                     category={cardSet.category}
                     subtitle={cardSet.hashtag || undefined}
+                    footer={
+                      <div className="flex items-center gap-3 text-xs text-gray-500">
+                        <span className="flex items-center gap-1">
+                          <Heart className="w-3.5 h-3.5" />
+                          {cardSet.likeCount}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Bookmark className="w-3.5 h-3.5" />
+                          {cardSet.bookmarkCount}
+                        </span>
+                      </div>
+                    }
                   />
                 </Link>
               ))}

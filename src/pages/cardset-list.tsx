@@ -1,4 +1,5 @@
 import { Suspense, useState, useEffect } from "react";
+import { Heart, Bookmark } from "lucide-react";
 import { Button } from "@/shared/components/button";
 import { Input } from "@/shared/components/input";
 import { ThumbnailCard } from "@/shared/components/thumbnail-card";
@@ -59,6 +60,18 @@ const CardSetGrid = ({ keyword, category, sortBy, order }: CardSetGridProps) => 
               title={cardset.name}
               category={cardset.category}
               subtitle={cardset.hashtag || undefined}
+              footer={
+                <div className="flex items-center gap-3 text-xs text-gray-500">
+                  <span className="flex items-center gap-1">
+                    <Heart className="w-3.5 h-3.5" />
+                    {cardset.likeCount}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Bookmark className="w-3.5 h-3.5" />
+                    {cardset.bookmarkCount}
+                  </span>
+                </div>
+              }
             />
           </Link>
         ))}
