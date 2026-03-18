@@ -26,10 +26,10 @@ export const getCardSetCategoryKeys = () =>
   Object.keys(CARDSET_CATEGORY_MAP) as CardSetCategory[];
 
 export const toCardSetBrief = (
-  apiResponse: CardSetSummaryResponse
+  apiResponse: CardSetSummaryResponse,
 ): CardSetBrief => {
   return {
-    id: apiResponse.id,
+    id: apiResponse.cardSetId,
     name: apiResponse.name,
     category: apiResponse.category,
     hashtag: apiResponse.hashtag,
