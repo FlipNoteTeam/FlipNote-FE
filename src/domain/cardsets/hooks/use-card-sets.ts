@@ -25,15 +25,13 @@ export const useCardSets = (params?: UseCardSetsParams) => {
       return response.data;
     },
     initialPageParam: 0,
-    getNextPageParam: () => {
-      // @TODO 페이징 처리 완료되면 주석해제
-      // return lastPage.data.hasNext ? lastPage.data.page + 1 : undefined;
-      return 1;
+    getNextPageParam: (lastPage) => {
+      return lastPage.data.hasNext ? lastPage.data.page + 1 : undefined;
     },
     select: (data) => ({
       pages: data.pages,
       pageParams: data.pageParams,
-      cardsets: data.pages.flatMap((page) => page.data),
+      cardsets: data.pages.flatMap((page) => page.data.items),
     }),
   });
 };

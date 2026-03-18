@@ -12,13 +12,9 @@ export const useGroupCardsets = (groupId: number, pageSize: number = 20) => {
       return response.data.data;
     },
     initialPageParam: 1,
-    getNextPageParam: () => {
-      return 1;
+    getNextPageParam: (lastPage) => {
+      return lastPage.hasNext ? lastPage.page + 1 : undefined;
     },
-    //@TODO- paging처리시 주석 제거
-    // getNextPageParam: (lastPage) => {
-    //   return lastPage.hasNext ? lastPage.page + 1 : undefined;
-    // },
     enabled: !!groupId,
   });
 };
