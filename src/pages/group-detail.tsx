@@ -112,7 +112,7 @@ const GroupDetailPage = ({ id }: Props) => {
         <GroupCardsetSection
           groupId={groupId}
           cardSets={cardSets}
-          hasManagePermission={isOwner}
+          isMember={isMember}
           hasNextPage={hasNextPage}
           isFetchingNextPage={isFetchingNextPage}
           onFetchNextPage={fetchNextPage}

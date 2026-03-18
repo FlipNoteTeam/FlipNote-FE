@@ -27,7 +27,7 @@ type CardSetItem = {
 type Props = {
   groupId: number;
   cardSets: CardSetItem[];
-  hasManagePermission: boolean;
+  isMember: boolean;
   hasNextPage: boolean;
   isFetchingNextPage: boolean;
   onFetchNextPage: () => void;
@@ -36,7 +36,7 @@ type Props = {
 export const GroupCardsetSection = ({
   groupId,
   cardSets,
-  hasManagePermission,
+  isMember,
   hasNextPage,
   isFetchingNextPage,
   onFetchNextPage,
@@ -45,7 +45,7 @@ export const GroupCardsetSection = ({
     <section>
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-2xl font-bold">카드셋</h2>
-        {hasManagePermission && (
+        {isMember && (
           <CardsetCreateDialog
             groupId={groupId}
             renderTrigger={
