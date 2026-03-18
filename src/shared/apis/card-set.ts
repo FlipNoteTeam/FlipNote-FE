@@ -2,7 +2,7 @@ import apiClient from "@/shared/apis/fetch";
 import type {
   ApiResponse,
   GroupCategory,
-  PagingResponse,
+  // PagingResponse,
   PaginationRequest,
 } from "@/shared/apis/types";
 
@@ -111,10 +111,15 @@ export const cardSetApi = {
 
   // 그룹의 카드셋 목록 조회
   getGroupCardSets: (groupId: number, params?: PaginationRequest) =>
-    apiClient.get<ApiResponse<PagingResponse<CardSetSummaryResponse>>>(
+    apiClient.get<ApiResponse<CardSetSummaryResponse>>(
       `/groups/${groupId}/card-sets`,
       { params },
     ),
+  //@TODO paging 처리 추가되면 아래 주석 해제
+  // apiClient.get<ApiResponse<PagingResponse<CardSetSummaryResponse>>>(
+  //   `/groups/${groupId}/card-sets`,
+  //   { params },
+  // ),
 
   // 카드셋 생성
   createCardSet: (data: CreateCardSetRequest) =>

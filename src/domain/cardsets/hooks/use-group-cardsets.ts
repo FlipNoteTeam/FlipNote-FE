@@ -5,7 +5,7 @@ export const useGroupCardsets = (groupId: number, pageSize: number = 20) => {
   return useInfiniteQuery({
     queryKey: ["group", "cardsets", groupId],
     queryFn: async ({ pageParam = 1 }) => {
-      const response = await cardSetApi.getCardSets({
+      const response = await cardSetApi.getGroupCardSets(groupId, {
         page: pageParam,
         size: pageSize,
       });
