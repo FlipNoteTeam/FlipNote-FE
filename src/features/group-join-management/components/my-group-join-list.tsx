@@ -51,7 +51,12 @@ const STATUS_STYLE = {
 } as const;
 
 export const MyGroupJoinList = () => {
-  const { data: joinRequests, isLoading, error, refetch } = useMyGroupJoinList();
+  const {
+    data: joinRequests,
+    isLoading,
+    error,
+    refetch,
+  } = useMyGroupJoinList();
   const cancelJoin = useCancelGroupJoin();
   const [cancelingId, setCancelingId] = useState<number | null>(null);
 
@@ -104,7 +109,7 @@ export const MyGroupJoinList = () => {
           <CardContent className="space-y-4">
             {request.joinIntro && (
               <div className="flex items-start gap-2 text-sm text-gray-600">
-                <MessageSquare className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                <MessageSquare className="w-4 h-4 mt-0.5 shrink-0" />
                 <p className="flex-1">{request.joinIntro}</p>
               </div>
             )}
@@ -117,7 +122,9 @@ export const MyGroupJoinList = () => {
             {request.status === "PENDING" && (
               <div className="flex gap-2">
                 <Button
-                  onClick={() => handleCancel(request.groupId, request.groupJoinId)}
+                  onClick={() =>
+                    handleCancel(request.groupId, request.groupJoinId)
+                  }
                   disabled={cancelingId === request.groupJoinId}
                   variant="outline"
                   className="flex items-center gap-2"
