@@ -67,9 +67,10 @@ export interface GetMyRoleReponse {
 }
 
 interface GroupListParams {
-  keyword?: string /** 없는 값임 ㅎ */;
+  groupName?: string;
   category?: string;
   cursor?: string;
+  cursorId?: number;
   size?: number;
   sortBy?: string;
   order?: string;

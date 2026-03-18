@@ -5,7 +5,7 @@ import type { GroupCategory } from "@/shared/apis/types";
 const GROUPS_QUERY_KEY = ["groups"];
 
 interface UseGroupsParams {
-  keyword?: string;
+  groupName?: string;
   category?: GroupCategory;
   size?: number;
   sortBy?: string;

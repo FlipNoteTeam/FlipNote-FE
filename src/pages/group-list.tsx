@@ -15,11 +15,11 @@ import ErrorDisplay from "@/shared/components/error-display";
 import { EmptyState } from "@/shared/components/empty-state";
 
 interface GroupGridProps {
-  keyword?: string;
+  groupName?: string;
   category?: GroupCategory;
 }
 
-const GroupGrid = ({ keyword, category }: GroupGridProps) => {
+const GroupGrid = ({ groupName, category }: GroupGridProps) => {
   const {
     data: groupsData,
     fetchNextPage,
@@ -28,7 +28,7 @@ const GroupGrid = ({ keyword, category }: GroupGridProps) => {
     isLoading,
     error,
     refetch,
-  } = useGroups({ keyword, category, size: 20 });
+  } = useGroups({ groupName, category, size: 20 });
 
   if (isLoading) {
     return <CardGridSkeleton />;
@@ -139,7 +139,7 @@ const GroupList = () => {
 
         {/* 그룹 리스트 - 로딩 중에는 그리드 영역만 스켈레톤으로 대체 */}
         <GroupGrid
-          keyword={searchKeyword || undefined}
+          groupName={searchKeyword || undefined}
           category={selectedCategory}
         />
       </div>
