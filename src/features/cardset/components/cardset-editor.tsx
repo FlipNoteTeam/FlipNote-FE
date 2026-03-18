@@ -29,7 +29,9 @@ const SIDEBAR_MAX = 520;
 const SIDEBAR_DEFAULT = 250;
 
 export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
-  const user = useAuthStore((state: ReturnType<typeof useAuthStore.getState>) => state.user);
+  const user = useAuthStore(
+    (state: ReturnType<typeof useAuthStore.getState>) => state.user,
+  );
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [focusedField, setFocusedField] = useState<
     "question" | "answer" | null
@@ -181,7 +183,13 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
       setQuestionValue(currentCard.question);
       setAnswerValue(currentCard.answer);
     }
-  }, [currentCardIndex, hasAccess, currentCard, getCardQuestionText, getCardAnswerText]);
+  }, [
+    currentCardIndex,
+    hasAccess,
+    currentCard,
+    getCardQuestionText,
+    getCardAnswerText,
+  ]);
 
   const handleQuestionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newValue = e.target.value;
@@ -252,7 +260,8 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
   }, [connect]);
 
   // Awareness
-  const selfClientId = (awarenessStates.get(0) as { clientId?: number })?.clientId;
+  const selfClientId = (awarenessStates.get(0) as { clientId?: number })
+    ?.clientId;
   const collaborators = Array.from(awarenessStates.entries())
     .filter(([clientId]) => clientId !== selfClientId)
     .map(([clientId, state]) => {
@@ -272,24 +281,37 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
 
   const getUserColor = (userId: string) => {
     const colors = [
-      "bg-violet-500", "bg-emerald-500", "bg-blue-500",
-      "bg-pink-500", "bg-amber-500", "bg-cyan-500",
+      "bg-violet-500",
+      "bg-emerald-500",
+      "bg-blue-500",
+      "bg-pink-500",
+      "bg-amber-500",
+      "bg-cyan-500",
     ];
-    const hash = userId.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const hash = userId
+      .split("")
+      .reduce((acc, char) => acc + char.charCodeAt(0), 0);
     return colors[hash % colors.length];
   };
 
-  const currentCardCollaborators = collaborators.filter((c) => c.cardIndex === currentCardIndex);
-  const questionEditors = currentCardCollaborators.filter((c) => c.field === "question");
-  const answerEditors = currentCardCollaborators.filter((c) => c.field === "answer");
+  const currentCardCollaborators = collaborators.filter(
+    (c) => c.cardIndex === currentCardIndex,
+  );
+  const questionEditors = currentCardCollaborators.filter(
+    (c) => c.field === "question",
+  );
+  const answerEditors = currentCardCollaborators.filter(
+    (c) => c.field === "answer",
+  );
 
   const activeSidebarWidth = isSidebarCollapsed ? 56 : sidebarWidth;
 
-  const connectionStatus = isConnected && hasAccess
-    ? "connected"
-    : connectionError
-      ? "error"
-      : "disconnected";
+  const connectionStatus =
+    isConnected && hasAccess
+      ? "connected"
+      : connectionError
+        ? "error"
+        : "disconnected";
 
   return (
     <div className="h-screen flex bg-gray-50 overflow-hidden relative">
@@ -303,7 +325,9 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
             <div className="text-center">
               <p className="text-gray-900 font-semibold text-base">연결 실패</p>
               <p className="text-gray-500 text-sm mt-1 leading-relaxed">
-                소켓 연결을 실패했습니다.<br />다시 시도해주세요.
+                소켓 연결을 실패했습니다.
+                <br />
+                다시 시도해주세요.
               </p>
             </div>
             <Button
@@ -326,7 +350,9 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
         <div className="flex items-center justify-between px-3 h-14 border-b border-gray-100 shrink-0">
           {!isSidebarCollapsed && (
             <>
-              <span className="text-sm font-semibold text-gray-700 ml-1">카드 목록</span>
+              <span className="text-sm font-semibold text-gray-700 ml-1">
+                카드 목록
+              </span>
               <div className="flex items-center gap-1">
                 {/* 협업 상태 */}
                 <div
@@ -381,7 +407,9 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
         {/* Card List */}
         <div className="flex-1 overflow-y-auto py-3 px-2 space-y-1">
           {(hasAccess ? previewCards : localCards).map((card, index) => {
-            const editingCollaborators = collaborators.filter((c) => c.cardIndex === index);
+            const editingCollaborators = collaborators.filter(
+              (c) => c.cardIndex === index,
+            );
             const isActive = index === currentCardIndex;
             const isEdited = editingCollaborators.length > 0;
 
@@ -438,11 +466,15 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
                 <div className="space-y-1.5">
                   <p className="text-xs text-gray-700 line-clamp-2 leading-relaxed font-medium">
                     {card.question || (
-                      <span className="text-gray-300 font-normal">질문 없음</span>
+                      <span className="text-gray-300 font-normal">
+                        질문 없음
+                      </span>
                     )}
                   </p>
                   <p className="text-xs text-gray-400 line-clamp-1 leading-relaxed">
-                    {card.answer || <span className="text-gray-300">답변 없음</span>}
+                    {card.answer || (
+                      <span className="text-gray-300">답변 없음</span>
+                    )}
                   </p>
                 </div>
                 {isEdited && (
@@ -463,22 +495,25 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
         </div>
 
         {/* Collaborators (expanded only) */}
-        {!isSidebarCollapsed && isConnected && hasAccess && collaborators.length > 0 && (
-          <div className="px-4 py-3 border-t border-gray-100 flex items-center gap-2">
-            <span className="text-xs text-gray-400">함께 편집 중</span>
-            <div className="flex -space-x-1.5">
-              {collaborators.map((c) => (
-                <div
-                  key={c.clientId}
-                  title={c.user.name}
-                  className={`w-6 h-6 rounded-full ${getUserColor(c.user.id)} flex items-center justify-center text-white text-[10px] font-bold border-2 border-white`}
-                >
-                  {c.user.name.charAt(0).toUpperCase()}
-                </div>
-              ))}
+        {!isSidebarCollapsed &&
+          isConnected &&
+          hasAccess &&
+          collaborators.length > 0 && (
+            <div className="px-4 py-3 border-t border-gray-100 flex items-center gap-2">
+              <span className="text-xs text-gray-400">함께 편집 중</span>
+              <div className="flex -space-x-1.5">
+                {collaborators.map((c) => (
+                  <div
+                    key={c.clientId}
+                    title={c.user.name}
+                    className={`w-6 h-6 rounded-full ${getUserColor(c.user.id)} flex items-center justify-center text-white text-[10px] font-bold border-2 border-white`}
+                  >
+                    {c.user.name.charAt(0).toUpperCase()}
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
         {/* Drag handle */}
         {!isSidebarCollapsed && (
@@ -494,7 +529,10 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
       {/* ── Main Editor ── */}
       <main
         className="flex flex-col h-screen transition-[margin] duration-200 ease-in-out"
-        style={{ marginLeft: activeSidebarWidth, width: `calc(100% - ${activeSidebarWidth}px)` }}
+        style={{
+          marginLeft: activeSidebarWidth,
+          width: `calc(100% - ${activeSidebarWidth}px)`,
+        }}
       >
         {/* Header */}
         <header className="bg-white border-b border-gray-100 px-8 flex items-center justify-between h-14 shrink-0">
@@ -507,7 +545,7 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
           </div>
           <Button
             size="sm"
-            onClick={() => apiClient.post(`/v1/card-sets/${cardsetId}`)}
+            onClick={() => apiClient.post(`card-sets/${cardsetId}`)}
             className="flex items-center gap-1.5 h-8 px-3 text-xs"
           >
             <Save className="w-3.5 h-3.5" />
