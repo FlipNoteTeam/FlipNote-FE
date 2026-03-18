@@ -15,7 +15,8 @@ import { Textarea } from "@/shared/components/textarea";
 import { uploadImage } from "@/shared/lib/upload-image";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useController, useForm } from "react-hook-form";
+import { useEffect } from "react";
+import { useController, useForm, useWatch } from "react-hook-form";
 import {
   createGroupFormSchema,
   type CreateGroupFormField,
@@ -55,6 +56,14 @@ const CreateGroupForm = ({ onSubmit, formId = "group-form" }: Props) => {
     name: "publicVisible",
     control,
   });
+
+  const isPublicVisible = useWatch({ control, name: "publicVisible" });
+
+  useEffect(() => {
+    if (!isPublicVisible) {
+      setValue("applicationRequired", true);
+    }
+  }, [isPublicVisible, setValue]);
 
   return (
     <form id={formId} className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
@@ -96,6 +105,7 @@ const CreateGroupForm = ({ onSubmit, formId = "group-form" }: Props) => {
           id="applicationRequired"
           checked={applicationRequiredField.value}
           onCheckedChange={applicationRequiredField.onChange}
+          disabled={!isPublicVisible}
         />
         <Label htmlFor="applicationRequired">가입신청 여부</Label>
       </div>
