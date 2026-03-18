@@ -90,7 +90,14 @@ export interface CardSetUpdateRequest {
   // managers?: number[];
 }
 
-export interface CardSetSearchRequest extends PaginationRequest {
+export type CardSetSortBy = "id" | "like" | "book";
+export type SortOrder = "asc" | "desc";
+
+export interface CardSetSearchRequest {
+  page?: number;
+  size?: number;
+  sortBy?: CardSetSortBy;
+  order?: SortOrder;
   keyword?: string;
   category?: string;
 }
