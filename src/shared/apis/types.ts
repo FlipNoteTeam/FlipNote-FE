@@ -112,12 +112,16 @@ export interface MyGroupJoinInfo {
 
 export interface LikeTargetResponse {
   id: number;
+  groupId: number;
   name: string;
+  type: "CARD_SET";
 }
 
 export interface BookmarkTargetResponse {
   id: number;
+  groupId: number;
   name: string;
+  type: "CARD_SET";
 }
 
 export interface IdResponse {

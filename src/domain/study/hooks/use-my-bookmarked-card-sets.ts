@@ -24,6 +24,7 @@ export const useMyBookmarkedCardSets = () => {
         .map(
           (item): CardSetWithBookmark => ({
             cardSetId: item.target.id,
+            groupId: item.target.groupId,
             name: item.target.name,
             bookmarkedAt: item.bookmarkedAt,
           }),

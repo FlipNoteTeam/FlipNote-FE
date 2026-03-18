@@ -23,6 +23,7 @@ export const useMyLikedCardSets = () => {
         .flatMap((page) => page.content)
         .map((item): CardSetWithLike => ({
           cardSetId: item.target.id,
+          groupId: item.target.groupId,
           name: item.target.name,
           likedAt: item.likedAt,
         })),

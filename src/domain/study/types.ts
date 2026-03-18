@@ -10,12 +10,14 @@ export type {
 
 export interface CardSetWithBookmark {
   cardSetId: number;
+  groupId: number;
   name: string;
   bookmarkedAt: string;
 }
 
 export interface CardSetWithLike {
   cardSetId: number;
+  groupId: number;
   name: string;
   likedAt: string;
 }
