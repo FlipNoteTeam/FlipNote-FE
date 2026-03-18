@@ -8,8 +8,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/shared/components/dialog";
-import { useMutation } from "@tanstack/react-query";
-import type { ReactNode } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState, type ReactNode } from "react";
+import { toast } from "sonner";
 import { type CreateGroupFormField } from "../schemas/form.schema";
 import { createGroupRequestSchema } from "../schemas/request.schema";
 
@@ -20,8 +21,19 @@ type Props = {
 };
 
 const CreateGroupDialog = ({ renderTrigger }: Props) => {
-  const { mutate } = useMutation({
+  const [open, setOpen] = useState(false);
+  const queryClient = useQueryClient();
+
+  const { mutate, isPending } = useMutation({
     mutationFn: (data: GroupCreateRequest) => groupApi.createGroup(data),
+    onSuccess: () => {
+      toast.success("그룹이 생성되었습니다.");
+      setOpen(false);
+      queryClient.invalidateQueries({ queryKey: ["groups"] });
+    },
+    onError: () => {
+      toast.error("그룹 생성에 실패했습니다. 다시 시도해주세요.");
+    },
   });
 
   const handleSubmit = (form: CreateGroupFormField) => {
@@ -35,15 +47,14 @@ const CreateGroupDialog = ({ renderTrigger }: Props) => {
       imageRefId: form.imageRefId ? form.imageRefId : undefined,
     };
 
-    // API 요청 직전 최종 검증
     const validatedData = createGroupRequestSchema.parse(requestData);
 
     mutate(validatedData);
   };
 
   return (
-    <Dialog>
-      <DialogTrigger>{renderTrigger}</DialogTrigger>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>{renderTrigger}</DialogTrigger>
       <DialogContent
         className="max-w-2xl p-0"
         onInteractOutside={(e) => e.preventDefault()}
@@ -54,10 +65,10 @@ const CreateGroupDialog = ({ renderTrigger }: Props) => {
         <div className="max-h-[70vh] p-5 overflow-y-auto space-y-4">
           <CreateGroupForm formId={FORM_ID} onSubmit={handleSubmit} />
           <div className="flex gap-2 justify-end">
-            <Button form={FORM_ID} type="reset" variant="outline">
+            <Button form={FORM_ID} type="reset" variant="outline" disabled={isPending}>
               초기화
             </Button>
-            <Button form={FORM_ID} type="submit">
+            <Button form={FORM_ID} type="submit" disabled={isPending}>
               생성
             </Button>
           </div>
