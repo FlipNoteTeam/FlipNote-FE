@@ -1,7 +1,6 @@
-import { Card, CardContent } from "@/shared/components/card";
 import { Button } from "@/shared/components/button";
-import { Bookmark, Heart, BookOpen } from "lucide-react";
-import { CardGridSkeleton } from "@/shared/components/skeletons";
+import { Bookmark, Heart, BookOpen, ChevronRight } from "lucide-react";
+import { CardSetListSkeleton } from "@/shared/components/skeletons";
 import { useMyBookmarkedCardSets } from "@/domain/study/hooks/use-my-bookmarked-card-sets";
 import { useMyLikedCardSets } from "@/domain/study/hooks/use-my-liked-card-sets";
 import type { CardSetWithBookmark, CardSetWithLike } from "@/domain/study/types";
@@ -9,6 +8,71 @@ import { formatDistanceToNow } from "date-fns";
 import { ko } from "date-fns/locale";
 import ErrorDisplay from "@/shared/components/error-display";
 import { EmptyState } from "@/shared/components/empty-state";
+import { Link } from "@tanstack/react-router";
+
+type CardSetItem = CardSetWithBookmark | CardSetWithLike;
+
+const CardSetListItem = ({
+  cardSet,
+  timestamp,
+}: {
+  cardSet: CardSetItem;
+  timestamp: string;
+}) => (
+  <Link
+    to="/groups/$groupId/cardsets/$cardsetId"
+    params={{
+      groupId: String(cardSet.groupId),
+      cardsetId: String(cardSet.cardSetId),
+    }}
+    className="flex items-center justify-between px-4 py-3 rounded-lg hover:bg-muted transition-colors group"
+  >
+    <div className="flex items-center gap-3 min-w-0">
+      <BookOpen className="w-4 h-4 text-muted-foreground shrink-0" />
+      <span className="text-sm font-medium text-gray-900 truncate group-hover:text-primary transition-colors">
+        {cardSet.name}
+      </span>
+    </div>
+    <div className="flex items-center gap-2 shrink-0 ml-3">
+      <span className="text-xs text-muted-foreground">
+        {formatDistanceToNow(new Date(timestamp), {
+          addSuffix: true,
+          locale: ko,
+        })}
+      </span>
+      <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+    </div>
+  </Link>
+);
+
+const renderCardSetList = (
+  cardSets: CardSetItem[],
+  timestampKey: "bookmarkedAt" | "likedAt"
+) => {
+  if (cardSets.length === 0) {
+    return (
+      <EmptyState
+        icon={<BookOpen className="w-8 h-8" />}
+        title="카드셋이 없습니다"
+      />
+    );
+  }
+
+  return (
+    <div className="divide-y divide-border rounded-lg border">
+      {cardSets.map((cardSet) => {
+        const timestamp = (cardSet as unknown as Record<string, string>)[timestampKey];
+        return (
+          <CardSetListItem
+            key={cardSet.cardSetId}
+            cardSet={cardSet}
+            timestamp={timestamp}
+          />
+        );
+      })}
+    </div>
+  );
+};
 
 export const MyStudyPage = () => {
   const {
@@ -34,70 +98,29 @@ export const MyStudyPage = () => {
   const bookmarkedCardSets = bookmarkedData?.bookmarks ?? [];
   const likedCardSets = likedData?.likes ?? [];
 
-  const renderCardSetGrid = (
-    cardSets: CardSetWithBookmark[] | CardSetWithLike[],
-    timestampKey: "bookmarkedAt" | "likedAt"
-  ) => {
-    if (cardSets.length === 0) {
-      return (
-        <EmptyState
-          icon={<BookOpen className="w-8 h-8" />}
-          title="카드셋이 없습니다"
-        />
-      );
-    }
-
-    return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        {cardSets.map((cardSet) => {
-          const timestamp = (cardSet as unknown as Record<string, string>)[timestampKey];
-          return (
-            <Card
-              key={cardSet.cardSetId}
-              className="hover:shadow-md transition-shadow cursor-default"
-            >
-              <CardContent className="p-4 flex flex-col gap-2">
-                <p className="font-medium text-gray-900 line-clamp-2 leading-snug">
-                  {cardSet.name}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {formatDistanceToNow(new Date(timestamp), {
-                    addSuffix: true,
-                    locale: ko,
-                  })}
-                </p>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
-    );
-  };
-
   return (
-    <div className="space-y-12">
+    <div className="space-y-10">
       {/* 즐겨찾기 섹션 */}
-      <section className="space-y-4">
+      <section className="space-y-3">
         <div className="flex items-center gap-2">
-          <Bookmark className="w-6 h-6 text-primary" />
-          <h2 className="text-2xl font-semibold text-gray-900">
-            즐겨찾기 카드셋
-          </h2>
+          <Bookmark className="w-5 h-5 text-primary" />
+          <h2 className="text-lg font-semibold text-gray-900">즐겨찾기 카드셋</h2>
         </div>
 
         {isLoadingBookmarks ? (
-          <CardGridSkeleton />
+          <CardSetListSkeleton />
         ) : bookmarksError ? (
           <ErrorDisplay onRetry={() => refetchBookmarks()} />
         ) : (
           <>
-            {renderCardSetGrid(bookmarkedCardSets, "bookmarkedAt")}
+            {renderCardSetList(bookmarkedCardSets, "bookmarkedAt")}
             {hasNextBookmarks && (
-              <div className="flex justify-center pt-4">
+              <div className="flex justify-center pt-2">
                 <Button
                   onClick={() => fetchNextBookmarks()}
                   disabled={isFetchingNextBookmarks}
-                  variant="outline"
+                  variant="ghost"
+                  size="sm"
                 >
                   {isFetchingNextBookmarks ? "로딩 중..." : "더 보기"}
                 </Button>
@@ -108,27 +131,26 @@ export const MyStudyPage = () => {
       </section>
 
       {/* 좋아요 섹션 */}
-      <section className="space-y-4">
+      <section className="space-y-3">
         <div className="flex items-center gap-2">
-          <Heart className="w-6 h-6 text-red-500" />
-          <h2 className="text-2xl font-semibold text-gray-900">
-            좋아요한 카드셋
-          </h2>
+          <Heart className="w-5 h-5 text-red-500" />
+          <h2 className="text-lg font-semibold text-gray-900">좋아요한 카드셋</h2>
         </div>
 
         {isLoadingLikes ? (
-          <CardGridSkeleton />
+          <CardSetListSkeleton />
         ) : likesError ? (
           <ErrorDisplay onRetry={() => refetchLikes()} />
         ) : (
           <>
-            {renderCardSetGrid(likedCardSets, "likedAt")}
+            {renderCardSetList(likedCardSets, "likedAt")}
             {hasNextLikes && (
-              <div className="flex justify-center pt-4">
+              <div className="flex justify-center pt-2">
                 <Button
                   onClick={() => fetchNextLikes()}
                   disabled={isFetchingNextLikes}
-                  variant="outline"
+                  variant="ghost"
+                  size="sm"
                 >
                   {isFetchingNextLikes ? "로딩 중..." : "더 보기"}
                 </Button>
