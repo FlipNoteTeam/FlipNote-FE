@@ -34,9 +34,9 @@ const CardSetGrid = ({ keyword, category }: CardSetGridProps) => {
             to="/groups/$groupId/cardsets/$cardsetId"
             params={{
               groupId: cardset.groupId.toString(),
-              cardsetId: cardset.id.toString(),
+              cardsetId: cardset.cardSetId.toString(),
             }}
-            key={cardset.id}
+            key={cardset.cardSetId}
           >
             <ThumbnailCard
               imageUrl={cardset.imageUrl}

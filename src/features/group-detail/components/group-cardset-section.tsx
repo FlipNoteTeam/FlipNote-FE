@@ -8,7 +8,7 @@ import { Link } from "@tanstack/react-router";
 import { Plus, Wind } from "lucide-react";
 
 type CardSetItem = {
-  id: number;
+  cardSetId: number;
   name: string;
   groupId: number;
   visibility: "PUBLIC" | "PRIVATE";
@@ -64,11 +64,11 @@ export const GroupCardsetSection = ({
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {cardSets.map((cardSet) => (
                 <Link
-                  key={cardSet.id}
+                  key={cardSet.cardSetId}
                   to="/groups/$groupId/cardsets/$cardsetId"
                   params={{
                     groupId: String(groupId),
-                    cardsetId: String(cardSet.id),
+                    cardsetId: String(cardSet.cardSetId),
                   }}
                 >
                   <ThumbnailCard

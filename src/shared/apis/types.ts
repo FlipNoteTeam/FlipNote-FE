@@ -24,9 +24,12 @@ export interface PaginationRequest {
 }
 
 export interface PagingResponse<T> {
-  content: T[];
+  items: T[];
   page: number;
   size: number;
+  total: number;
+  // @TODO content라는명 안쓰는거 확실해지면 제거
+  content: T[];
   totalElements: number;
   totalPages: number;
   first: boolean;
