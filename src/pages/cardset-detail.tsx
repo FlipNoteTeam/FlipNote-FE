@@ -81,6 +81,9 @@ const CardsetDetail = ({ groupId, cardsetId }: Props) => {
   // 현재 사용자가 그룹 멤버인지 확인
   const isMember = members.some((member) => member.userId === user?.userId);
 
+  // 현재 사용자가 카드셋 매니저인지 확인
+  const isManager = cardset.managers.some((m) => m.id === user?.userId);
+
   // 카드셋 접근 제어: 공개 + 가입 승인 필수인 그룹의 경우 멤버가 아니면 접근 불가
   useEffect(() => {
     if (group && !isMember && group.visibility && group.applicationRequired) {
@@ -195,29 +198,31 @@ const CardsetDetail = ({ groupId, cardsetId }: Props) => {
               마지막 수정일 : {cardset.updatedAt}
             </span>
           </div>
-          <div className="flex gap-2 justify-end flex-wrap">
-            <Button asChild>
-              <Link
-                to="/cardsets/editor/$id"
-                params={{ id: String(cardsetId) }}
+          {isManager && (
+            <div className="flex gap-2 justify-end flex-wrap">
+              <Button asChild>
+                <Link
+                  to="/cardsets/editor/$id"
+                  params={{ id: String(cardsetId) }}
+                >
+                  카드 편집하기
+                </Link>
+              </Button>
+              <CardsetUpdateDialog
+                groupId={groupId}
+                cardsetId={cardsetId}
+                cardset={cardset}
+                renderTrigger={<Button variant="outline">수정</Button>}
+              />
+              <Button
+                variant="outline"
+                disabled={isPending}
+                onClick={handleClickDelete}
               >
-                카드 편집하기
-              </Link>
-            </Button>
-            <CardsetUpdateDialog
-              groupId={groupId}
-              cardsetId={cardsetId}
-              cardset={cardset}
-              renderTrigger={<Button variant="outline">수정</Button>}
-            />
-            <Button
-              variant="outline"
-              disabled={isPending}
-              onClick={handleClickDelete}
-            >
-              삭제
-            </Button>
-          </div>
+                삭제
+              </Button>
+            </div>
+          )}
         </div>
       </div>
 
