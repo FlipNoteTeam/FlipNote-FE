@@ -93,7 +93,7 @@ const CardsetUpdateForm = ({
 
   const selectedManagerIds: number[] = managersField.value ?? [];
   const selectedManagers = members.filter((m) =>
-    selectedManagerIds.includes(m.userId)
+    selectedManagerIds.includes(m.userId),
   );
   const availableManagers: SelectableMember[] = members
     .filter((m) => !selectedManagerIds.includes(m.userId))
@@ -122,7 +122,6 @@ const CardsetUpdateForm = ({
       if (imageRefId) setValue("imageRefId", imageRefId);
     } catch (e) {
       console.error(e);
-      /** @todo 커스텀 에러 다이얼로그로 변경 */
       toast.error("이미지 업로드를 실패했습니다. 재시도해주세요.");
     }
   };

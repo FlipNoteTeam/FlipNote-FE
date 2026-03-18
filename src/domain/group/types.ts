@@ -47,8 +47,8 @@ export const toGroupBrief = (apiResponse: GroupInfo): GroupBrief => {
     name: apiResponse.name,
     description: apiResponse.description,
     image: apiResponse.imageUrl ?? "",
-    createdAt: new Date() /** @todo 응답값 확인. 필요없으면 제거 */,
-    modifiedAt: new Date() /** @todo 응답값 확인. 필요없으면 제거 */,
+    createdAt: new Date(),
+    modifiedAt: new Date(),
   };
 };
 
