@@ -1,3 +1,4 @@
+import type { CardSetCategory } from "@/domain/cardsets/types";
 import apiClient from "@/shared/apis/fetch";
 import type {
   ApiResponse,
@@ -15,7 +16,7 @@ export interface CardSetSummaryResponse {
   name: string;
   groupId: number;
   visibility: CARDSET_VISIBILITY;
-  category: string;
+  category: CardSetCategory;
   hashtag: string;
   imageRefId: number;
   imageUrl?: string;

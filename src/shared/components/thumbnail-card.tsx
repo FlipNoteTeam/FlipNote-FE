@@ -1,10 +1,14 @@
+import type { ReactNode } from "react";
+import { CARDSET_CATEGORY_MAP } from "@/domain/cardsets/types";
+import type { GroupCategory } from "@/shared/apis";
 import { Card, CardContent, CardDescription } from "@/shared/components/card";
 
 type ThumbnailCardProps = {
   imageUrl?: string;
   title: string;
-  category: string;
+  category: GroupCategory;
   subtitle?: string;
+  footer?: ReactNode;
   onClick?: () => void;
   className?: string;
 };
@@ -14,6 +18,7 @@ export const ThumbnailCard = ({
   title,
   category,
   subtitle,
+  footer,
   onClick,
   className,
 }: ThumbnailCardProps) => {
@@ -44,10 +49,15 @@ export const ThumbnailCard = ({
             {subtitle}
           </CardDescription>
         )}
-        <div className="mt-3 flex justify-between items-center">
-          <span className="text-xs bg-indigo-100 text-indigo-900 px-2.5 py-1 rounded-full">
-            {category}
+        <div className="mt-3 flex flex-col gap-2">
+          <span className="text-xs bg-indigo-100 text-indigo-900 px-2.5 py-1 rounded-full self-start">
+            {CARDSET_CATEGORY_MAP[category]}
           </span>
+          {footer && (
+            <div className="flex justify-end">
+              {footer}
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

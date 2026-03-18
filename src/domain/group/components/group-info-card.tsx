@@ -11,7 +11,7 @@ export const GroupInfoCard = ({ group }: GroupInfoCardProps) => {
     <Card className="overflow-hidden">
       <div className="flex flex-col gap-6 md:flex-row">
         {/* 그룹 이미지 */}
-        <div className="md:w-1/3">
+        <div className="md:w-1/3 aspect-video">
           <img
             src={group.imageUrl || "https://picsum.photos/400/300"}
             alt={`${group.name} 그룹 이미지`}

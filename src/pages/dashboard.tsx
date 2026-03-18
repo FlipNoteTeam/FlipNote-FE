@@ -10,7 +10,6 @@ import { useQuery } from "@tanstack/react-query";
 import { groupApi } from "@/shared/apis/group";
 import { mockWrongAnswerNotes } from "@/shared/mocks/wrong-answer-notes";
 import { BookOpen, Users, Calendar, AlertCircle, SearchX } from "lucide-react";
-import { GROUP_CATEGORY_MAP } from "@/domain/group/types";
 import { ThumbnailCard } from "@/shared/components/thumbnail-card";
 import { DashboardSkeleton } from "@/shared/components/skeletons";
 import { EmptyState } from "@/shared/components/empty-state";
@@ -82,7 +81,7 @@ const Dashboard = () => {
                       imageUrl={group.imageUrl}
                       title={group.name}
                       subtitle={group.description}
-                      category={GROUP_CATEGORY_MAP[group.category]}
+                      category={group.category}
                       className="p-4"
                     />
                   </Link>
@@ -132,7 +131,7 @@ const Dashboard = () => {
                   imageUrl={group.imageUrl}
                   title={group.name}
                   subtitle={group.description}
-                  category={GROUP_CATEGORY_MAP[group.category]}
+                  category={group.category}
                   className="p-4"
                 />
               </Link>

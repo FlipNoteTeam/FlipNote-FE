@@ -33,11 +33,9 @@ export const GroupJoinManagement = ({ groupId }: GroupJoinManagementProps) => {
           toast.success("가입 신청을 승인했습니다.");
         },
         onError: (error: ApiError) => {
-          toast.error(
-            error?.response?.data?.message || "승인에 실패했습니다."
-          );
+          toast.error(error?.response?.data?.message || "승인에 실패했습니다.");
         },
-      }
+      },
     );
   };
 
@@ -52,22 +50,20 @@ export const GroupJoinManagement = ({ groupId }: GroupJoinManagementProps) => {
           toast.success("가입 신청을 거절했습니다.");
         },
         onError: (error: ApiError) => {
-          toast.error(
-            error?.response?.data?.message || "거절에 실패했습니다."
-          );
+          toast.error(error?.response?.data?.message || "거절에 실패했습니다.");
         },
-      }
+      },
     );
   };
 
   // PENDING 상태인 신청만 필터링
   const pendingRequests = joinRequests.filter(
-    (request) => request.status === "PENDING"
+    (request) => request.status === "PENDING",
   );
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center min-h-[200px]">
+      <div className="flex justify-center items-center min-h-50">
         <p className="text-gray-500">로딩 중...</p>
       </div>
     );
