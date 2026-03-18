@@ -7,7 +7,7 @@ export const useMyGroupJoinList = () => {
     queryKey: ["groups", "joins", "me"],
     queryFn: async () => {
       const response = await groupJoinApi.getMyGroupJoinList();
-      return response.data.data.groupJoins;
+      return response.data.data.joinList;
     },
   });
 };

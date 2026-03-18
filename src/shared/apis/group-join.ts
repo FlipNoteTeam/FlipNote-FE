@@ -17,11 +17,11 @@ export interface GroupJoinResponse {
 }
 
 export interface GroupJoinListResponse {
-  groupJoins: GroupJoinInfo[];
+  joinList: GroupJoinInfo[];
 }
 
 export interface FindGroupJoinListMeResponse {
-  groupJoins: MyGroupJoinInfo[];
+  joinList: MyGroupJoinInfo[];
 }
 
 export interface GroupJoinRespondRequest {
