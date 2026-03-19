@@ -195,14 +195,14 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
 
   const handleQuestionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newValue = e.target.value;
+    setQuestionValue(newValue);
+    if (e.nativeEvent.isComposing) return;
     if (hasAccess && questionTextRef.current) {
       const oldValue = questionValue;
       isUpdatingRef.current = true;
       applyDelta(questionTextRef.current, getDelta(oldValue, newValue));
-      setQuestionValue(newValue);
       isUpdatingRef.current = false;
     } else {
-      setQuestionValue(newValue);
       setLocalCards((prev) =>
         prev.map((card, idx) =>
           idx === currentCardIndex ? { ...card, question: newValue } : card,
@@ -211,21 +211,41 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
     }
   };
 
+  const handleQuestionCompositionEnd = (e: React.CompositionEvent<HTMLTextAreaElement>) => {
+    const newValue = e.currentTarget.value;
+    if (hasAccess && questionTextRef.current) {
+      const oldValue = questionTextRef.current.toString();
+      isUpdatingRef.current = true;
+      applyDelta(questionTextRef.current, getDelta(oldValue, newValue));
+      isUpdatingRef.current = false;
+    }
+  };
+
   const handleAnswerChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newValue = e.target.value;
+    setAnswerValue(newValue);
+    if (e.nativeEvent.isComposing) return;
     if (hasAccess && answerTextRef.current) {
       const oldValue = answerValue;
       isUpdatingRef.current = true;
       applyDelta(answerTextRef.current, getDelta(oldValue, newValue));
-      setAnswerValue(newValue);
       isUpdatingRef.current = false;
     } else {
-      setAnswerValue(newValue);
       setLocalCards((prev) =>
         prev.map((card, idx) =>
           idx === currentCardIndex ? { ...card, answer: newValue } : card,
         ),
       );
+    }
+  };
+
+  const handleAnswerCompositionEnd = (e: React.CompositionEvent<HTMLTextAreaElement>) => {
+    const newValue = e.currentTarget.value;
+    if (hasAccess && answerTextRef.current) {
+      const oldValue = answerTextRef.current.toString();
+      isUpdatingRef.current = true;
+      applyDelta(answerTextRef.current, getDelta(oldValue, newValue));
+      isUpdatingRef.current = false;
     }
   };
 
@@ -571,6 +591,7 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
                   label="질문"
                   value={questionValue}
                   onChange={handleQuestionChange}
+                  onCompositionEnd={handleQuestionCompositionEnd}
                   onFocus={() => {
                     setFocusedField("question");
                     if (hasAccess) setAwareness("question", currentCardIndex);
@@ -588,6 +609,7 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
                   label="답변"
                   value={answerValue}
                   onChange={handleAnswerChange}
+                  onCompositionEnd={handleAnswerCompositionEnd}
                   onFocus={() => {
                     setFocusedField("answer");
                     if (hasAccess) setAwareness("answer", currentCardIndex);
@@ -614,6 +636,7 @@ type EditorFieldProps = {
   label: string;
   value: string;
   onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  onCompositionEnd: (e: React.CompositionEvent<HTMLTextAreaElement>) => void;
   onFocus: () => void;
   onBlur: () => void;
   isFocused: boolean;
@@ -627,6 +650,7 @@ function EditorField({
   label,
   value,
   onChange,
+  onCompositionEnd,
   onFocus,
   onBlur,
   isFocused,
@@ -672,6 +696,7 @@ function EditorField({
         id={id}
         value={value}
         onChange={onChange}
+        onCompositionEnd={onCompositionEnd}
         onFocus={onFocus}
         onBlur={onBlur}
         className="w-full min-h-40 text-base leading-relaxed resize-none border-0 bg-transparent focus:ring-0 focus:outline-none px-5 pb-5 pt-2 text-gray-800 placeholder:text-gray-400"
