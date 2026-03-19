@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { toast } from "sonner";
 import { Button } from "@/shared/components/button";
 import { Textarea } from "@/shared/components/textarea";
 import { useYjs } from "@/shared/socket/use-yjs";
@@ -546,7 +547,12 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
           </div>
           <Button
             size="sm"
-            onClick={() => apiClient.post(`card-sets/${cardsetId}`)}
+            onClick={() =>
+              apiClient
+                .post(`card-sets/${cardsetId}`)
+                .then(() => toast.success("저장되었습니다."))
+                .catch(() => toast.error("저장에 실패했습니다."))
+            }
             className="flex items-center gap-1.5 h-8 px-3 text-xs"
           >
             <Save className="w-3.5 h-3.5" />
