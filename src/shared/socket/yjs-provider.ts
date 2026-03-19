@@ -188,7 +188,17 @@ export class YjsProvider {
         updateBinary = new Uint8Array(parsed.update);
       }
 
-      console.log("증분값 적용 전, ", this.doc.getArray("cards"));
+      const logCards = (label: string) => {
+        const arr = this.doc.getArray("cards");
+        const cards = arr.map((cardMap: Y.Map<any>) => ({
+          id: cardMap.get("id"),
+          question: cardMap.get("question")?.toString(),
+          answer: cardMap.get("answer")?.toString(),
+        }));
+        console.log(label, cards);
+      };
+
+      logCards("증분값 적용 전");
 
       Y.applyUpdate(this.doc, updateBinary, this);
 
@@ -199,7 +209,7 @@ export class YjsProvider {
         }
       }
 
-      console.log("증분값 적용 후, ", this.doc.getArray("cards"));
+      logCards("증분값 적용 후");
     });
 
     // Awareness 메시지 처리
