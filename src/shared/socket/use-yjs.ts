@@ -13,6 +13,7 @@ export function useYjs(options: UseYjsOptions) {
   const { cardsetId, userId, token, autoConnect = false } = options;
   const [isConnected, setIsConnected] = useState(false);
   const [hasAccess, setHasAccess] = useState(false);
+  const [hasSynced, setHasSynced] = useState(false);
   const [connectionError, setConnectionError] = useState<string | null>(null);
   const [cards, setCards] = useState<CardData[]>([]);
   const [awarenessStates, setAwarenessStates] = useState<Map<number, unknown>>(
@@ -43,6 +44,11 @@ export function useYjs(options: UseYjsOptions) {
             setAwarenessStates(new Map(states));
           });
 
+          // 초기 동기화 완료 콜백
+          provider.onSynced(() => {
+            setHasSynced(true);
+          });
+
           // 초기 카드 로드
           setCards(provider.getCards());
 
@@ -71,6 +77,7 @@ export function useYjs(options: UseYjsOptions) {
     }
     setIsConnected(false);
     setHasAccess(false);
+    setHasSynced(false);
     setConnectionError(null);
   }, []);
 
@@ -136,6 +143,7 @@ export function useYjs(options: UseYjsOptions) {
   return {
     isConnected,
     hasAccess,
+    hasSynced,
     connectionError,
     cards,
     awarenessStates,

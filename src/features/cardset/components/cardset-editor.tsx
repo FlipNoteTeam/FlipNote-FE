@@ -60,6 +60,7 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
   const {
     isConnected,
     hasAccess,
+    hasSynced,
     connectionError,
     cards: yjsCards,
     awarenessStates,
@@ -113,12 +114,12 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
     document.body.style.userSelect = "none";
   };
 
-  // Yjs 연결 시 초기 카드
+  // Yjs 연결 시 초기 카드 (sync 수신 후에만 추가)
   useEffect(() => {
-    if (hasAccess && yjsCards.length === 0) {
+    if (hasSynced && hasAccess && yjsCards.length === 0) {
       addCard({ question: "", answer: "" });
     }
-  }, [hasAccess, yjsCards.length, addCard]);
+  }, [hasSynced, hasAccess, yjsCards.length, addCard]);
 
   // 프리뷰 카드 업데이트
   useEffect(() => {

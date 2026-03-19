@@ -26,6 +26,7 @@ export class YjsProvider {
   private cardsetId: string;
   private userId: string;
   private hasAccess = false;
+  private hasSynced = false;
 
   // Y.js 카드 배열
   public cardsArray: Y.Array<Y.Map<any>>;
@@ -35,6 +36,9 @@ export class YjsProvider {
 
   // Awareness 변경 콜백
   private onAwarenessChangeCallback?: (states: Map<number, any>) => void;
+
+  // 초기 동기화 완료 콜백
+  private onSyncedCallback?: () => void;
 
   constructor(cardsetId: string, userId: string) {
     this.cardsetId = cardsetId;
@@ -116,7 +120,7 @@ export class YjsProvider {
         origin,
       });
 
-      if (origin !== this && this.hasAccess && this.isConnected) {
+      if (origin !== this && this.hasAccess && this.isConnected && this.hasSynced) {
         console.log("[YJS] Sending update to server");
         this.sendMessage({
           type: "update",
@@ -226,6 +230,14 @@ export class YjsProvider {
       console.log("증분값 적용 전, ", this.doc.getArray("cards"));
 
       Y.applyUpdate(this.doc, updateBinary, this);
+
+      if (!this.hasSynced) {
+        this.hasSynced = true;
+        if (this.onSyncedCallback) {
+          this.onSyncedCallback();
+        }
+      }
+
       console.log("증분값 적용 전, ", this.doc.getArray("cards"));
       // applyUpdate 후 cardsArray 상태 확인
       console.log(
@@ -447,6 +459,14 @@ export class YjsProvider {
 
   getHasAccess(): boolean {
     return this.hasAccess;
+  }
+
+  getHasSynced(): boolean {
+    return this.hasSynced;
+  }
+
+  onSynced(callback: () => void): void {
+    this.onSyncedCallback = callback;
   }
 
   setAwareness(
