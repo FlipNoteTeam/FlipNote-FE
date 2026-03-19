@@ -11,8 +11,8 @@ import {
   DialogTrigger,
 } from "@/shared/components/dialog";
 import useAuthStore from "@/stores/use-auth-store";
-import { useMutation } from "@tanstack/react-query";
-import type { ReactNode } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState, type ReactNode } from "react";
 
 const FORM_ID = "cardset-create-form";
 
@@ -22,9 +22,15 @@ type Props = {
 };
 
 const CardsetCreateDialog = ({ groupId, renderTrigger }: Props) => {
+  const [open, setOpen] = useState(false);
   const user = useAuthStore((state) => state.user);
+  const queryClient = useQueryClient();
   const { mutate } = useMutation({
     mutationFn: (data: CreateCardSetRequest) => cardSetApi.createCardSet(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["group", "cardsets", groupId] });
+      setOpen(false);
+    },
   });
 
   const handleSubmit = (form: CardsetCreateFormField) => {
@@ -45,8 +51,8 @@ const CardsetCreateDialog = ({ groupId, renderTrigger }: Props) => {
   };
 
   return (
-    <Dialog>
-      <DialogTrigger>{renderTrigger}</DialogTrigger>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>{renderTrigger}</DialogTrigger>
       <DialogContent onInteractOutside={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle>카드셋 생성</DialogTitle>
