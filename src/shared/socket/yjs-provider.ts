@@ -114,6 +114,7 @@ export class YjsProvider {
   private setupDocumentListeners(): void {
     // 문서 업데이트 시 다른 클라이언트에게 전송
     this.doc.on("update", (update: Uint8Array, origin: any) => {
+      console.log("[emit] update");
       if (
         origin !== this &&
         this.hasAccess &&
