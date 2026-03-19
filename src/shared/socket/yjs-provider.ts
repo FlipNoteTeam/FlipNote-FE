@@ -114,7 +114,12 @@ export class YjsProvider {
   private setupDocumentListeners(): void {
     // 문서 업데이트 시 다른 클라이언트에게 전송
     this.doc.on("update", (update: Uint8Array, origin: any) => {
-      if (origin !== this && this.hasAccess && this.isConnected && this.hasSynced) {
+      if (
+        origin !== this &&
+        this.hasAccess &&
+        this.isConnected &&
+        this.hasSynced
+      ) {
         this.sendMessage({
           type: "update",
           data: { cardsetId: this.cardsetId, update },
@@ -308,8 +313,10 @@ export class YjsProvider {
     const questionText = cardMap.get("question") as Y.Text;
 
     if (questionText) {
-      questionText.delete(0, questionText.length);
-      questionText.insert(0, question);
+      this.doc.transact(() => {
+        questionText.delete(0, questionText.length);
+        questionText.insert(0, question);
+      });
     }
   }
 
@@ -324,8 +331,10 @@ export class YjsProvider {
     const answerText = cardMap.get("answer") as Y.Text;
 
     if (answerText) {
-      answerText.delete(0, answerText.length);
-      answerText.insert(0, answer);
+      this.doc.transact(() => {
+        answerText.delete(0, answerText.length);
+        answerText.insert(0, answer);
+      });
     }
   }
 
