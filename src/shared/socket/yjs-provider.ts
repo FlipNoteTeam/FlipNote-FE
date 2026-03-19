@@ -59,8 +59,6 @@ export class YjsProvider {
         this.socket = socketManager.connect(token);
 
         this.socket.once("connect", () => {
-          console.log("[socket] connected");
-
           // 소켓 이벤트 리스너 등록 — 반드시 connect 이후에
           this.setupSocketListeners();
 
@@ -116,12 +114,7 @@ export class YjsProvider {
   private setupDocumentListeners(): void {
     // 문서 업데이트 시 다른 클라이언트에게 전송
     this.doc.on("update", (update: Uint8Array, origin: any) => {
-      console.log("[YJS] Doc update", {
-        origin,
-      });
-
       if (origin !== this && this.hasAccess && this.isConnected && this.hasSynced) {
-        console.log("[YJS] Sending update to server");
         this.sendMessage({
           type: "update",
           data: { cardsetId: this.cardsetId, update },
@@ -131,7 +124,6 @@ export class YjsProvider {
 
     // 카드 배열 변경 감지
     this.cardsArray.observe(() => {
-      console.log("[YJS] Cards array changed");
       if (this.onCardsChangeCallback) {
         this.onCardsChangeCallback(this.getCards());
       }
@@ -167,12 +159,10 @@ export class YjsProvider {
     if (!this.socket) return;
 
     this.socket.on("connect", () => {
-      console.log("[EVENT] connect");
       this.isConnected = true;
     });
 
-    this.socket.on("disconnect", (reason: string) => {
-      console.log("[EVENT] disconnect / reason:", reason);
+    this.socket.on("disconnect", () => {
       this.isConnected = false;
       this.hasAccess = false;
     });
@@ -181,21 +171,6 @@ export class YjsProvider {
     this.socket.on("sync", (message: SyncMessage) => {
       if (!this.hasAccess) return;
 
-      console.log("[EVENT] sync");
-      console.log(
-        "[SYNC] raw message type:",
-        typeof message,
-        message instanceof ArrayBuffer
-          ? "ArrayBuffer"
-          : message instanceof Uint8Array
-            ? "Uint8Array"
-            : Array.isArray(message)
-              ? "Array"
-              : "other",
-      );
-      console.log("[SYNC] raw message:", message);
-
-      let cardsetId: string;
       let updateBinary: Uint8Array;
 
       if (
@@ -205,26 +180,12 @@ export class YjsProvider {
         "cardsetId" in message
       ) {
         // 새 포맷: Socket.io가 자동 파싱한 JS 객체 {cardsetId, update: ArrayBuffer | number[]}
-        cardsetId = message.cardsetId;
         updateBinary = new Uint8Array(message.update);
-        console.log(
-          "[SYNC] new format - cardsetId:",
-          cardsetId,
-          "/ update:",
-          updateBinary,
-        );
       } else {
         // 구 포맷: Buffer → TextDecoder → JSON parse
         const jsonString = new TextDecoder().decode(message);
         const parsed = JSON.parse(jsonString);
-        cardsetId = parsed.cardsetId;
         updateBinary = new Uint8Array(parsed.update);
-        console.log(
-          "[SYNC] legacy format - cardsetId:",
-          cardsetId,
-          "/ update:",
-          updateBinary,
-        );
       }
 
       console.log("증분값 적용 전, ", this.doc.getArray("cards"));
@@ -238,62 +199,15 @@ export class YjsProvider {
         }
       }
 
-      console.log("증분값 적용 전, ", this.doc.getArray("cards"));
-      // applyUpdate 후 cardsArray 상태 확인
-      console.log(
-        "[SYNC] cardsArray.length after applyUpdate:",
-        this.cardsArray.length,
-      );
-      this.cardsArray.forEach((item, index) => {
-        console.log(
-          `[SYNC] cardsArray[${index}] type:`,
-          item?.constructor?.name,
-          "/ instanceof Y.Map:",
-          item instanceof Y.Map,
-          "/ value:",
-          item,
-        );
-        if (item instanceof Y.Map) {
-          console.log(
-            `[SYNC] cardsArray[${index}] keys:`,
-            Array.from(item.keys()),
-          );
-          console.log(
-            `[SYNC] cardsArray[${index}].get('id'):`,
-            item.get("id"),
-            typeof item.get("id"),
-          );
-          console.log(
-            `[SYNC] cardsArray[${index}].get('question'):`,
-            item.get("question"),
-            "instanceof Y.Text:",
-            item.get("question") instanceof Y.Text,
-          );
-          console.log(
-            `[SYNC] cardsArray[${index}].get('answer'):`,
-            item.get("answer"),
-            "instanceof Y.Text:",
-            item.get("answer") instanceof Y.Text,
-          );
-        } else {
-          console.log(
-            `[SYNC] cardsArray[${index}] plain value:`,
-            JSON.stringify(item),
-          );
-        }
-      });
+      console.log("증분값 적용 후, ", this.doc.getArray("cards"));
     });
 
     // Awareness 메시지 처리
     this.socket.on("awareness", (message: ServerAwarenessMessage) => {
       if (!this.hasAccess) return;
 
-      console.log("[EVENT] awareness");
-      console.log("[AWARENESS] raw type:", typeof message, "/ value:", message);
-
       // 백엔드가 { data: { cardsetId, awareness: number[] } } 형태로 전송
       const awarenessData = message?.data?.awareness ?? message?.awareness;
-      console.log("[AWARENESS] awareness field:", awarenessData);
 
       if (!awarenessData) return;
 
@@ -307,27 +221,16 @@ export class YjsProvider {
 
     // 토큰 만료 처리
     this.socket.on("expired", () => {
-      console.log("[EVENT] expired");
       this.hasAccess = false;
       this.disconnect();
     });
 
     // 에러 처리
-    this.socket.on("error", (message: any) => {
-      console.log("[EVENT] error");
-      console.log("[ERROR] raw type:", typeof message, "/ value:", message);
-      try {
-        const decoded = new TextDecoder().decode(message);
-        console.log("[ERROR] decoded:", JSON.parse(decoded));
-      } catch {
-        console.log("[ERROR] could not decode as JSON");
-      }
-    });
+    this.socket.on("error", () => {});
   }
 
   private sendMessage({ type, data }: YjsMessage): void {
     if (this.socket?.connected) {
-      console.log("[EMIT]", type, "/ data:", data);
       this.socket.emit(type, data);
     }
   }
