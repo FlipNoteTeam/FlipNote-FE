@@ -140,7 +140,7 @@ export class YjsProvider {
       if (this.hasAccess && this.isConnected) {
         const awarenessUpdate = awarenessProtocol.encodeAwarenessUpdate(
           this.awareness,
-          Array.from(this.awareness.getStates().keys())
+          Array.from(this.awareness.getStates().keys()),
         );
 
         this.sendMessage({
@@ -193,7 +193,7 @@ export class YjsProvider {
             });
           }, this);
         }
-      }
+      },
     );
 
     // 동기화 메시지 처리 (서버가 업데이트를 브로드캐스트)
@@ -201,7 +201,17 @@ export class YjsProvider {
       if (!this.hasAccess) return;
 
       console.log("[EVENT] sync");
-      console.log("[SYNC] raw message type:", typeof message, message instanceof ArrayBuffer ? "ArrayBuffer" : message instanceof Uint8Array ? "Uint8Array" : Array.isArray(message) ? "Array" : "other");
+      console.log(
+        "[SYNC] raw message type:",
+        typeof message,
+        message instanceof ArrayBuffer
+          ? "ArrayBuffer"
+          : message instanceof Uint8Array
+            ? "Uint8Array"
+            : Array.isArray(message)
+              ? "Array"
+              : "other",
+      );
       console.log("[SYNC] raw message:", message);
 
       let cardsetId: string;
@@ -216,29 +226,71 @@ export class YjsProvider {
         // 새 포맷: Socket.io가 자동 파싱한 JS 객체 {cardsetId, update: ArrayBuffer | number[]}
         cardsetId = message.cardsetId;
         updateBinary = new Uint8Array(message.update);
-        console.log("[SYNC] new format - cardsetId:", cardsetId, "/ update:", updateBinary);
+        console.log(
+          "[SYNC] new format - cardsetId:",
+          cardsetId,
+          "/ update:",
+          updateBinary,
+        );
       } else {
         // 구 포맷: Buffer → TextDecoder → JSON parse
         const jsonString = new TextDecoder().decode(message);
         const parsed = JSON.parse(jsonString);
         cardsetId = parsed.cardsetId;
         updateBinary = new Uint8Array(parsed.update);
-        console.log("[SYNC] legacy format - cardsetId:", cardsetId, "/ update:", updateBinary);
+        console.log(
+          "[SYNC] legacy format - cardsetId:",
+          cardsetId,
+          "/ update:",
+          updateBinary,
+        );
       }
 
-      Y.applyUpdate(this.doc, updateBinary, this);
+      console.log("증분값 적용 전, ", this.doc.getArray("cards"));
 
+      Y.applyUpdate(this.doc, updateBinary, this);
+      console.log("증분값 적용 전, ", this.doc.getArray("cards"));
       // applyUpdate 후 cardsArray 상태 확인
-      console.log("[SYNC] cardsArray.length after applyUpdate:", this.cardsArray.length);
+      console.log(
+        "[SYNC] cardsArray.length after applyUpdate:",
+        this.cardsArray.length,
+      );
       this.cardsArray.forEach((item, index) => {
-        console.log(`[SYNC] cardsArray[${index}] type:`, item?.constructor?.name, "/ instanceof Y.Map:", item instanceof Y.Map, "/ value:", item);
+        console.log(
+          `[SYNC] cardsArray[${index}] type:`,
+          item?.constructor?.name,
+          "/ instanceof Y.Map:",
+          item instanceof Y.Map,
+          "/ value:",
+          item,
+        );
         if (item instanceof Y.Map) {
-          console.log(`[SYNC] cardsArray[${index}] keys:`, Array.from(item.keys()));
-          console.log(`[SYNC] cardsArray[${index}].get('id'):`, item.get("id"), typeof item.get("id"));
-          console.log(`[SYNC] cardsArray[${index}].get('question'):`, item.get("question"), "instanceof Y.Text:", item.get("question") instanceof Y.Text);
-          console.log(`[SYNC] cardsArray[${index}].get('answer'):`, item.get("answer"), "instanceof Y.Text:", item.get("answer") instanceof Y.Text);
+          console.log(
+            `[SYNC] cardsArray[${index}] keys:`,
+            Array.from(item.keys()),
+          );
+          console.log(
+            `[SYNC] cardsArray[${index}].get('id'):`,
+            item.get("id"),
+            typeof item.get("id"),
+          );
+          console.log(
+            `[SYNC] cardsArray[${index}].get('question'):`,
+            item.get("question"),
+            "instanceof Y.Text:",
+            item.get("question") instanceof Y.Text,
+          );
+          console.log(
+            `[SYNC] cardsArray[${index}].get('answer'):`,
+            item.get("answer"),
+            "instanceof Y.Text:",
+            item.get("answer") instanceof Y.Text,
+          );
         } else {
-          console.log(`[SYNC] cardsArray[${index}] plain value:`, JSON.stringify(item));
+          console.log(
+            `[SYNC] cardsArray[${index}] plain value:`,
+            JSON.stringify(item),
+          );
         }
       });
     });
@@ -257,7 +309,11 @@ export class YjsProvider {
       if (!awarenessData) return;
 
       const awarenessUpdate = new Uint8Array(awarenessData);
-      awarenessProtocol.applyAwarenessUpdate(this.awareness, awarenessUpdate, this);
+      awarenessProtocol.applyAwarenessUpdate(
+        this.awareness,
+        awarenessUpdate,
+        this,
+      );
     });
 
     // 토큰 만료 처리
@@ -419,7 +475,7 @@ export class YjsProvider {
   setAwareness(
     field: "question" | "answer",
     cardIndex: number,
-    cursor?: { index: number; length: number }
+    cursor?: { index: number; length: number },
   ): void {
     if (!this.hasAccess) return;
 

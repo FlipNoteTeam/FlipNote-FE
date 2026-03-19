@@ -125,8 +125,6 @@ export function useYjs(options: UseYjsOptions) {
 
   useEffect(() => {
     if (autoConnect) {
-      console.log("이건 실행되잖여");
-
       connect();
     }
 
