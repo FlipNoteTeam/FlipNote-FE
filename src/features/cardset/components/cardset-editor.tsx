@@ -196,7 +196,7 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
   const handleQuestionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newValue = e.target.value;
     setQuestionValue(newValue);
-    if (e.nativeEvent.isComposing) return;
+    if ((e.nativeEvent as InputEvent).isComposing) return;
     if (hasAccess && questionTextRef.current) {
       const oldValue = questionValue;
       isUpdatingRef.current = true;
@@ -224,7 +224,7 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
   const handleAnswerChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newValue = e.target.value;
     setAnswerValue(newValue);
-    if (e.nativeEvent.isComposing) return;
+    if ((e.nativeEvent as InputEvent).isComposing) return;
     if (hasAccess && answerTextRef.current) {
       const oldValue = answerValue;
       isUpdatingRef.current = true;
