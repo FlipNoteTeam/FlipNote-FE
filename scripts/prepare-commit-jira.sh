@@ -26,7 +26,7 @@ fi
 FIRST_LINE=$(head -n1 "$1")
 
 # feat: 와 같은 타입이 있는지 체크
-if echo "$FIRST_LINE" | grep -qE '^(feat|fix|chore|docs|refactor|test|style|perf|build|ci|revert|design|improve):'; then
+if echo "$FIRST_LINE" | grep -qE '^(feat|fix|chore|docs|refactor|test|style|perf|build|ci|revert|design|improve|debug):'; then
     # 타입 뒤에 Jira 키 추가
     NEW_LINE=$(echo "$FIRST_LINE" | sed -E "s/^([a-z]+:)(.*)/\1 [$ISSUE_KEY]\2/")
     # 커밋 메시지 업데이트
