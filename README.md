@@ -2,20 +2,12 @@
 
 **FlipNote 서비스의 프론트엔드 레포지토리입니다.**
 
-[React](https://img.shields.io/badge/React-61DAFB?logo=react&logoColor=black)
-
-[Vite](https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white)
-
-[TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?logo=tailwindcss&logoColor=white)
-
-[Deploy](https://img.shields.io/badge/Deploy-CloudFront%20%2B%20S3-FF9900?logo=amazonaws&logoColor=white)
-
 ---
 ## 📑 목차
 
 - [시작하기](#-시작하기)
 - [환경 변수](#-환경-변수)
-- [실행 및 배포](#-실행-및-배포)
+- [실행 및 배포](#%EF%B8%8F-실행-및-배포)
 - [프로젝트 구조](#-프로젝트-구조)
 
 ---
@@ -24,8 +16,8 @@
 
 ### 사전 요구사항
 
-- **Node.js** 18 이상
-- **npm** 9 이상
+- **Node.js** 22 이상
+- **npm** 12 이상
 - Firebase 프로젝트 생성 및 설정 완료
 - AWS S3 버킷 및 CloudFront 배포 생성 완료 (배포 시)
 
