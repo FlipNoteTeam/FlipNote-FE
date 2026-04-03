@@ -35,7 +35,7 @@ const MobileMenu = () => {
         </SheetHeader>
         <div className="mt-6 flex flex-col gap-4">
           <NavItems />
-          <div className="border-t pt-4">
+          <div className="border-t pt-4 md:p-4">
             {isInitializing ? (
               <div className="flex gap-2">
                 <Skeleton className="w-8 h-8 rounded-full" />
