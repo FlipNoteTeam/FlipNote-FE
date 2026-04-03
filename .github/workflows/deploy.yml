@@ -5,7 +5,31 @@ on:
     branches: [dev]
 
 jobs:
+  ci:
+    name: Lint & Type Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type check
+        run: npx tsc -b
+
   deploy:
+    name: Deploy to S3
+    needs: ci
     runs-on: ubuntu-latest
 
     environment: FlipNote-FE
@@ -17,13 +41,13 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "23"
+          node-version: "24"
 
       - name: Install dependencies
         run: npm ci
 
       - name: Create .env file
-        run: echo "${{secrets.FE_ENV}}" > .env.production
+        run: echo "${{ secrets.FE_ENV }}" > .env.production
 
       - name: Build React app
         run: npm run build
