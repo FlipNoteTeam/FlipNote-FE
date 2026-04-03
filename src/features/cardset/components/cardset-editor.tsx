@@ -211,7 +211,9 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
     }
   };
 
-  const handleQuestionCompositionEnd = (e: React.CompositionEvent<HTMLTextAreaElement>) => {
+  const handleQuestionCompositionEnd = (
+    e: React.CompositionEvent<HTMLTextAreaElement>,
+  ) => {
     const newValue = e.currentTarget.value;
     if (hasAccess && questionTextRef.current) {
       const oldValue = questionTextRef.current.toString();
@@ -239,7 +241,9 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
     }
   };
 
-  const handleAnswerCompositionEnd = (e: React.CompositionEvent<HTMLTextAreaElement>) => {
+  const handleAnswerCompositionEnd = (
+    e: React.CompositionEvent<HTMLTextAreaElement>,
+  ) => {
     const newValue = e.currentTarget.value;
     if (hasAccess && answerTextRef.current) {
       const oldValue = answerTextRef.current.toString();
@@ -660,7 +664,7 @@ function EditorField({
 }: EditorFieldProps) {
   return (
     <div
-      className={`bg-white transition-colors duration-150 ${
+      className={`bg-white transition-colors duration-150 p-2 ${
         isFocused
           ? "bg-indigo-50/40"
           : editors.length > 0
