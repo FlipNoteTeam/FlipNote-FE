@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { cardApi } from "@/shared/apis/card";
 import BaseLayout from "@/shared/layouts/base-layout";
 import { useLocation } from "@tanstack/react-router";
 import type { TestSettings } from "@/features/setting-study-mode/model/form.schema";
@@ -7,7 +8,7 @@ import { Button } from "@/shared/components/button";
 import { Textarea } from "@/shared/components/textarea";
 import { Card } from "@/shared/components/card";
 import { useTimer } from "@/shared/hooks/use-timer";
-import { Clock, Play, Pause, Loader2 } from "lucide-react";
+import { Clock, Play, Pause, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 
 type StudyState = TestSettings & {
   groupId: number;
@@ -29,37 +30,7 @@ type TestResult = {
 
 const TestMode = () => {
   const { state } = useLocation();
-  const studySettings = state as unknown as StudyState;
-
-  // TODO: 카드 API 연동 후 mock 제거
-  const MOCK_CARDS = [
-    {
-      id: "1",
-      question: "React에서 상태 관리를 위한 기본 훅은 무엇인가?",
-      answer: "useState",
-    },
-    {
-      id: "2",
-      question: "컴포넌트의 사이드 이펙트를 처리하는 훅은 무엇인가?",
-      answer: "useEffect",
-    },
-    {
-      id: "3",
-      question: "컨텍스트 값을 구독할 때 사용하는 훅은 무엇인가?",
-      answer: "useContext",
-    },
-    {
-      id: "4",
-      question: "이전 렌더링 값을 기억할 때 사용하는 훅은 무엇인가?",
-      answer: "useRef",
-    },
-    {
-      id: "5",
-      question:
-        "비용이 큰 계산 결과를 메모이제이션할 때 사용하는 훅은 무엇인가?",
-      answer: "useMemo",
-    },
-  ];
+  const studySettings = state as unknown as StudyState | null;
 
   // 카드 데이터 조회
   const {
@@ -68,7 +39,8 @@ const TestMode = () => {
     isError,
   } = useQuery({
     queryKey: ["cards", studySettings?.cardsetId],
-    queryFn: () => Promise.resolve({ data: { data: MOCK_CARDS } }),
+    queryFn: () => cardApi.getCards(studySettings!.cardsetId),
+    enabled: !!studySettings?.cardsetId,
   });
 
   const cards = cardsData?.data?.data ?? [];
@@ -85,6 +57,9 @@ const TestMode = () => {
 
   // 시험 진행 단계: 'answering' | 'grading'
   const [phase, setPhase] = useState<"answering" | "grading">("answering");
+
+  // 답변 현황 패널 열림/닫힘
+  const [isNavOpen, setIsNavOpen] = useState(true);
 
   // 채점 결과
   const [testResults, setTestResults] = useState<TestResult[]>([]);
@@ -250,7 +225,7 @@ const TestMode = () => {
       <div className="max-w-4xl mx-auto py-8 space-y-6">
         {/* 헤더와 타이머 */}
         <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold">시험 모드</h1>
+          <h1 className="text-2xl font-bold">시험</h1>
 
           <div className="flex items-center gap-4">
             {/* 타이머 */}
@@ -288,22 +263,68 @@ const TestMode = () => {
         </div>
 
         <div className="space-y-6">
-          {cards.map((card, index) => (
-            <Card key={card.id} className="p-6 space-y-4">
-              <h3 className="text-lg font-semibold">
-                {index + 1}. {card.question}
-              </h3>
-              <Textarea
-                placeholder="답변을 입력하세요..."
-                value={
-                  answers.find((a) => a.questionKey === card.id)?.userAnswer ||
-                  ""
-                }
-                onChange={(e) => handleAnswerChange(card.id, e.target.value)}
-                className="min-h-[120px]"
-              />
-            </Card>
-          ))}
+          <Card className="rounded-xs">
+            {cards.map((card, index) => (
+              <div key={`card-${card.id}`} id={`question-${card.id}`} className="px-2 py-6 space-y-4">
+                <h3 className="text-lg font-semibold">
+                  {index + 1}. {card.question}
+                </h3>
+                <Textarea
+                  placeholder="답변을 입력하세요"
+                  value={
+                    answers.find((a) => a.questionKey === card.id)
+                      ?.userAnswer || ""
+                  }
+                  onChange={(e) => handleAnswerChange(card.id, e.target.value)}
+                  className="min-h-[120px] resize-none"
+                />
+              </div>
+            ))}
+          </Card>
+        </div>
+      </div>
+
+      {/* 답변 현황 플로팅 패널 */}
+      <div className="fixed right-0 top-1/2 -translate-y-1/2 z-50 flex items-center">
+        <button
+          onClick={() => setIsNavOpen(!isNavOpen)}
+          className="bg-white border-y border-l shadow-md rounded-l-lg h-10 w-5 flex items-center justify-center hover:bg-gray-50 transition-colors"
+        >
+          {isNavOpen ? (
+            <ChevronRight className="h-3 w-3 text-gray-500" />
+          ) : (
+            <ChevronLeft className="h-3 w-3 text-gray-500" />
+          )}
+        </button>
+        <div
+          className={`bg-white border shadow-md rounded-tl-lg rounded-bl-lg overflow-hidden transition-all duration-200 ${
+            isNavOpen ? "w-12" : "w-0"
+          }`}
+        >
+          <div className="p-2 flex flex-col items-center gap-1.5 max-h-[calc(100dvh-8rem)] overflow-y-auto">
+            {cards.map((card, index) => {
+              const isAnswered = !!answers
+                .find((a) => a.questionKey === card.id)
+                ?.userAnswer.trim();
+              return (
+                <button
+                  key={card.id}
+                  onClick={() =>
+                    document
+                      .getElementById(`question-${card.id}`)
+                      ?.scrollIntoView({ behavior: "smooth", block: "center" })
+                  }
+                  className={`w-7 h-7 rounded-full text-xs font-semibold flex items-center justify-center transition-colors ${
+                    isAnswered
+                      ? "bg-blue-500 text-white"
+                      : "bg-gray-100 text-gray-400"
+                  }`}
+                >
+                  {index + 1}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
     </BaseLayout>
