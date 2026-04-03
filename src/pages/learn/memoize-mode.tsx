@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import BaseLayout from "@/shared/layouts/base-layout";
+import GNB from "@/shared/layouts/gnb";
 import FlipCard from "@/shared/components/flip-card";
 import {
   Carousel,
@@ -24,6 +24,17 @@ import {
   Loader2,
 } from "lucide-react";
 import { cardApi, type CardResponse } from "@/shared/apis/card";
+
+// [DEV_MOCK] UI 작업용 임시 목 데이터 - 작업 완료 후 제거
+const DEV_MOCK = true;
+const MOCK_CARDS: CardResponse[] = [
+  { id: "1", question: "React에서 상태 관리를 위한 기본 훅은 무엇인가?", answer: "useState" },
+  { id: "2", question: "컴포넌트의 사이드 이펙트를 처리하는 훅은 무엇인가?", answer: "useEffect" },
+  { id: "3", question: "컨텍스트 값을 구독할 때 사용하는 훅은 무엇인가?", answer: "useContext" },
+  { id: "4", question: "이전 렌더링 값을 기억할 때 사용하는 훅은 무엇인가?", answer: "useRef" },
+  { id: "5", question: "비용이 큰 계산 결과를 메모이제이션할 때 사용하는 훅은?", answer: "useMemo" },
+  { id: "6", question: "함수를 메모이제이션할 때 사용하는 훅은?", answer: "useCallback" },
+];
 
 type MemoizeControllerProps = {
   settings: MemorizeSettings;
@@ -223,17 +234,22 @@ const CardCarousel = ({
   }, [isPlaying, duration, repeat, api, current, cards.length]);
 
   return (
-    <div className="w-full max-w-5xl mx-auto mb-32">
+    <div className="w-full max-w-2xl">
       <Carousel setApi={setApi} opts={{ loop: false }}>
         <CarouselContent>
           {cards.map((card, index) => (
             <CarouselItem key={card.id} className="flex justify-center">
-              <FlipCard
-                frontNode={card.question}
-                backNode={card.answer}
-                isActive={index === current}
-                autoFlip={isPlaying}
-              />
+              <div
+                className="w-full"
+                style={{ height: "clamp(200px, calc(100dvh - 280px), 500px)" }}
+              >
+                <FlipCard
+                  frontNode={card.question}
+                  backNode={card.answer}
+                  isActive={index === current}
+                  autoFlip={isPlaying}
+                />
+              </div>
             </CarouselItem>
           ))}
         </CarouselContent>
@@ -253,14 +269,20 @@ type MemoizeModeProps = {
 
 const MemoizeMode = ({ settings: studySettings }: MemoizeModeProps) => {
   // 카드 데이터 조회
+  // [DEV_MOCK] 실서버 연결 시 queryFn과 enabled를 원래대로 복원:
+  // queryFn: () => cardApi.getCards(studySettings.cardsetId),
+  // enabled: !!studySettings.cardsetId,
   const {
     data: cardsData,
     isLoading,
     isError,
   } = useQuery({
     queryKey: ["cards", studySettings.cardsetId],
-    queryFn: () => cardApi.getCards(studySettings.cardsetId),
-    enabled: !!studySettings.cardsetId,
+    queryFn: () =>
+      DEV_MOCK
+        ? Promise.resolve({ data: { data: MOCK_CARDS } })
+        : cardApi.getCards(studySettings.cardsetId),
+    enabled: DEV_MOCK || !!studySettings.cardsetId,
   });
 
   const cards = cardsData?.data?.data ?? [];
@@ -298,28 +320,30 @@ const MemoizeMode = ({ settings: studySettings }: MemoizeModeProps) => {
 
   if (isLoading) {
     return (
-      <BaseLayout>
-        <div className="flex items-center justify-center min-h-[60vh]">
+      <div className="h-dvh flex flex-col overflow-hidden">
+        <GNB />
+        <div className="flex-1 flex items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
         </div>
-      </BaseLayout>
+      </div>
     );
   }
 
   if (isError || cards.length === 0) {
     return (
-      <BaseLayout>
-        <div className="flex items-center justify-center min-h-[60vh]">
+      <div className="h-dvh flex flex-col overflow-hidden">
+        <GNB />
+        <div className="flex-1 flex items-center justify-center">
           <p className="text-gray-500">카드를 불러올 수 없습니다.</p>
         </div>
-      </BaseLayout>
+      </div>
     );
   }
 
   return (
-    <BaseLayout>
-      <div className="space-y-6">
-        {/* 카드 캐러셀 */}
+    <div className="h-dvh flex flex-col overflow-hidden">
+      <GNB />
+      <div className="flex-1 min-h-0 flex items-center justify-center px-4 pb-32">
         <CardCarousel
           cards={cards}
           api={api}
@@ -330,20 +354,18 @@ const MemoizeMode = ({ settings: studySettings }: MemoizeModeProps) => {
           duration={autoPlayDuration}
           repeat={settings.isUnlimitedRepeat}
         />
-
-        {/* 컨트롤러 */}
-        <MemoizeController
-          settings={settings}
-          setSettings={setSettings}
-          isPlaying={isPlaying}
-          setIsPlaying={setIsPlaying}
-          currentIndex={current}
-          totalCount={cards.length}
-          onPrevious={handlePrevious}
-          onNext={handleNext}
-        />
       </div>
-    </BaseLayout>
+      <MemoizeController
+        settings={settings}
+        setSettings={setSettings}
+        isPlaying={isPlaying}
+        setIsPlaying={setIsPlaying}
+        currentIndex={current}
+        totalCount={cards.length}
+        onPrevious={handlePrevious}
+        onNext={handleNext}
+      />
+    </div>
   );
 };
 

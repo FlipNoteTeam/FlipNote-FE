@@ -38,9 +38,9 @@ const FlipCard = ({
   };
 
   return (
-    <div className="perspective-[1000px]">
+    <div className="perspective-[1000px] w-full h-full">
       <motion.div
-        className="relative h-[800px] w-[1000px] [transform-style:preserve-3d] bg-amber-100 border border-gray-200 rounded-lg"
+        className="relative w-full h-full [transform-style:preserve-3d] bg-amber-100 border border-gray-200 rounded-lg"
         animate={{ rotateY: flipped ? 180 : 0 }}
         transition={{ duration: 0.4, ease: "easeInOut" }}
         onClick={handleClick}
