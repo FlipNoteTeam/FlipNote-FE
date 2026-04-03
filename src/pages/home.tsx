@@ -3,10 +3,13 @@ import {
   Users,
   BarChart3,
   Sparkles,
+  Settings,
   ArrowRight,
   CheckCircle,
   TrendingUp,
   RotateCcw,
+  Star,
+  Heart,
 } from "lucide-react";
 import { motion, type Variants, useReducedMotion } from "framer-motion";
 import { useState, useEffect } from "react";
@@ -40,9 +43,7 @@ function FlipCardDemo() {
         };
 
   return (
-    <div className="relative flex items-center justify-center min-h-[360px]">
-      {/* Background gradient */}
-      <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-blue-50 via-indigo-50/60 to-white pointer-events-none" />
+    <div className="relative flex items-center justify-center min-h-90">
       {/* Floating glass card — top right */}
       {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
       {/* @ts-expect-error */}
@@ -73,16 +74,9 @@ function FlipCardDemo() {
         }}
         {...float(-1, 0.8)}
       >
-        <div className="flex gap-1">
-          {[1, 2, 3, 4, 5].map((i) => (
-            <div
-              key={i}
-              className={`w-2.5 h-1 rounded-full ${i <= 4 ? "bg-primary" : "bg-gray-200"}`}
-            />
-          ))}
-        </div>
+        <div className="flex gap-1"></div>
         <div className="text-xs font-semibold text-foreground">
-          오늘 4 / 5 완료
+          같이 공부하자!
         </div>
         <div className="text-[10px] text-muted-foreground">
           연속 7일 학습 중
@@ -191,10 +185,12 @@ export default function Home() {
   return (
     <div className="min-h-screen">
       {/* ── HERO ── */}
-      <section className="relative py-16 sm:py-24 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-[480px] h-[480px] rounded-full bg-primary/6 blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 -left-20 w-64 h-64 rounded-full bg-indigo-100/50 blur-3xl pointer-events-none" />
-
+      <section className="relative py-16 sm:py-24">
+        {/* Full-bleed background */}
+        <div
+          className="absolute bottom-0 -top-6 lg:-top-16 -z-10 bg-linear-to-br from-blue-100 via-indigo-50/60 to-white pointer-events-none"
+          style={{ left: "calc(-50vw + 50%)", right: "calc(-50vw + 50%)" }}
+        />
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center relative">
           {/* Left: Copy */}
           <motion.div
@@ -214,17 +210,16 @@ export default function Home() {
               className="text-5xl sm:text-[3.75rem] font-bold leading-[1.08] tracking-tight"
               variants={fadeUp(0.05)}
             >
-              암기가
+              함께하면
               <br />
-              <span className="text-primary">달라집니다</span>
+              <span className="text-primary">더 잘 외워집니다</span>
             </motion.h1>
 
             <motion.p
               className="text-lg text-muted-foreground leading-relaxed max-w-md"
               variants={fadeUp(0.1)}
             >
-              플래시카드를 만들고, 친구와 함께 편집하고, 원하는 방식으로
-              학습하세요. FlipNote와 함께라면 공부가 달라집니다.
+              카드셋을 함께 편집하고, 암기·시험 모드로 실력을 키우세요.
             </motion.p>
 
             <motion.div
@@ -232,7 +227,7 @@ export default function Home() {
               variants={fadeUp(0.15)}
             >
               <Link to="/auth/register">
-                <Button className="cursor-pointer bg-primary text-primary-foreground hover:bg-primary/90 px-7 h-12 text-base rounded-xl font-semibold group transition-all duration-200 shadow-sm">
+                <Button className="cursor-pointer bg-primary texㄴt-primary-foreground hover:bg-primary/90 px-7 h-12 text-base rounded-xl font-semibold group transition-all duration-200 shadow-sm">
                   무료로 시작하기
                   <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform duration-200" />
                 </Button>
@@ -240,6 +235,11 @@ export default function Home() {
               <Button
                 variant="outline"
                 className="cursor-pointer border-gray-200 text-foreground px-7 h-12 text-base rounded-xl font-semibold bg-white hover:bg-gray-50 transition-colors duration-200"
+                onClick={() =>
+                  document
+                    .getElementById("features")
+                    ?.scrollIntoView({ behavior: "smooth" })
+                }
               >
                 기능 살펴보기
               </Button>
@@ -249,7 +249,11 @@ export default function Home() {
               className="flex flex-wrap items-center gap-5"
               variants={fadeUp(0.2)}
             >
-              {["무료 가입", "실시간 협업", "오답 자동 분석"].map((item) => (
+              {[
+                "체계적인 그룹 관리",
+                "암기 · 시험 모드",
+                "카드셋 협업 편집",
+              ].map((item) => (
                 <div
                   key={item}
                   className="flex items-center gap-1.5 text-sm text-muted-foreground"
@@ -276,8 +280,8 @@ export default function Home() {
       <section className="border-t border-b border-gray-100 py-10">
         <div className="grid grid-cols-3 gap-4 text-center">
           {[
-            { value: "3가지", label: "학습 모드" },
-            { value: "6인", label: "실시간 협업" },
+            { value: "2가지", label: "학습 모드" },
+            { value: "실시간", label: "협업 편집" },
             { value: "무제한", label: "카드셋 생성" },
           ].map((s, i) => (
             <motion.div
@@ -299,7 +303,7 @@ export default function Home() {
       </section>
 
       {/* ── BENTO FEATURES ── */}
-      <section className="py-24">
+      <section className="py-24" id="features">
         <motion.div
           className="text-center mb-14"
           initial={shouldReduce ? {} : { opacity: 0, y: 16 }}
@@ -333,31 +337,30 @@ export default function Home() {
                 <BookOpen className="w-5 h-5 text-primary" />
               </div>
               <span className="text-[10px] font-bold tracking-widest text-muted-foreground bg-gray-50 border border-gray-100 px-2.5 py-1 rounded-full">
-                3 MODES
+                2 MODES
               </span>
             </div>
             <h3 className="text-xl font-bold tracking-tight mb-2">
               스마트 학습 모드
             </h3>
             <p className="text-sm text-muted-foreground leading-relaxed mb-6">
-              연습, 암기, 시험 세 가지 모드로 자신에게 맞는 방식을 골라
-              학습하세요.
+              암기, 시험 두 가지 모드로 자신에게 맞는 방식을 골라 학습하세요.
             </p>
             <div className="space-y-2.5">
               {[
                 {
-                  label: "연습하기",
-                  desc: "자유롭게 카드 넘기기",
-                  selected: false,
-                },
-                {
                   label: "암기하기",
-                  desc: "간격 반복 학습법 적용",
+                  desc: "O/X 체크로 틀린 카드 반복 학습",
                   selected: true,
                 },
                 {
                   label: "시험 보기",
-                  desc: "실전 테스트 모드",
+                  desc: "답 직접 입력 후 실력 확인",
+                  selected: false,
+                },
+                {
+                  label: "오답노트",
+                  desc: "수동 채점 후 틀린 카드 저장 및 집중 복습",
                   selected: false,
                 },
               ].map((m) => (
@@ -421,7 +424,8 @@ export default function Home() {
               실시간 협업 편집
             </h3>
             <p className="text-sm text-muted-foreground leading-relaxed mb-5">
-              최대 6명이 동시에 하나의 카드셋을 만들고 편집합니다.
+              카드셋 매니저로 지정된 인원은 모두 실시간으로 함께 편집할 수
+              있어요.
             </p>
             <div className="flex items-center gap-3">
               <div className="flex -space-x-2.5">
@@ -461,40 +465,12 @@ export default function Home() {
             <h3 className="text-base font-bold tracking-tight mb-1.5">
               오답노트
             </h3>
-            <p className="text-xs text-muted-foreground leading-relaxed mb-5">
-              틀린 카드를 자동으로 추려 약점을 집중 복습하세요.
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              시험 후 수동 채점으로 틀린 카드를 저장하고 약점을 집중 복습하세요.
             </p>
-            <div className="space-y-2.5">
-              {[
-                { label: "정답률", value: 82 },
-                { label: "오늘 진행", value: 60 },
-              ].map((stat) => (
-                <div key={stat.label}>
-                  <div className="flex justify-between text-[11px] mb-1.5">
-                    <span className="text-muted-foreground">{stat.label}</span>
-                    <span className="font-semibold text-foreground">
-                      {stat.value}%
-                    </span>
-                  </div>
-                  <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                    <motion.div
-                      className="h-full bg-primary rounded-full"
-                      initial={{ width: 0 }}
-                      whileInView={{ width: `${stat.value}%` }}
-                      transition={{
-                        duration: shouldReduce ? 0 : 0.9,
-                        ease: "easeOut",
-                        delay: 0.2,
-                      }}
-                      viewport={{ once: true }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
           </motion.div>
 
-          {/* ④ 학습 통계 — Small 1×1 (primary color) */}
+          {/* ④ 즐겨찾기 & 좋아요 — Small 1×1 (primary color) */}
           <motion.div
             className="md:col-span-1 rounded-3xl bg-primary p-6 hover:shadow-xl hover:shadow-primary/25 hover:scale-[1.015] transition-all duration-200 cursor-pointer group"
             initial={shouldReduce ? {} : { opacity: 0, y: 20 }}
@@ -507,30 +483,33 @@ export default function Home() {
             viewport={{ once: true, margin: "-40px" }}
           >
             <div className="w-10 h-10 rounded-2xl bg-white/15 flex items-center justify-center mb-4">
-              <TrendingUp className="w-5 h-5 text-primary-foreground" />
+              <Star className="w-5 h-5 text-primary-foreground" />
             </div>
             <h3 className="text-base font-bold tracking-tight mb-1.5 text-primary-foreground">
-              학습 통계
+              즐겨찾기 & 좋아요
             </h3>
-            <p className="text-xs text-primary-foreground/65 leading-relaxed mb-5">
-              진행도와 성취를 한눈에 파악하세요.
+            <p className="text-xs text-primary-foreground/65 leading-relaxed mb-4">
+              자주 쓰는 카드셋 즐겨찾기, 좋아요순 정렬 지원.
             </p>
-            <div className="flex items-end gap-1 h-10">
-              {[40, 65, 50, 80, 60, 90, 75].map((h, i) => (
-                <motion.div
-                  key={i}
-                  className="flex-1 bg-white/30 rounded-sm"
-                  style={{ height: `${h}%` }}
-                  initial={shouldReduce ? {} : { scaleY: 0 }}
-                  whileInView={{ scaleY: 1 }}
-                  transition={{
-                    duration: shouldReduce ? 0 : 0.5,
-                    delay: i * 0.06,
-                    ease: "easeOut",
-                  }}
-                  viewport={{ once: true }}
-                />
-              ))}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 bg-white/15 rounded-xl px-3 py-2">
+                <Star className="w-3.5 h-3.5 text-yellow-300 fill-yellow-300" />
+                <span className="text-[11px] text-primary-foreground/90 flex-1">
+                  즐겨찾기
+                </span>
+                <span className="text-xs font-bold text-primary-foreground">
+                  32
+                </span>
+              </div>
+              <div className="flex items-center gap-2 bg-white/15 rounded-xl px-3 py-2">
+                <Heart className="w-3.5 h-3.5 text-red-300 fill-red-300" />
+                <span className="text-[11px] text-primary-foreground/90 flex-1">
+                  좋아요
+                </span>
+                <span className="text-xs font-bold text-primary-foreground">
+                  248
+                </span>
+              </div>
             </div>
           </motion.div>
 
@@ -549,27 +528,29 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5">
               <div className="flex items-start gap-4">
                 <div className="w-11 h-11 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/15 transition-colors duration-200">
-                  <Sparkles className="w-5 h-5 text-primary" />
+                  <Settings className="w-5 h-5 text-primary" />
                 </div>
                 <div>
                   <h3 className="text-lg font-bold tracking-tight mb-1">
-                    그룹 학습 & 공유
+                    그룹 학습 & 권한 관리
                   </h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    그룹을 만들어 카드셋을 공유하고 함께 성장하는 학습
-                    커뮤니티를 경험하세요.
+                    그룹을 만들어 카드셋을 공유하세요. 역할별로 권한을 나눠 팀을
+                    유연하게 관리합니다.
                   </p>
                 </div>
               </div>
               <div className="flex flex-wrap gap-2 shrink-0">
-                {["영어 스터디", "TOEIC 900", "의대 국시"].map((tag) => (
-                  <span
-                    key={tag}
-                    className="text-xs px-3 py-1.5 bg-white border border-gray-200 rounded-full text-foreground font-medium shadow-sm"
-                  >
-                    {tag}
-                  </span>
-                ))}
+                {["역할별 권한 관리", "공개 / 비공개", "멤버 초대"].map(
+                  (tag) => (
+                    <span
+                      key={tag}
+                      className="text-xs px-3 py-1.5 bg-white border border-gray-200 rounded-full text-foreground font-medium shadow-sm"
+                    >
+                      {tag}
+                    </span>
+                  ),
+                )}
               </div>
             </div>
           </motion.div>
@@ -605,13 +586,13 @@ export default function Home() {
               num: "02",
               icon: Users,
               title: "친구와 함께하기",
-              desc: "그룹을 만들어 카드셋을 공유하거나, 최대 6명이 실시간으로 함께 카드를 만들어요.",
+              desc: "그룹을 만들어 카드셋을 공유하거나, 매니저로 지정된 인원과 실시간으로 함께 카드를 만들어요.",
             },
             {
               num: "03",
               icon: TrendingUp,
               title: "실력 키우기",
-              desc: "연습, 암기, 시험 모드로 반복 학습하고, 오답노트로 약점을 집중 공략하세요.",
+              desc: "암기, 시험 모드로 반복 학습하고, 오답노트로 약점을 집중 공략하세요.",
             },
           ].map((step, i) => (
             <motion.div
@@ -647,13 +628,12 @@ export default function Home() {
       {/* ── CTA ── */}
       <section className="py-16">
         <motion.div
-          className="relative overflow-hidden rounded-3xl bg-primary px-8 py-20 text-center"
+          className="relative overflow-hidden rounded-3xl bg-linear-to-br from-primary via-primary to-indigo-600 px-10 py-12"
           initial={shouldReduce ? {} : { opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
           viewport={{ once: true }}
         >
-          {/* Dot pattern */}
           <div
             className="absolute inset-0 opacity-10 pointer-events-none"
             style={{
@@ -662,44 +642,28 @@ export default function Home() {
               backgroundSize: "24px 24px",
             }}
           />
-          <div className="absolute -top-24 -right-24 w-80 h-80 rounded-full bg-white/5 pointer-events-none" />
-          <div className="absolute -bottom-24 -left-24 w-80 h-80 rounded-full bg-white/5 pointer-events-none" />
+          <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-white/8 blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-16 -left-16 w-56 h-56 rounded-full bg-indigo-300/15 blur-3xl pointer-events-none" />
 
           <div className="relative">
-            <div className="inline-flex items-center gap-2 text-xs font-semibold text-primary-foreground/70 bg-white/10 px-3 py-1.5 rounded-full border border-white/20 mb-6">
+            <div className="inline-flex items-center gap-2 text-xs font-semibold text-primary-foreground/70 bg-white/10 px-3 py-1.5 rounded-full border border-white/20 mb-4">
               <Sparkles className="w-3 h-3" />
               무료로 시작하세요
             </div>
-            <h2 className="text-4xl sm:text-5xl font-bold text-primary-foreground mb-4 tracking-tight">
-              지금 바로 시작하세요
+            <h2 className="text-2xl sm:text-3xl font-bold text-primary-foreground tracking-tight">
+              FlipNote로 함께 공부해요
             </h2>
-            <p className="text-primary-foreground/70 text-lg mb-8 max-w-md mx-auto leading-relaxed">
-              회원가입은 무료이며, 오늘부터 더 스마트하게 공부하세요.
-            </p>
-            <Link to="/auth/register">
-              <Button className="cursor-pointer bg-white text-primary hover:bg-white/90 px-8 h-14 text-base font-semibold rounded-xl group shadow-lg transition-all duration-200">
-                무료 가입하기
-                <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform duration-200" />
-              </Button>
-            </Link>
           </div>
+
+          <Link
+            to="/auth/register"
+            className="absolute bottom-7 right-8 flex items-center gap-1.5 text-primary-foreground font-semibold text-base underline underline-offset-4 decoration-2 decoration-white/50 hover:decoration-white group transition-all duration-200"
+          >
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
+            가입하기
+          </Link>
         </motion.div>
       </section>
-
-      {/* ── FOOTER ── */}
-      <footer className="border-t border-gray-100 py-8">
-        <div className="flex justify-between items-center flex-col sm:flex-row gap-4">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-xl bg-primary flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-primary-foreground" />
-            </div>
-            <span className="font-bold text-foreground">FlipNote</span>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            © 2025 FlipNote. All rights reserved.
-          </p>
-        </div>
-      </footer>
     </div>
   );
 }
