@@ -66,6 +66,7 @@ const CardsetUpdateDialog = ({
       hashtag: form.hashtag?.map((tag) => `#${tag.name}`).join(" ") ?? "",
       category: form.category,
       imageRefId: form.imageRefId ? form.imageRefId : undefined,
+      managerIds: form.managers,
     };
 
     mutate({ cardsetId, data });
@@ -80,7 +81,7 @@ const CardsetUpdateDialog = ({
       ? cardset.hashtag.split(" ").map((tag) => ({ name: tag.replace(/^#/, "") }))
       : [],
     imageRefId: cardset.imageRefId ? Number(cardset.imageRefId) : undefined,
-    managers: [],
+    managers: cardset.managers?.map((m) => m.id) ?? [],
   };
 
   return (

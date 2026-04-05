@@ -87,8 +87,7 @@ export interface CardSetUpdateRequest {
   category: GroupCategory;
   hashtag: string;
   imageRefId?: number;
-  /** 카드셋 관리자 userId 목록 */
-  // managers?: number[];
+  managerIds?: number[];
 }
 
 export type CardSetSortBy = "id" | "like" | "book";
