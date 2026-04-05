@@ -40,6 +40,9 @@ export class YjsProvider {
   // 초기 동기화 완료 콜백
   private onSyncedCallback?: () => void;
 
+  // 연결 끊김 콜백
+  private onDisconnectCallback?: () => void;
+
   constructor(cardsetId: string, userId: string) {
     this.cardsetId = cardsetId;
     this.userId = userId;
@@ -171,6 +174,9 @@ export class YjsProvider {
     this.socket.on("disconnect", () => {
       this.isConnected = false;
       this.hasAccess = false;
+      if (this.onDisconnectCallback) {
+        this.onDisconnectCallback();
+      }
     });
 
     // 동기화 메시지 처리 (서버가 업데이트를 브로드캐스트)
@@ -390,6 +396,10 @@ export class YjsProvider {
 
   onSynced(callback: () => void): void {
     this.onSyncedCallback = callback;
+  }
+
+  onDisconnect(callback: () => void): void {
+    this.onDisconnectCallback = callback;
   }
 
   setAwareness(

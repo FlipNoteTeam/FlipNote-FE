@@ -341,6 +341,25 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
 
   return (
     <div className="h-screen flex bg-gray-50 overflow-hidden relative">
+      {/* 소켓 끊김 배너 */}
+      {hasSynced && connectionStatus === "disconnected" && (
+        <div className="fixed top-0 left-0 right-0 z-40 bg-amber-50 border-b border-amber-200 px-6 py-2.5 flex items-center justify-between">
+          <div className="flex items-center gap-2 text-amber-700 text-sm">
+            <WifiOff className="w-4 h-4 shrink-0" />
+            <span>연결이 끊어졌습니다. 재연결이 필요합니다.</span>
+          </div>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleCollaborationConnect}
+            className="h-7 text-xs border-amber-300 text-amber-700 hover:bg-amber-100 shrink-0"
+          >
+            <RefreshCw className="w-3 h-3 mr-1" />
+            재연결
+          </Button>
+        </div>
+      )}
+
       {/* 소켓 연결 실패 오버레이 */}
       {connectionError && (
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center">

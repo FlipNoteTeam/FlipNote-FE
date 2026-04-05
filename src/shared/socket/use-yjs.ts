@@ -49,6 +49,12 @@ export function useYjs(options: UseYjsOptions) {
             setHasSynced(true);
           });
 
+          // 소켓 끊김 콜백
+          provider.onDisconnect(() => {
+            setIsConnected(false);
+            setHasAccess(false);
+          });
+
           // 초기 카드 로드
           setCards(provider.getCards());
 
