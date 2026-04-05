@@ -40,7 +40,7 @@ const AuthenticatedNav = () => {
               src={user.profileImageUrl}
               className="w-4 h-4 object-fill rounded-full hover:bg-gray-100"
             /> */}
-            {user.name}님
+            {user.nickname}님
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <DropdownMenuGroup>
