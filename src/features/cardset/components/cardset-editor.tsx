@@ -534,7 +534,7 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
                     title={c.user.name}
                     className={`w-6 h-6 rounded-full ${getUserColor(c.user.id)} flex items-center justify-center text-white text-[10px] font-bold border-2 border-white`}
                   >
-                    {c.user.name.charAt(0).toUpperCase()}
+                    {c.user.name}
                   </div>
                 ))}
               </div>
