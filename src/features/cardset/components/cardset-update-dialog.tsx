@@ -87,16 +87,21 @@ const CardsetUpdateDialog = ({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{renderTrigger}</DialogTrigger>
-      <DialogContent onInteractOutside={(e) => e.preventDefault()}>
+      <DialogContent
+        className="max-h-[70vh] grid-rows-[auto_1fr_auto] overflow-hidden"
+        onInteractOutside={(e) => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle>카드셋 수정</DialogTitle>
         </DialogHeader>
-        <CardsetUpdateForm
-          groupId={groupId}
-          formId={FORM_ID}
-          onSubmit={handleSubmit}
-          defaultValues={defaultValues}
-        />
+        <div className="overflow-y-auto min-h-0">
+          <CardsetUpdateForm
+            groupId={groupId}
+            formId={FORM_ID}
+            onSubmit={handleSubmit}
+            defaultValues={defaultValues}
+          />
+        </div>
         <div className="flex gap-2 justify-end">
           <Button
             form={FORM_ID}
