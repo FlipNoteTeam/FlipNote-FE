@@ -269,3 +269,18 @@ Required in `.env.development` and `.env.production`:
 5. **Code splitting**:
    - TanStack Router handles automatic route-based code splitting
    - No manual lazy loading needed for routes
+
+## Refactoring Rules (AI-Native Workflow)
+
+리팩토링 작업 시 다음 규칙을 따른다:
+
+1. **단일 항목 단일 PR**: `docs/refactoring/NN-*.md` 하나당 PR 하나
+2. **시작 시**: 해당 .md를 먼저 읽고, 체크리스트와 Done 기준을 `TodoWrite`로 등록
+3. **연관 문서 참조**: 작업 시작 전 `docs/architecture.md`, `docs/fsd-architecture-guide.md`, `docs/component-patterns.md`, `docs/component-reusability-guide.md` 중 관련 문서를 함께 읽어 기존 패턴을 우선 재사용
+4. **금지**: `any` 타입, 미사용 import, 주석 처리된 죽은 코드
+5. **네이밍**: 기존 코드 컨벤션 유지 (kebab-case 파일명, camelCase 변수)
+6. **커밋**: `fix:` / `feat:` / `refactor:` prefix만 사용. 브랜치명에 Jira 키(`XX-123`)가 있으면 `scripts/prepare-commit-jira.sh`가 자동 삽입
+7. **완료 기준 (husky pre-push와 동일)**:
+   - `npm run lint` 통과
+   - `npx tsc -b` 통과
+   - 해당 .md의 체크리스트 + 수동 검증 시나리오 전부 완료

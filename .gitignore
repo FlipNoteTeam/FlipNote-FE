@@ -28,3 +28,6 @@ public/firebase-messaging-sw.js
 *.njsproj
 *.sln
 *.sw?
+
+# AI 리팩토링 작업 노트 (로컬 전용)
+docs/refactoring/
