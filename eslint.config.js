@@ -20,4 +20,17 @@ export default tseslint.config([
       globals: globals.browser,
     },
   },
+  // Playwright E2E 코드 — React가 아니므로 react-hooks 규칙 비활성
+  // (Playwright fixture의 `use` 콜백을 React Hook으로 오인하는 문제 회피)
+  {
+    files: ['e2e/**/*.{ts,tsx}', 'playwright.config.ts'],
+    rules: {
+      'react-hooks/rules-of-hooks': 'off',
+      'react-hooks/exhaustive-deps': 'off',
+      'react-refresh/only-export-components': 'off',
+    },
+    languageOptions: {
+      globals: globals.node,
+    },
+  },
 ])
