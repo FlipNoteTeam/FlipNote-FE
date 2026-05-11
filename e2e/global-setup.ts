@@ -12,7 +12,9 @@ import { resolve } from "node:path";
  * 환경변수가 없으면 인증 단계를 건너뛴다 (인증 필요 테스트는 명확한 에러로 실패).
  */
 
+// .env.local 우선, 없으면 .env.development에서 fallback (dotenv 기본은 override 안 함)
 dotenv.config({ path: resolve(".env.local") });
+dotenv.config({ path: resolve(".env.development") });
 
 const STORAGE_STATE_DIR = resolve(".auth");
 const STORAGE_STATE_PATH = resolve(STORAGE_STATE_DIR, "user.json");
