@@ -13,15 +13,18 @@ type AuthFixtures = {
  * globalSetup이 .auth/user.json에 저장한 storageState를 사용한다.
  * 파일이 없으면(globalSetup 미실행 또는 자격증명 미설정) 명확한 에러로 실패.
  *
- * 사용:
+ * 사용 (`e2e/tests/*.spec.ts`에서):
  * ```ts
- * import { test, expect } from "@/e2e/fixtures/auth";
+ * import { test, expect } from "../fixtures/auth";
  *
  * test("로그인 상태에서 GNB 닉네임", async ({ authenticatedPage }) => {
  *   await authenticatedPage.goto("/");
  *   // ...
  * });
  * ```
+ *
+ * NOTE: `@/*` alias는 `./src/*`로 매핑되어 있어 e2e/ 내부 import에는 사용 불가.
+ * e2e 안에서는 상대 경로 사용. (별도 alias가 필요하면 e2e/tsconfig.json + playwright.config.ts에 추가)
  */
 export const test = base.extend<AuthFixtures>({
   authenticatedPage: async ({ browser }, use) => {
