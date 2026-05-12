@@ -17,7 +17,8 @@ export const getErrorMessage = (
 ): string => {
   if (isApiError(error)) {
     const message = error.response?.data?.message;
-    if (typeof message === "string" && message.length > 0) {
+    // 공백만 있는 문자열도 빈 값으로 취급 (blank toast 방지)
+    if (typeof message === "string" && message.trim().length > 0) {
       return message;
     }
   }
