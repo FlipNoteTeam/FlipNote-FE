@@ -27,7 +27,14 @@ const useAuthStore = create<AuthState & AuthAction>()(
 
     setUser: (user) => set({ user, isAuthenticated: user !== null }),
 
-    clearUser: () => set({ user: null, isAuthenticated: false }),
+    clearUser: () => {
+      import("@/shared/services/fcm-service").then(
+        ({ cleanupForegroundMessageListener }) => {
+          cleanupForegroundMessageListener();
+        }
+      );
+      set({ user: null, isAuthenticated: false });
+    },
 
     syncUser: async () => {
       try {

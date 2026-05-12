@@ -1,4 +1,6 @@
 import { notificationApi } from "@/shared/apis";
+import { NOTIFICATIONS_QUERY_KEY } from "@/shared/apis/notification";
+import { queryClient } from "@/shared/lib/query-client";
 import {
   getFCMToken,
   deleteFCMToken,
@@ -8,64 +10,41 @@ import {
 
 const FCM_TOKEN_STORAGE_KEY = "fcm_token";
 
-/**
- * 로컬 스토리지에서 FCM 토큰 가져오기
- */
-const getStoredFCMToken = (): string | null => {
-  return localStorage.getItem(FCM_TOKEN_STORAGE_KEY);
-};
+const getStoredFCMToken = (): string | null =>
+  localStorage.getItem(FCM_TOKEN_STORAGE_KEY);
 
-/**
- * 로컬 스토리지에 FCM 토큰 저장
- */
-const setStoredFCMToken = (token: string): void => {
+const setStoredFCMToken = (token: string): void =>
   localStorage.setItem(FCM_TOKEN_STORAGE_KEY, token);
-};
 
-/**
- * 로컬 스토리지에서 FCM 토큰 삭제
- */
-const removeStoredFCMToken = (): void => {
+const removeStoredFCMToken = (): void =>
   localStorage.removeItem(FCM_TOKEN_STORAGE_KEY);
-};
+
+/** Bug 7: 등록된 foreground listener의 unsubscribe. 재로그인 시 중복 방지용. */
+let foregroundUnsubscribe: (() => void) | null = null;
 
 /**
- * FCM 토큰 등록 프로세스
- * 1. 알림 권한 요청
- * 2. FCM 토큰 발급
- * 3. 서버에 토큰 등록
- * 4. 로컬 스토리지에 토큰 저장
+ * FCM 토큰 등록 프로세스.
+ * Bug 6: 매 호출마다 getToken() 으로 최신 토큰을 가져와 localStorage와 비교.
+ * 토큰이 변경됐거나 없으면 서버에 새로 등록한다.
  */
 export const registerFCMToken = async (): Promise<boolean> => {
   try {
-    // 이미 저장된 토큰이 있는지 확인
+    const permissionGranted = await requestNotificationPermission();
+    if (!permissionGranted) {
+      return false;
+    }
+
+    const token = await getFCMToken();
+    if (!token) {
+      return false;
+    }
+
     const storedToken = getStoredFCMToken();
-    if (storedToken) {
-      console.log("이미 등록된 FCM 토큰이 있습니다.");
-      // 기존 토큰을 서버에 재등록 (토큰 리프레시 시 필요)
-      await notificationApi.registerFcmToken({ token: storedToken });
+    if (storedToken === token) {
       return true;
     }
 
-    // 1. 알림 권한 요청
-    const permissionGranted = await requestNotificationPermission();
-    if (!permissionGranted) {
-      console.warn("알림 권한이 거부되었습니다.");
-      return false;
-    }
-
-    // 2. FCM 토큰 발급
-    const token = await getFCMToken();
-    if (!token) {
-      console.error("FCM 토큰 발급에 실패했습니다.");
-      return false;
-    }
-
-    // 3. 서버에 토큰 등록
     await notificationApi.registerFcmToken({ token });
-    console.log("FCM 토큰이 서버에 등록되었습니다.");
-
-    // 4. 로컬 스토리지에 토큰 저장
     setStoredFCMToken(token);
 
     return true;
@@ -77,25 +56,17 @@ export const registerFCMToken = async (): Promise<boolean> => {
 
 /**
  * FCM 토큰 삭제 프로세스
- * 1. Firebase에서 토큰 삭제
- * 2. 로컬 스토리지에서 토큰 삭제
  */
 export const unregisterFCMToken = async (): Promise<boolean> => {
   try {
-    // 저장된 토큰 확인
     const storedToken = getStoredFCMToken();
     if (!storedToken) {
-      console.log("삭제할 FCM 토큰이 없습니다.");
       return true;
     }
 
-    // 1. Firebase에서 토큰 삭제
     await deleteFCMToken();
-
-    // 2. 로컬 스토리지에서 토큰 삭제
     removeStoredFCMToken();
 
-    console.log("FCM 토큰이 삭제되었습니다.");
     return true;
   } catch (error) {
     console.error("FCM 토큰 삭제 중 오류 발생:", error);
@@ -104,14 +75,28 @@ export const unregisterFCMToken = async (): Promise<boolean> => {
 };
 
 /**
- * 포그라운드 메시지 리스너 초기화
- * 앱이 활성 상태일 때 메시지를 수신하기 위한 리스너 설정
+ * 포그라운드 메시지 리스너 초기화.
+ * Bug 7: 이전 listener를 먼저 cleanup 후 재등록해 중복 방지.
+ * Bug 4: 메시지 수신 시 알림 쿼리 invalidate.
  */
-export const initializeForegroundMessageListener = (): (() => void) | null => {
-  return setupForegroundMessageListener((payload) => {
-    console.log("📩 새 메시지 수신:", payload);
+export const initializeForegroundMessageListener = (): void => {
+  if (foregroundUnsubscribe) {
+    foregroundUnsubscribe();
+    foregroundUnsubscribe = null;
+  }
 
-    // 여기에 커스텀 메시지 처리 로직 추가 가능
-    // 예: 토스트 알림, 상태 업데이트 등
+  foregroundUnsubscribe = setupForegroundMessageListener(() => {
+    queryClient.invalidateQueries({ queryKey: NOTIFICATIONS_QUERY_KEY });
   });
+};
+
+/**
+ * 포그라운드 메시지 리스너 정리.
+ * 로그아웃 시 호출.
+ */
+export const cleanupForegroundMessageListener = (): void => {
+  if (foregroundUnsubscribe) {
+    foregroundUnsubscribe();
+    foregroundUnsubscribe = null;
+  }
 };

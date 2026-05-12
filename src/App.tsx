@@ -1,11 +1,11 @@
 import { createRouter, RouterProvider } from "@tanstack/react-router";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Toaster } from "sonner";
 import { routeTree } from "./routeTree.gen";
 import useAuthStore from "@/stores/use-auth-store";
 import { type AuthState } from "@/stores/use-auth-store";
-import { notifyError } from "@/shared/lib/error";
+import { queryClient } from "@/shared/lib/query-client";
 import { useEffect } from "react";
 
 declare module "@tanstack/react-router" {
@@ -30,21 +30,6 @@ const router = createRouter({
   routeTree,
   context: {
     auth: undefined!,
-  },
-});
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
-      retry: 1,
-    },
-    mutations: {
-      onError: (error, _vars, _ctx, mutation) => {
-        if (mutation.meta?.skipErrorToast) return;
-        notifyError(error, mutation.meta?.errorFallback);
-      },
-    },
   },
 });
 
