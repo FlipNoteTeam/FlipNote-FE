@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import BaseLayout from "@/shared/layouts/base-layout";
 import { GroupJoinManagement } from "@/domain/group/components/group-join-management";
 import { GroupInvitationManagement } from "@/domain/group/components/group-invitation-management";
-import { GroupUpdateManagement } from "@/domain/group/components/group-update-management";
+import { GroupUpdateManagement } from "@/features/update-group/components/group-update-management";
 import { GroupRoleManagement } from "@/domain/group/components/group-role-management";
 import { useGroupDetail } from "@/domain/group/hooks/use-group-detail";
 import { useMyGroupRole } from "@/domain/group/hooks/use-my-group-role";

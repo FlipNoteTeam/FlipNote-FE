@@ -17,23 +17,23 @@ import { Textarea } from "@/shared/components/textarea";
 import { uploadImage } from "@/shared/lib/upload-image";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  groupUpdateFormSchema,
-  type GroupFormField,
-} from "@/domain/group/schemas/form.schema";
+  updateGroupFormSchema,
+  type UpdateGroupFormField,
+} from "@/features/update-group/schemas/form.schema";
 
 import { useController, useForm } from "react-hook-form";
 
-export type { GroupFormField };
+export type { UpdateGroupFormField };
 
 type Props = {
-  onSubmit: (form: GroupFormField) => void;
+  onSubmit: (form: UpdateGroupFormField) => void;
   formId?: string;
-  defaultValues?: Partial<GroupFormField>;
+  defaultValues?: Partial<UpdateGroupFormField>;
   submitButtonText?: string;
   showResetButton?: boolean;
 };
 
-const GroupForm = ({
+const GroupUpdateForm = ({
   onSubmit,
   formId = "group-form",
   defaultValues,
@@ -47,8 +47,8 @@ const GroupForm = ({
     control,
     reset,
     formState: { errors },
-  } = useForm<GroupFormField>({
-    resolver: zodResolver(groupUpdateFormSchema),
+  } = useForm<UpdateGroupFormField>({
+    resolver: zodResolver(updateGroupFormSchema),
     defaultValues: {
       applicationRequired: false,
       publicVisible: true,
@@ -177,4 +177,4 @@ const GroupForm = ({
   );
 };
 
-export default GroupForm;
+export default GroupUpdateForm;

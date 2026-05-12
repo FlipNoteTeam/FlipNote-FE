@@ -1,8 +1,8 @@
 import { toast } from "sonner";
 import GroupDeleteDialog from "@/domain/group/components/group-delete-dialog";
-import GroupForm, {
-  type GroupFormField,
-} from "@/domain/group/components/group-form";
+import GroupUpdateForm, {
+  type UpdateGroupFormField,
+} from "@/features/update-group/components/group-update-form";
 import { useGroupDetail } from "@/domain/group/hooks/use-group-detail";
 import { groupApi, type GroupPutRequest } from "@/shared/apis";
 import { Separator } from "@/shared/components/separator";
@@ -31,7 +31,7 @@ export const GroupUpdateManagement = ({ groupId }: Props) => {
     meta: { errorFallback: "그룹 정보 수정에 실패했습니다. 다시 시도해주세요." },
   });
 
-  const handleSubmit = (form: GroupFormField) => {
+  const handleSubmit = (form: UpdateGroupFormField) => {
     const data: GroupPutRequest = {
       name: form.name,
       category: form.category,
@@ -61,7 +61,7 @@ export const GroupUpdateManagement = ({ groupId }: Props) => {
     );
   }
 
-  const defaultValues: Partial<GroupFormField> = {
+  const defaultValues: Partial<UpdateGroupFormField> = {
     name: groupData.name,
     category: groupData.category,
     description: groupData.description,
@@ -78,7 +78,7 @@ export const GroupUpdateManagement = ({ groupId }: Props) => {
           그룹의 기본 정보를 수정할 수 있습니다.
         </p>
       </div>
-      <GroupForm
+      <GroupUpdateForm
         formId="group-update-form"
         onSubmit={handleSubmit}
         defaultValues={defaultValues}

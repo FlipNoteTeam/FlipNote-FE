@@ -11,8 +11,8 @@ import {
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, type ReactNode } from "react";
 import { toast } from "sonner";
-import { type GroupFormField } from "@/domain/group/schemas/form.schema";
-import { groupCreateRequestSchema } from "@/domain/group/schemas/request.schema";
+import { type CreateGroupFormField } from "../schemas/form.schema";
+import { createGroupRequestSchema } from "../schemas/request.schema";
 
 const FORM_ID = "group-create-form";
 
@@ -34,7 +34,7 @@ const CreateGroupDialog = ({ renderTrigger }: Props) => {
     meta: { errorFallback: "그룹 생성에 실패했습니다. 다시 시도해주세요." },
   });
 
-  const handleSubmit = (form: GroupFormField) => {
+  const handleSubmit = (form: CreateGroupFormField) => {
     const requestData = {
       name: form.name,
       category: form.category,
@@ -45,7 +45,7 @@ const CreateGroupDialog = ({ renderTrigger }: Props) => {
       imageRefId: form.imageRefId ? form.imageRefId : undefined,
     };
 
-    const validatedData = groupCreateRequestSchema.parse(requestData);
+    const validatedData = createGroupRequestSchema.parse(requestData);
 
     mutate(validatedData);
   };

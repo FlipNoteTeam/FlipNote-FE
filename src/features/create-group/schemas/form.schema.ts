@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { GROUP_CATEGORIES } from "@/domain/group/types";
 
-const groupFormBaseSchema = z.object({
+export const createGroupFormSchema = z.object({
   name: z.string().min(1, "그룹명을 입력해주세요"),
   category: z.enum(GROUP_CATEGORIES, {
     message: "하나 이상의 카테고리를 선택해주세요",
@@ -16,7 +16,4 @@ const groupFormBaseSchema = z.object({
   imageRefId: z.number().optional(),
 });
 
-export const groupCreateFormSchema = groupFormBaseSchema;
-export const groupUpdateFormSchema = groupFormBaseSchema;
-
-export type GroupFormField = z.infer<typeof groupFormBaseSchema>;
+export type CreateGroupFormField = z.infer<typeof createGroupFormSchema>;
