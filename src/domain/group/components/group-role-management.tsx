@@ -9,6 +9,7 @@ import Badge from "@/shared/components/badge";
 import { UserMinus, UserPlus } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 import type { GroupMemberInfo, ROLE } from "@/shared/apis";
+import { ROLE_LABELS, isOwner } from "@/shared/rbac";
 import type { SelectableMember } from "@/domain/members/components/member-select-dialog";
 
 type AssignableRole = "HEAD_MANAGER" | "MANAGER";
@@ -28,12 +29,6 @@ const ROLE_CONFIG = {
   },
 } as const;
 
-const ROLE_LABEL_MAP: Record<GroupMemberInfo["role"], string> = {
-  OWNER: "소유자",
-  HEAD_MANAGER: "총괄 매니저",
-  MANAGER: "매니저",
-  MEMBER: "일반 회원",
-};
 
 type Props = {
   groupId: number;
@@ -42,7 +37,7 @@ type Props = {
 
 export const GroupRoleManagement = ({ groupId, currentUserRole }: Props) => {
   const assignableTabs: AssignableRole[] =
-    currentUserRole === "OWNER" ? ["HEAD_MANAGER", "MANAGER"] : ["MANAGER"];
+    isOwner(currentUserRole) ? ["HEAD_MANAGER", "MANAGER"] : ["MANAGER"];
 
   const [activeTab, setActiveTab] = useState<AssignableRole>(assignableTabs[0]);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -72,7 +67,7 @@ export const GroupRoleManagement = ({ groupId, currentUserRole }: Props) => {
       id: m.memberId,
       name: m.nickname,
       profile: m.profileImage,
-      subtitle: ROLE_LABEL_MAP[m.role],
+      subtitle: ROLE_LABELS[m.role],
     }));
 
   const handleAssign = (member: SelectableMember) => {
