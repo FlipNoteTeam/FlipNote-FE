@@ -10,9 +10,9 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "types": ["@playwright/test", "node"],
-    "baseUrl": "..",
+    // "baseUrl": "..",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["../src/*"]
     }
   },
   "include": ["**/*.ts", "../playwright.config.ts"]
