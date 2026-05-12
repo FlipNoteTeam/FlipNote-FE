@@ -34,5 +34,6 @@ export const useRespondGroupJoin = (groupId: number) => {
         queryKey: ["group", "members", groupId],
       });
     },
+    meta: { errorFallback: "가입 신청 응답에 실패했습니다." },
   });
 };

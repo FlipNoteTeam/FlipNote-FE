@@ -40,9 +40,7 @@ const CardsetDetail = ({ groupId, cardsetId }: Props) => {
       alert("카드셋 삭제에 성공했습니다.");
       navigate({ to: "/cardset-list" });
     },
-    onError: () => {
-      alert("카드셋 삭제를 실패했습니다.");
-    },
+    meta: { errorFallback: "카드셋 삭제를 실패했습니다." },
   });
 
   const { data: members = [] } = useGroupMembers(groupId);

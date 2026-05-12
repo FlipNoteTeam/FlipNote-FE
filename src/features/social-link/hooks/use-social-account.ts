@@ -27,8 +27,6 @@ export const useSocialAccountUnlink = () => {
       queryClient.invalidateQueries({ queryKey: ["socialLinks"] });
       alert("소셜 계정 연동이 해제되었습니다.");
     },
-    onError: () => {
-      alert("소셜 계정 연동 해제에 실패했습니다.");
-    },
+    meta: { errorFallback: "소셜 계정 연동 해제에 실패했습니다." },
   });
 };

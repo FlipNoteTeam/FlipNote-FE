@@ -42,6 +42,8 @@ export const usePasswordReset = ({ defaultValue }: UsePasswordResetProps) => {
           "비밀번호 재설정에 실패했습니다. 다시 시도해주세요.",
       );
     },
+    // 인라인 에러 메세지(setErrorMessage)로 표시하므로 글로벌 toast 비활성
+    meta: { skipErrorToast: true },
   });
 
   const onSubmit = (data: PasswordResetForm) => {

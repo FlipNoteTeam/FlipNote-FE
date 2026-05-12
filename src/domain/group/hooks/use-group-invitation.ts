@@ -30,6 +30,7 @@ export const useCreateGroupInvitation = (groupId: number) => {
         queryKey: ["groups", groupId, "invitations", "outgoing"],
       });
     },
+    meta: { errorFallback: "초대 전송에 실패했습니다." },
   });
 };
 
@@ -46,5 +47,6 @@ export const useDeleteGroupInvitation = (groupId: number) => {
         queryKey: ["groups", groupId, "invitations", "outgoing"],
       });
     },
+    meta: { errorFallback: "초대 취소에 실패했습니다." },
   });
 };

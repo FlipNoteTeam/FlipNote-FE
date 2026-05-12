@@ -54,9 +54,7 @@ const CardsetUpdateDialog = ({
       setOpen(false);
       toast.success("카드셋이 수정되었습니다.");
     },
-    onError: () => {
-      toast.error("카드셋 수정에 실패했습니다. 다시 시도해주세요.");
-    },
+    meta: { errorFallback: "카드셋 수정에 실패했습니다. 다시 시도해주세요." },
   });
 
   const handleSubmit = (form: CardsetUpdateFormField) => {

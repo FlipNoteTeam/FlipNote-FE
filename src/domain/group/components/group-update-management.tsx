@@ -28,9 +28,7 @@ export const GroupUpdateManagement = ({ groupId }: Props) => {
       queryClient.invalidateQueries({ queryKey: ["group", groupId] });
       toast.success("그룹 정보가 수정되었습니다.");
     },
-    onError: () => {
-      toast.error("그룹 정보 수정에 실패했습니다. 다시 시도해주세요.");
-    },
+    meta: { errorFallback: "그룹 정보 수정에 실패했습니다. 다시 시도해주세요." },
   });
 
   const handleSubmit = (form: GroupFormField) => {

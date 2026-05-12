@@ -1,4 +1,3 @@
-import { toast } from "sonner";
 import { groupApi } from "@/shared/apis";
 import { Button } from "@/shared/components/button";
 import {
@@ -27,9 +26,7 @@ const GroupDeleteDialog = ({ groupId }: Props) => {
     onSuccess: () => {
       navigate({ to: "/group-list" });
     },
-    onError: () => {
-      toast.error("그룹 삭제에 실패했습니다. 다시 시도해주세요.");
-    },
+    meta: { errorFallback: "그룹 삭제에 실패했습니다. 다시 시도해주세요." },
   });
 
   return (

@@ -10,5 +10,7 @@ export const useLogin = () => {
       await authApi.login(data);
       await syncUser();
     },
+    // 로그인 실패 시 인라인 ErrorMessage로 표시하므로 글로벌 toast 비활성
+    meta: { skipErrorToast: true },
   });
 };

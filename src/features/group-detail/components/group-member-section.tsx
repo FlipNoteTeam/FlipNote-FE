@@ -4,7 +4,7 @@ import { GroupJoinDialog } from "@/domain/group/components/group-join-dialog";
 import { useGroupJoin } from "@/domain/group/hooks/use-group-join";
 import type { GroupDetail } from "@/domain/group/types";
 import { MemberCard } from "@/domain/members/components/member-card";
-import type { ApiError, GroupMemberInfo } from "@/shared/apis";
+import type { GroupMemberInfo } from "@/shared/apis";
 import { Button } from "@/shared/components/button";
 import {
   Carousel,
@@ -55,11 +55,6 @@ export const GroupMemberSection = ({
         onSuccess: () => {
           toast.success(`${group.name} 그룹에 가입했습니다.`);
           queryClient.invalidateQueries({ queryKey: ["group"] });
-        },
-        onError: (error: ApiError) => {
-          toast.error(
-            error?.response?.data?.message || "가입에 실패했습니다.",
-          );
         },
       },
     );
