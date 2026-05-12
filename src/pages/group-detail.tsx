@@ -13,6 +13,7 @@ import type { ApiError } from "@/shared/apis";
 import { GroupMemberSection } from "@/features/group-detail/components/group-member-section";
 import { GroupCardsetSection } from "@/features/group-detail/components/group-cardset-section";
 import { GroupDetailErrorView } from "@/features/group-detail/components/group-detail-error-view";
+import { isOwner, canManageGroup } from "@/shared/rbac";
 
 type Props = { id: string };
 
@@ -43,11 +44,8 @@ const GroupDetailPage = ({ id }: Props) => {
 
   const currentMember = members.find((m) => m.userId === user?.userId);
   const isMember = !!currentMember;
-  const isOwner = currentMember?.role === "OWNER";
-  const canManage =
-    currentMember?.role === "OWNER" ||
-    currentMember?.role === "HEAD_MANAGER" ||
-    currentMember?.role === "MANAGER";
+  const isCurrentUserOwner = isOwner(currentMember?.role);
+  const canManage = canManageGroup(currentMember?.role);
 
   useMeta({
     title: groupData ? `${groupData.name} | FlipNote` : undefined,
@@ -104,7 +102,7 @@ const GroupDetailPage = ({ id }: Props) => {
           group={groupData}
           members={members}
           isMember={isMember}
-          isOwner={isOwner}
+          isOwner={isCurrentUserOwner}
           userId={user?.userId}
         />
 
