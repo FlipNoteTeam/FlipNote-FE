@@ -35,7 +35,7 @@ export const GroupUpdateManagement = ({ groupId }: Props) => {
     const data: GroupPutRequest = {
       name: form.name,
       category: form.category,
-      description: form.description,
+      description: form.description ?? "",
       joinPolicy: form.applicationRequired ? "APPROVAL" : "OPEN",
       visibility: form.publicVisible ? "PUBLIC" : "PRIVATE",
       maxMember: form.maxMember,
