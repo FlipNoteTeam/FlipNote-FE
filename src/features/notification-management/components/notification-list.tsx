@@ -57,7 +57,7 @@ export const NotificationList = () => {
   } = useNotifications();
 
   const notifications = data?.notifications ?? [];
-  const unreadCount = notifications.filter((n) => !n.isRead).length;
+  const unreadCount = data?.unreadCount ?? 0;
 
   const markAsRead = useMarkNotificationAsRead();
   const markAllAsRead = useMarkAllNotificationsAsRead();
