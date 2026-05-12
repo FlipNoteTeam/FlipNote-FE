@@ -1,5 +1,5 @@
 import type { GroupMemberInfo } from "@/shared/apis";
-import { ROLE_LABELS } from "@/shared/rbac";
+import { ROLE_LABELS } from "@/domain/group/role";
 
 type MemberCardProps = {
   member: GroupMemberInfo;
