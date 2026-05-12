@@ -12,5 +12,6 @@ export const useModifyMemberRole = (groupId: number) => {
         queryKey: ["group", "members", groupId],
       });
     },
+    meta: { errorFallback: "역할 변경에 실패했습니다." },
   });
 };

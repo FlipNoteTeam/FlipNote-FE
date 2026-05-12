@@ -13,7 +13,6 @@ import { Button } from "@/shared/components/button";
 import { Input } from "@/shared/components/input";
 import { Label } from "@/shared/components/label";
 import { useCreateGroupInvitation } from "@/domain/group/hooks/use-group-invitation";
-import type { ApiError } from "@/shared/apis";
 
 type GroupInviteDialogProps = {
   groupId: number;
@@ -44,11 +43,6 @@ export const GroupInviteDialog = ({
           toast.success("초대를 보냈습니다.");
           setEmail("");
           setOpen(false);
-        },
-        onError: (error: ApiError) => {
-          toast.error(
-            error.response?.data?.message || "초대 전송에 실패했습니다."
-          );
         },
       }
     );

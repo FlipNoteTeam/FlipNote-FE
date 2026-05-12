@@ -15,7 +15,6 @@ import { Label } from "@/shared/components/label";
 import { useGroupJoin } from "@/domain/group/hooks/use-group-join";
 import useAuthStore from "@/stores/use-auth-store";
 import { useNavigate } from "@tanstack/react-router";
-import type { ApiError } from "@/shared/apis";
 
 type GroupJoinDialogProps = {
   groupId: number;
@@ -58,11 +57,6 @@ export const GroupJoinDialog = ({
           toast.success(`${groupName} 그룹에 가입 신청했습니다.`);
           setOpen(false);
           setJoinIntro("");
-        },
-        onError: (error: ApiError) => {
-          toast.error(
-            error?.response?.data?.message || "가입 신청에 실패했습니다."
-          );
         },
       }
     );

@@ -31,9 +31,7 @@ const CreateGroupDialog = ({ renderTrigger }: Props) => {
       setOpen(false);
       queryClient.invalidateQueries({ queryKey: ["groups"] });
     },
-    onError: () => {
-      toast.error("그룹 생성에 실패했습니다. 다시 시도해주세요.");
-    },
+    meta: { errorFallback: "그룹 생성에 실패했습니다. 다시 시도해주세요." },
   });
 
   const handleSubmit = (form: CreateGroupFormField) => {

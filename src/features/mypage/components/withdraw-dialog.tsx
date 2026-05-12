@@ -1,4 +1,3 @@
-import { toast } from "sonner";
 import { userApi } from "@/shared/apis";
 import { Button } from "@/shared/components/button";
 import {
@@ -36,11 +35,7 @@ const WithdrawDialog = () => {
 
       navigate({ to: "/" });
     },
-    onError: (error) => {
-      console.log("ERROR", error);
-
-      toast.error("회원탈퇴에 실패했습니다. 다시 시도해주세요.");
-    },
+    meta: { errorFallback: "회원탈퇴에 실패했습니다. 다시 시도해주세요." },
   });
 
   const handleChangeInput = (e: ChangeEvent<HTMLInputElement>) => {

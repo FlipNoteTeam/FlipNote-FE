@@ -8,7 +8,7 @@ import { Button } from "@/shared/components/button";
 import Badge from "@/shared/components/badge";
 import { UserMinus, UserPlus } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
-import type { ApiError, GroupMemberInfo, ROLE } from "@/shared/apis";
+import type { GroupMemberInfo, ROLE } from "@/shared/apis";
 import type { SelectableMember } from "@/domain/members/components/member-select-dialog";
 
 type AssignableRole = "HEAD_MANAGER" | "MANAGER";
@@ -83,11 +83,6 @@ export const GroupRoleManagement = ({ groupId, currentUserRole }: Props) => {
           toast.success(`${member.name}님을 ${config.label}로 부임했습니다.`);
           setDialogOpen(false);
         },
-        onError: (error: ApiError) => {
-          toast.error(
-            error?.response?.data?.message || "역할 부임에 실패했습니다.",
-          );
-        },
       },
     );
   };
@@ -105,11 +100,6 @@ export const GroupRoleManagement = ({ groupId, currentUserRole }: Props) => {
       {
         onSuccess: () => {
           toast.success(`${member.nickname}님의 직책을 해제했습니다.`);
-        },
-        onError: (error: ApiError) => {
-          toast.error(
-            error?.response?.data?.message || "직책 해제에 실패했습니다.",
-          );
         },
       },
     );

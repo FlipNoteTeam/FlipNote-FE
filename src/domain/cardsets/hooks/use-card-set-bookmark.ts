@@ -41,6 +41,8 @@ export const useCardSetBookmark = ({
         queryKey: ["cardset", groupId, cardsetId],
       });
     },
+    // 낙관적 갱신·롤백으로 처리하므로 글로벌 toast 비활성
+    meta: { skipErrorToast: true },
   });
 
   // 즐겨찾기 제거 mutation
@@ -67,6 +69,8 @@ export const useCardSetBookmark = ({
         queryKey: ["cardset", groupId, cardsetId],
       });
     },
+    // 낙관적 갱신·롤백으로 처리하므로 글로벌 toast 비활성
+    meta: { skipErrorToast: true },
   });
 
   // 즐겨찾기 토글 핸들러

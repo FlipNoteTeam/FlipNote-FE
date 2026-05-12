@@ -44,6 +44,8 @@ export const useCardSetLike = ({
         queryKey: ["cardset", groupId, cardsetId],
       });
     },
+    // 낙관적 갱신·롤백으로 처리하므로 글로벌 toast 비활성
+    meta: { skipErrorToast: true },
   });
 
   // 좋아요 취소 mutation
@@ -73,6 +75,8 @@ export const useCardSetLike = ({
         queryKey: ["cardset", groupId, cardsetId],
       });
     },
+    // 낙관적 갱신·롤백으로 처리하므로 글로벌 toast 비활성
+    meta: { skipErrorToast: true },
   });
 
   // 좋아요 토글 핸들러

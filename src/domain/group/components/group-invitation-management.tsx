@@ -13,7 +13,6 @@ import {
 } from "@/domain/group/hooks/use-group-invitation";
 import { GroupInviteDialog } from "@/domain/group/components/group-invite-dialog";
 import { UserPlus, X } from "lucide-react";
-import type { ApiError } from "@/shared/apis";
 
 type GroupInvitationManagementProps = {
   groupId: number;
@@ -34,11 +33,6 @@ export const GroupInvitationManagement = ({
     deleteInvitation(invitationId, {
       onSuccess: () => {
         toast.success("초대를 취소했습니다.");
-      },
-      onError: (error: ApiError) => {
-        toast.error(
-          error?.response?.data?.message || "초대 취소에 실패했습니다.",
-        );
       },
     });
   };
