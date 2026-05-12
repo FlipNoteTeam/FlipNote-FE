@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { cardApi } from "@/shared/apis/card";
 import BaseLayout from "@/shared/layouts/base-layout";
@@ -8,7 +8,14 @@ import { Button } from "@/shared/components/button";
 import { Textarea } from "@/shared/components/textarea";
 import { Card } from "@/shared/components/card";
 import { useTimer } from "@/shared/hooks/use-timer";
-import { Clock, Play, Pause, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  Clock,
+  Play,
+  Pause,
+  Loader2,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 
 type StudyState = TestSettings & {
   groupId: number;
@@ -43,7 +50,7 @@ const TestMode = () => {
     enabled: !!studySettings?.cardsetId,
   });
 
-  const cards = cardsData?.data?.data ?? [];
+  const cards = useMemo(() => cardsData?.data?.data ?? [], [cardsData]);
 
   // 답변 저장
   const [answers, setAnswers] = useState<Answer[]>([]);
@@ -265,7 +272,11 @@ const TestMode = () => {
         <div className="space-y-6">
           <Card className="rounded-xs">
             {cards.map((card, index) => (
-              <div key={`card-${card.id}`} id={`question-${card.id}`} className="px-2 py-6 space-y-4">
+              <div
+                key={`card-${card.id}`}
+                id={`question-${card.id}`}
+                className="px-2 py-6 space-y-4"
+              >
                 <h3 className="text-lg font-semibold">
                   {index + 1}. {card.question}
                 </h3>
