@@ -6,7 +6,7 @@ import {
 } from "../schemas/form.schema";
 import { Description, RequiredLabel } from "@/shared/components/form";
 import { Input } from "@/shared/components/input";
-import { ErrorMessage } from "@/shared/components/error-message";
+import { ErrorMessage } from "@/shared/components/form";
 import {
   ButtonCheckbox,
   ButtonCheckboxGroupField,
