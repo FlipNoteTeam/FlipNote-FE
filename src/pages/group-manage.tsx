@@ -17,7 +17,7 @@ import {
   getAccessibleTabs,
   getDefaultManageTab,
   type ManageTab,
-} from "@/shared/rbac";
+} from "@/domain/group/role";
 
 type Props = { groupId: string };
 

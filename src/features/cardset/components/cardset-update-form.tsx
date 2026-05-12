@@ -17,7 +17,7 @@ import { uploadImage } from "@/shared/lib/upload-image";
 import { useGroupMembers } from "@/domain/members/hooks/use-group-members";
 import { MemberSelectDialog } from "@/domain/members/components/member-select-dialog";
 import type { SelectableMember } from "@/domain/members/components/member-select-dialog";
-import { ROLE_LABELS } from "@/shared/rbac";
+import { ROLE_LABELS } from "@/domain/group/role";
 
 import { UserPlus, X } from "lucide-react";
 import { useState } from "react";

@@ -13,7 +13,7 @@ import type { ApiError } from "@/shared/apis";
 import { GroupMemberSection } from "@/features/group-detail/components/group-member-section";
 import { GroupCardsetSection } from "@/features/group-detail/components/group-cardset-section";
 import { GroupDetailErrorView } from "@/features/group-detail/components/group-detail-error-view";
-import { isOwner, canManageGroup } from "@/shared/rbac";
+import { isOwner, canManageGroup } from "@/domain/group/role";
 
 type Props = { id: string };
 

@@ -9,7 +9,7 @@ import Badge from "@/shared/components/badge";
 import { UserMinus, UserPlus } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 import type { GroupMemberInfo, ROLE } from "@/shared/apis";
-import { ROLE_LABELS, isOwner } from "@/shared/rbac";
+import { ROLE_LABELS, isOwner } from "@/domain/group/role";
 import type { SelectableMember } from "@/domain/members/components/member-select-dialog";
 
 type AssignableRole = "HEAD_MANAGER" | "MANAGER";
