@@ -12,11 +12,14 @@ import { useNavigate } from "@tanstack/react-router";
 import { SidebarTabLayout } from "@/shared/layouts/sidebar-tab-layout";
 import { PageSkeleton } from "@/shared/components/skeletons";
 import { useMeta } from "@/shared/hooks/use-meta";
-import type { ROLE } from "@/shared/apis";
+import {
+  canManageGroup,
+  getAccessibleTabs,
+  getDefaultManageTab,
+  type ManageTab,
+} from "@/shared/rbac";
 
 type Props = { groupId: string };
-
-type ManageTab = "group-settings" | "join-requests" | "invitations" | "role-management";
 
 const TAB_LABELS: Record<ManageTab, string> = {
   "group-settings": "그룹 정보 수정",
@@ -24,20 +27,6 @@ const TAB_LABELS: Record<ManageTab, string> = {
   invitations: "초대 관리",
   "role-management": "권한 관리",
 };
-
-// 역할별 접근 가능한 탭 목록
-const ACCESSIBLE_TABS: Record<string, ManageTab[]> = {
-  OWNER: ["group-settings", "join-requests", "invitations", "role-management"],
-  HEAD_MANAGER: ["group-settings", "join-requests", "invitations", "role-management"],
-  MANAGER: ["join-requests", "invitations"],
-};
-
-const getAccessibleTabs = (role: ROLE): ManageTab[] => ACCESSIBLE_TABS[role] ?? [];
-
-const getDefaultTab = (role: ROLE): ManageTab =>
-  role === "MANAGER" ? "join-requests" : "group-settings";
-
-const CAN_MANAGE: ROLE[] = ["OWNER", "HEAD_MANAGER", "MANAGER"];
 
 const GroupManagePage = ({ groupId }: Props) => {
   const navigate = useNavigate();
@@ -59,7 +48,7 @@ const GroupManagePage = ({ groupId }: Props) => {
     if (!role) return;
     setActiveTab((prev) => {
       const accessible = getAccessibleTabs(role);
-      return accessible.includes(prev) ? prev : getDefaultTab(role);
+      return accessible.includes(prev) ? prev : getDefaultManageTab(role);
     });
   }, [role]);
 
@@ -67,7 +56,7 @@ const GroupManagePage = ({ groupId }: Props) => {
     return <PageSkeleton />;
   }
 
-  if (!role || !CAN_MANAGE.includes(role)) {
+  if (!canManageGroup(role)) {
     return (
       <BaseLayout>
         <div className="mx-auto max-w-6xl p-6 text-center space-y-4">

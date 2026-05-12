@@ -16,7 +16,7 @@ export const ROLE_LABELS: Record<ROLE, string> = {
 export const isOwner = (role?: ROLE): boolean => role === "OWNER";
 
 /** 그룹 관리 페이지 접근 권한: OWNER | HEAD_MANAGER | MANAGER */
-export const canManageGroup = (role?: ROLE): boolean =>
+export const canManageGroup = (role?: ROLE): role is ROLE =>
   role === "OWNER" || role === "HEAD_MANAGER" || role === "MANAGER";
 
 /** 멤버의 역할 변경 권한: OWNER | HEAD_MANAGER */
@@ -43,8 +43,8 @@ const ACCESSIBLE_TABS: Record<ROLE, ManageTab[]> = {
   MEMBER: [],
 };
 
-export const getAccessibleTabs = (role: ROLE): ManageTab[] =>
-  ACCESSIBLE_TABS[role] ?? [];
+export const getAccessibleTabs = (role?: ROLE): ManageTab[] =>
+  role ? ACCESSIBLE_TABS[role] : [];
 
-export const getDefaultManageTab = (role: ROLE): ManageTab =>
+export const getDefaultManageTab = (role?: ROLE): ManageTab =>
   role === "MANAGER" ? "join-requests" : "group-settings";
