@@ -17,19 +17,12 @@ import { uploadImage } from "@/shared/lib/upload-image";
 import { useGroupMembers } from "@/domain/members/hooks/use-group-members";
 import { MemberSelectDialog } from "@/domain/members/components/member-select-dialog";
 import type { SelectableMember } from "@/domain/members/components/member-select-dialog";
-import type { GroupMemberInfo } from "@/shared/apis";
+import { ROLE_LABELS } from "@/shared/rbac";
 
 import { UserPlus, X } from "lucide-react";
 import { useState } from "react";
 import type { ChangeEvent } from "react";
 import { useController, useFieldArray, useForm } from "react-hook-form";
-
-const ROLE_LABEL_MAP: Record<GroupMemberInfo["role"], string> = {
-  OWNER: "소유자",
-  HEAD_MANAGER: "총괄 매니저",
-  MANAGER: "매니저",
-  MEMBER: "일반 회원",
-};
 
 export type CardsetUpdateFormField = {
   name: string;
@@ -101,7 +94,7 @@ const CardsetUpdateForm = ({
       id: m.userId,
       name: m.nickname,
       profile: m.profileImage,
-      subtitle: ROLE_LABEL_MAP[m.role],
+      subtitle: ROLE_LABELS[m.role],
     }));
 
   const addManager = (member: SelectableMember) => {
