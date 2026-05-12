@@ -1,5 +1,5 @@
 import { toast } from "sonner";
-import { GROUP_CATEGORY_MAP, type GroupCategory } from "@/domain/group/types";
+import { GROUP_CATEGORY_MAP } from "@/domain/group/types";
 import {
   ButtonCheckbox,
   ButtonCheckboxGroupField,
@@ -18,20 +18,18 @@ import { useGroupMembers } from "@/domain/members/hooks/use-group-members";
 import { MemberSelectDialog } from "@/domain/members/components/member-select-dialog";
 import type { SelectableMember } from "@/domain/members/components/member-select-dialog";
 import { ROLE_LABELS } from "@/domain/group/role";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  cardsetCreateFormSchema,
+  type CardsetCreateFormField,
+} from "@/features/cardset/schemas/form.schema";
 
 import { UserPlus, X } from "lucide-react";
 import { useState } from "react";
 import type { ChangeEvent } from "react";
 import { useController, useFieldArray, useForm } from "react-hook-form";
 
-export type CardsetCreateFormField = {
-  name: string;
-  publicVisible?: boolean;
-  category: GroupCategory;
-  hashtag: { name: string }[];
-  imageRefId: number;
-  managers: number[];
-};
+export type { CardsetCreateFormField };
 
 type Props = {
   groupId: number;
@@ -50,6 +48,7 @@ const CardsetCreateForm = ({
 
   const { control, formState, register, setValue, handleSubmit } =
     useForm<CardsetCreateFormField>({
+      resolver: zodResolver(cardsetCreateFormSchema),
       defaultValues: {
         hashtag: [],
         managers: [],
@@ -61,9 +60,6 @@ const CardsetCreateForm = ({
   const { field: categoryField } = useController({
     name: "category",
     control,
-    rules: {
-      required: "하나 이상의 카테고리를 선택해주세요",
-    },
   });
 
   const { field: publicVisibleField } = useController({
@@ -122,7 +118,7 @@ const CardsetCreateForm = ({
         <RequiredLabel htmlFor="name">카드셋명</RequiredLabel>
         <Input
           id="name"
-          {...register("name", { required: "카드셋명을 입력해주세요" })}
+          {...register("name")}
         />
         {!!errors.name && <ErrorMessage>{errors.name.message}</ErrorMessage>}
       </div>
@@ -169,9 +165,7 @@ const CardsetCreateForm = ({
           {fields.map((field, index) => (
             <div key={field.id} className="flex gap-2 items-center">
               <Input
-                {...register(`hashtag.${index}.name` as const, {
-                  required: "해시태그를 입력해주세요",
-                })}
+                {...register(`hashtag.${index}.name` as const)}
                 placeholder="해시태그 입력"
               />
               <Button
