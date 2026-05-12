@@ -1,6 +1,5 @@
 import { toast } from "sonner";
 import { GROUP_CATEGORY_MAP } from "@/domain/group/types";
-import { type GroupCategory } from "@/shared/apis";
 import { Button } from "@/shared/components/button";
 import {
   ButtonCheckbox,
@@ -16,18 +15,15 @@ import { Input } from "@/shared/components/input";
 import { Label } from "@/shared/components/label";
 import { Textarea } from "@/shared/components/textarea";
 import { uploadImage } from "@/shared/lib/upload-image";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  groupUpdateFormSchema,
+  type GroupFormField,
+} from "@/domain/group/schemas/form.schema";
 
 import { useController, useForm } from "react-hook-form";
 
-export type GroupFormField = {
-  name: string;
-  category: GroupCategory;
-  description: string;
-  applicationRequired: boolean;
-  publicVisible: boolean;
-  maxMember: number;
-  imageRefId?: number;
-};
+export type { GroupFormField };
 
 type Props = {
   onSubmit: (form: GroupFormField) => void;
@@ -52,6 +48,7 @@ const GroupForm = ({
     reset,
     formState: { errors },
   } = useForm<GroupFormField>({
+    resolver: zodResolver(groupUpdateFormSchema),
     defaultValues: {
       applicationRequired: false,
       publicVisible: true,
@@ -62,9 +59,6 @@ const GroupForm = ({
   const { field: categoryField } = useController({
     name: "category",
     control,
-    rules: {
-      required: "하나 이상의 카테고리를 선택해주세요",
-    },
   });
 
   const { field: applicationRequiredField } = useController({
@@ -83,7 +77,7 @@ const GroupForm = ({
         <RequiredLabel htmlFor="name">그룹명</RequiredLabel>
         <Input
           id="name"
-          {...register("name", { required: "그룹명을 입력해주세요" })}
+          {...register("name")}
         />
         {!!errors.name && <ErrorMessage>{errors.name.message}</ErrorMessage>}
       </div>
@@ -137,11 +131,7 @@ const GroupForm = ({
             type="number"
             id="maxMember"
             className="w-20 inline"
-            {...register("maxMember", {
-              min: { value: 1, message: "최소 인원은 1명입니다." },
-              max: { value: 100, message: "최대 인원은 100명입니다." },
-              valueAsNumber: true,
-            })}
+            {...register("maxMember", { valueAsNumber: true })}
           />
           <span className="text-sm ml-2 ">명</span>
         </div>

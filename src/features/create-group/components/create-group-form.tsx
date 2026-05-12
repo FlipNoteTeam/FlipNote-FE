@@ -18,12 +18,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { useController, useForm, useWatch } from "react-hook-form";
 import {
-  createGroupFormSchema,
-  type CreateGroupFormField,
-} from "../schemas/form.schema";
+  groupCreateFormSchema,
+  type GroupFormField,
+} from "@/domain/group/schemas/form.schema";
 
 type Props = {
-  onSubmit: (form: CreateGroupFormField) => void;
+  onSubmit: (form: GroupFormField) => void;
   formId?: string;
 };
 
@@ -34,8 +34,8 @@ const CreateGroupForm = ({ onSubmit, formId = "group-form" }: Props) => {
     setValue,
     control,
     formState: { errors },
-  } = useForm<CreateGroupFormField>({
-    resolver: zodResolver(createGroupFormSchema),
+  } = useForm<GroupFormField>({
+    resolver: zodResolver(groupCreateFormSchema),
     defaultValues: {
       applicationRequired: false,
       publicVisible: true,
