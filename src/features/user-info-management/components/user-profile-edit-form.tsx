@@ -8,16 +8,17 @@ import {
   type UseFormRegister,
   type FieldErrors,
 } from "react-hook-form";
-import type { MyInfoResponse, UserUpdateRequest } from "@/shared/apis/user";
+import type { MyInfoResponse } from "@/shared/apis/user";
+import type { UserInfoFormField } from "@/features/user-info-management/schemas/form.schema";
 import { PhoneInput } from "@/shared/components/phone-input";
 import { useState, useRef } from "react";
 import { Camera, X } from "lucide-react";
 
 type Props = {
   userInfo: MyInfoResponse;
-  register: UseFormRegister<UserUpdateRequest>;
-  control: Control<UserUpdateRequest>;
-  errors: FieldErrors<UserUpdateRequest>;
+  register: UseFormRegister<UserInfoFormField>;
+  control: Control<UserInfoFormField>;
+  errors: FieldErrors<UserInfoFormField>;
   onSubmit: () => void;
   onCancel: () => void;
   isPending?: boolean;

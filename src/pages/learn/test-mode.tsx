@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { cardApi } from "@/shared/apis/card";
 import BaseLayout from "@/shared/layouts/base-layout";
 import { useLocation } from "@tanstack/react-router";
-import type { TestSettings } from "@/features/setting-study-mode/model/form.schema";
+import type { TestSettings } from "@/features/setting-study-mode/schemas/form.schema";
 import { Button } from "@/shared/components/button";
 import { Textarea } from "@/shared/components/textarea";
 import { Card } from "@/shared/components/card";

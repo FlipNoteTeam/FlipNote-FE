@@ -11,8 +11,8 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "@tanstack/react-router";
 import BaseLayout from "@/shared/layouts/base-layout";
-import { useRegister } from "../model/use-register";
-import { registerSchema, type RegisterFormData } from "../model/register.schema";
+import { useRegister } from "@/features/auth/hooks/use-register";
+import { registerSchema, type RegisterFormData } from "@/features/auth/schemas/form.schema";
 import type { UserRegisterRequest } from "@/shared/apis";
 
 const RegisterPage = () => {

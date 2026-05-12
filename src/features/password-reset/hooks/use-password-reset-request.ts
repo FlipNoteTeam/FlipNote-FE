@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { authApi, type PasswordResetCreateRequest } from "@/shared/apis/auth";
 import type { ApiError } from "@/shared/apis";
-
-interface PasswordResetRequestForm {
-  email: string;
-}
+import {
+  passwordResetRequestSchema,
+  type PasswordResetRequestFormField,
+} from "@/features/password-reset/schemas/form.schema";
 
 export const usePasswordResetRequest = () => {
   const [isSuccess, setIsSuccess] = useState(false);
@@ -16,7 +17,9 @@ export const usePasswordResetRequest = () => {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<PasswordResetRequestForm>();
+  } = useForm<PasswordResetRequestFormField>({
+    resolver: zodResolver(passwordResetRequestSchema),
+  });
 
   const requestMutation = useMutation({
     mutationFn: (data: PasswordResetCreateRequest) =>
@@ -31,11 +34,10 @@ export const usePasswordResetRequest = () => {
           "이메일 전송에 실패했습니다. 다시 시도해주세요."
       );
     },
-    // 인라인 에러 메세지(setErrorMessage)로 표시하므로 글로벌 toast 비활성
     meta: { skipErrorToast: true },
   });
 
-  const onSubmit = (data: PasswordResetRequestForm) => {
+  const onSubmit = (data: PasswordResetRequestFormField) => {
     requestMutation.mutate({ email: data.email });
   };
 
