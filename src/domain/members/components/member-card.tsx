@@ -1,17 +1,8 @@
-import type { GroupMemberInfo, ROLE } from "@/shared/apis";
+import type { GroupMemberInfo } from "@/shared/apis";
+import { ROLE_LABELS } from "@/shared/rbac";
 
 type MemberCardProps = {
   member: GroupMemberInfo;
-};
-
-const getRoleLabel = (role: ROLE): string => {
-  const roleMap: { [key in ROLE]: string } = {
-    OWNER: "소유자",
-    HEAD_MANAGER: "총괄 관리자",
-    MANAGER: "관리자",
-    MEMBER: "멤버",
-  };
-  return roleMap[role];
 };
 
 export const MemberCard = ({ member }: MemberCardProps) => {
@@ -27,7 +18,7 @@ export const MemberCard = ({ member }: MemberCardProps) => {
       <div className="text-center">
         <p className="font-semibold">{member.nickname}</p>
         <p className="text-muted-foreground text-xs">
-          {getRoleLabel(member.role)}
+          {ROLE_LABELS[member.role]}
         </p>
       </div>
     </div>
