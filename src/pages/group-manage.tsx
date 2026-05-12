@@ -74,6 +74,12 @@ const GroupManagePage = ({ groupId }: Props) => {
 
   const accessibleTabs = getAccessibleTabs(role);
 
+  // activeTab 초기값/이전 선택이 현재 역할에 접근 불가일 수 있음 (useEffect 동기화 직전).
+  // 권한 없는 컨텐츠가 1프레임 마운트되는 걸 막기 위해 렌더링은 effectiveTab 기준.
+  const effectiveTab: ManageTab = accessibleTabs.includes(activeTab)
+    ? activeTab
+    : getDefaultManageTab(role);
+
   return (
     <BaseLayout>
       <div className="mx-auto max-w-7xl p-6">
@@ -96,7 +102,7 @@ const GroupManagePage = ({ groupId }: Props) => {
             {accessibleTabs.map((tab) => (
               <SidebarTabLayout.Tab
                 key={tab}
-                active={activeTab === tab}
+                active={effectiveTab === tab}
                 onClick={() => setActiveTab(tab)}
               >
                 {TAB_LABELS[tab]}
@@ -105,16 +111,16 @@ const GroupManagePage = ({ groupId }: Props) => {
           </SidebarTabLayout.Sidebar>
 
           <SidebarTabLayout.Content>
-            {activeTab === "group-settings" && (
+            {effectiveTab === "group-settings" && (
               <GroupUpdateManagement groupId={groupIdNum} />
             )}
-            {activeTab === "join-requests" && (
+            {effectiveTab === "join-requests" && (
               <GroupJoinManagement groupId={groupIdNum} />
             )}
-            {activeTab === "invitations" && (
+            {effectiveTab === "invitations" && (
               <GroupInvitationManagement groupId={groupIdNum} />
             )}
-            {activeTab === "role-management" && (
+            {effectiveTab === "role-management" && (
               <GroupRoleManagement groupId={groupIdNum} currentUserRole={role} />
             )}
           </SidebarTabLayout.Content>
