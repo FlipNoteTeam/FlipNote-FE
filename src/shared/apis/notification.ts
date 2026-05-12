@@ -1,6 +1,8 @@
 import apiClient from "@/shared/apis/fetch";
 import type { ApiResponse, CursorPagingResponse } from "@/shared/apis/types";
 
+export const NOTIFICATIONS_QUERY_KEY = ["notifications"] as const;
+
 // Notification API 전용 타입들
 export interface NotificationResponse {
   notificationId: number;

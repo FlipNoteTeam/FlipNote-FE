@@ -5,6 +5,7 @@ import {
 } from "@tanstack/react-query";
 import {
   notificationApi,
+  NOTIFICATIONS_QUERY_KEY,
   type NotificationResponse,
 } from "@/shared/apis/notification";
 import type { ApiResponse, CursorPagingResponse } from "@/shared/apis/types";
@@ -19,10 +20,10 @@ export const useMarkNotificationAsRead = () => {
   return useMutation({
     mutationFn: (notificationId: number) =>
       notificationApi.markNotificationAsRead(notificationId),
+    meta: { errorFallback: "알림 읽음 처리에 실패했습니다." },
     onSuccess: (_, notificationId) => {
-      // 캐시 업데이트
-      queryClient.setQueryData<NotificationInfiniteData>(
-        ["notifications"],
+      queryClient.setQueriesData<NotificationInfiniteData>(
+        { queryKey: NOTIFICATIONS_QUERY_KEY },
         (oldData) => {
           if (!oldData) return oldData;
 

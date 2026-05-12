@@ -1,10 +1,11 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import {
   notificationApi,
+  NOTIFICATIONS_QUERY_KEY,
   type NotificationListRequest,
 } from "@/shared/apis/notification";
 
-const NOTIFICATIONS_QUERY_KEY = ["notifications"];
+export { NOTIFICATIONS_QUERY_KEY };
 
 export const useNotifications = (
   params?: Omit<NotificationListRequest, "cursor">
@@ -23,12 +24,14 @@ export const useNotifications = (
     getNextPageParam: (lastPage) => {
       return lastPage.data.hasNext ? lastPage.data.nextCursor : undefined;
     },
-    select: (data) => ({
-      pages: data.pages,
-      pageParams: data.pageParams,
-      notifications: data.pages.flatMap((page) => page.data.content),
-      unreadCount:
-        data.pages[0]?.data.content.filter((n) => !n.isRead).length || 0,
-    }),
+    select: (data) => {
+      const allNotifications = data.pages.flatMap((page) => page.data.content);
+      return {
+        pages: data.pages,
+        pageParams: data.pageParams,
+        notifications: allNotifications,
+        unreadCount: allNotifications.filter((n) => !n.isRead).length,
+      };
+    },
   });
 };
