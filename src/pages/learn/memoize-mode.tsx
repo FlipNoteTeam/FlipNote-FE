@@ -8,7 +8,7 @@ import {
   CarouselItem,
   type CarouselApi,
 } from "@/shared/components/carousel";
-import type { MemorizeSettings } from "@/features/setting-study-mode/model/form.schema";
+import type { MemorizeSettings } from "@/features/setting-study-mode/schemas/form.schema";
 import { Button } from "@/shared/components/button";
 import { Label } from "@/shared/components/label";
 import { Input } from "@/shared/components/input";

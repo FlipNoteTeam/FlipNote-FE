@@ -12,7 +12,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {
   studySettingsFormSchema,
   type StudySettingsFormField,
-} from "../model/form.schema";
+} from "../schemas/form.schema";
 import { MemorizeSettingsForm } from "./memorize-settings-form";
 import { TestSettingsForm } from "./test-settings-form";
 

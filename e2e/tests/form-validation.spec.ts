@@ -98,6 +98,22 @@ publicTest.describe("비밀번호 재설정 요청 폼", () => {
 
 });
 
+publicTest.describe("비밀번호 재설정 폼 (토큰)", () => {
+  publicTest("빈 값 제출 시 에러 표시", async ({ page }) => {
+    await page.goto("/password-reset?token=test-token");
+    await page.getByRole("button", { name: "비밀번호 재설정" }).click();
+    await publicExpect(page.getByText("비밀번호를 입력해주세요")).toBeVisible({ timeout: 3000 });
+  });
+
+  publicTest("비밀번호 불일치 시 에러 표시", async ({ page }) => {
+    await page.goto("/password-reset?token=test-token");
+    await page.locator("#password").fill("Password1!");
+    await page.locator("#passwordConfirm").fill("Password2!");
+    await page.getByRole("button", { name: "비밀번호 재설정" }).click();
+    await publicExpect(page.getByText("비밀번호가 일치하지 않습니다")).toBeVisible({ timeout: 3000 });
+  });
+});
+
 // ─── 카드셋 생성 다이얼로그 (인증 필요) ─────────────────────────────────────
 
 test.describe("카드셋 생성 폼 검증", () => {

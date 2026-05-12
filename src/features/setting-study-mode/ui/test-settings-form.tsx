@@ -5,7 +5,7 @@ import { NumberInput } from "@/shared/components/number-input";
 import { ToggleGroup } from "@/shared/components/toggle-group";
 import type { Control, FieldErrors, UseFormRegister } from "react-hook-form";
 import { useController, useWatch } from "react-hook-form";
-import type { StudySettingsFormField } from "../model/form.schema";
+import type { StudySettingsFormField } from "../schemas/form.schema";
 
 type TestSettingsFormProps = {
   control: Control<StudySettingsFormField>;

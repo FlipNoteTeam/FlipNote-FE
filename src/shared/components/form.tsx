@@ -40,3 +40,32 @@ export const ErrorMessage = ({ children, className }: ErrorMessageProps) => {
     </p>
   );
 };
+
+type FormFieldProps = {
+  label?: string;
+  required?: boolean;
+  description?: string;
+  error?: { message?: string };
+  children: ReactNode;
+  className?: string;
+};
+export const FormField = ({
+  label,
+  required,
+  description,
+  error,
+  children,
+  className,
+}: FormFieldProps) => (
+  <div className={cn("space-y-1", className)}>
+    {label &&
+      (required ? (
+        <RequiredLabel>{label}</RequiredLabel>
+      ) : (
+        <Label>{label}</Label>
+      ))}
+    {description && <Description>{description}</Description>}
+    {children}
+    {error?.message && <ErrorMessage>{error.message}</ErrorMessage>}
+  </div>
+);

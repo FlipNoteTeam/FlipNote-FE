@@ -57,13 +57,7 @@ const PasswordResetRequestForm = () => {
                 id="email"
                 type="email"
                 placeholder="이메일을 입력하세요"
-                {...register("email", {
-                  required: "이메일을 입력해주세요",
-                  pattern: {
-                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                    message: "올바른 이메일 형식이 아닙니다",
-                  },
-                })}
+                {...register("email")}
               />
               {errors.email && (
                 <p className="text-sm text-red-500">{errors.email.message}</p>

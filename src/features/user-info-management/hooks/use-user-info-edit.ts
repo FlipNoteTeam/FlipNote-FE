@@ -1,12 +1,16 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   userApi,
-  type UserUpdateRequest,
   type MyInfoResponse,
 } from "@/shared/apis/user";
 import { uploadImage } from "@/shared/lib/upload-image";
+import {
+  userInfoFormSchema,
+  type UserInfoFormField,
+} from "@/features/user-info-management/schemas/form.schema";
 
 export const useUserInfoEdit = () => {
   const [isEditing, setIsEditing] = useState(false);
@@ -19,7 +23,8 @@ export const useUserInfoEdit = () => {
     reset,
     control,
     formState: { errors },
-  } = useForm<UserUpdateRequest>({
+  } = useForm<UserInfoFormField>({
+    resolver: zodResolver(userInfoFormSchema),
     defaultValues: {
       nickname: "",
       phone: "",
@@ -46,11 +51,10 @@ export const useUserInfoEdit = () => {
     setIsEditing(true);
   };
 
-  const onSubmit = async (data: UserUpdateRequest) => {
+  const onSubmit = async (data: UserInfoFormField) => {
     try {
       let imageRefId: number | undefined;
 
-      // 이미지 파일이 선택되었으면 S3에 업로드
       if (selectedImageFile) {
         imageRefId = await uploadImage({
           file: selectedImageFile,
@@ -60,15 +64,21 @@ export const useUserInfoEdit = () => {
 
       console.log("IMAGEREFID", imageRefId);
 
-      // 이미지 업로드 후 받은 imageRefId와 함께 사용자 정보 업데이트
       updateMutation.mutate({
-        ...data,
+        nickname: data.nickname,
+        phone: data.phone,
+        smsAgree: data.smsAgree,
+        profileImageUrl: data.profileImageUrl,
         imageRefId,
       });
     } catch (error) {
       console.error("이미지 업로드 실패:", error);
-      // 이미지 업로드 실패해도 사용자 정보는 업데이트
-      updateMutation.mutate(data);
+      updateMutation.mutate({
+        nickname: data.nickname,
+        phone: data.phone,
+        smsAgree: data.smsAgree,
+        profileImageUrl: data.profileImageUrl,
+      });
     }
   };
 

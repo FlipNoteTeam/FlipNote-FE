@@ -131,23 +131,35 @@ Socket event types in `src/shared/socket/events.ts`:
 ### Form Handling
 
 **React Hook Form + Zod** pattern:
-1. Define Zod schema in `features/*/schemas/form.schema.ts`
-2. Use `zodResolver` in `useForm` hook
-3. Separate schemas for form validation vs API requests
+1. Define Zod schema in `features/*/schemas/form.schema.ts` (form validation) and `request.schema.ts` (API shape)
+2. Use `zodResolver` in every `useForm` hook — no exceptions
+3. Form type (`FormField`) and API request type are always separate — do not reuse API types as form types
+4. Use `<FormField label=... required=... error={errors.X}>` wrapper from `@/shared/components/form` to reduce boilerplate
+
+**Schema location convention**:
+- Feature forms: `src/features/<feature>/schemas/form.schema.ts` + `request.schema.ts`
+- Domain-level forms: `src/domain/<entity>/schemas/form.schema.ts`
+- No schemas in `pages/`, `model/`, or as inline types in hooks
 
 Example:
 ```typescript
-// Schema
-const schema = z.object({
-  name: z.string().min(1, "Required"),
-  category: z.enum(["IT", "LANGUAGE", "etc"]),
+// features/create-group/schemas/form.schema.ts
+export const createGroupFormSchema = z.object({
+  name: z.string().min(1, "그룹명을 입력해주세요"),
+  category: z.enum(GROUP_CATEGORIES, { message: "카테고리를 선택해주세요" }),
 });
+export type CreateGroupFormField = z.infer<typeof createGroupFormSchema>;
 
-// Component
-const { register, handleSubmit, formState: { errors } } = useForm({
-  resolver: zodResolver(schema),
+// Component / Hook
+const { register, handleSubmit, formState: { errors } } = useForm<CreateGroupFormField>({
+  resolver: zodResolver(createGroupFormSchema),
   defaultValues: { /* ... */ }
 });
+
+// JSX — use FormField wrapper
+<FormField label="그룹명" required error={errors.name}>
+  <Input id="name" {...register("name")} />
+</FormField>
 ```
 
 ### Feature Organization

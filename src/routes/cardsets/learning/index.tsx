@@ -1,7 +1,7 @@
 import MemoizeMode from "@/pages/learn/memoize-mode";
 import TestMode from "@/pages/learn/test-mode";
 import { createFileRoute, useLocation } from "@tanstack/react-router";
-import type { MemorizeSettings } from "@/features/setting-study-mode/model/form.schema";
+import type { MemorizeSettings } from "@/features/setting-study-mode/schemas/form.schema";
 
 type StudySettings = {
   mode?: "memorize" | "test";

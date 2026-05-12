@@ -1,15 +1,14 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { authApi, type PasswordResetRequest } from "@/shared/apis/auth";
 import { useNavigate } from "@tanstack/react-router";
 import type { ApiError } from "@/shared/apis";
-
-interface PasswordResetForm {
-  token: string;
-  password: string;
-  passwordConfirm: string;
-}
+import {
+  passwordResetSchema,
+  type PasswordResetFormField,
+} from "@/features/password-reset/schemas/form.schema";
 
 interface UsePasswordResetProps {
   defaultValue?: { token?: string };
@@ -22,13 +21,11 @@ export const usePasswordReset = ({ defaultValue }: UsePasswordResetProps) => {
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors },
-  } = useForm<PasswordResetForm>({
+  } = useForm<PasswordResetFormField>({
+    resolver: zodResolver(passwordResetSchema),
     defaultValues: { token: defaultValue?.token ?? "" },
   });
-
-  const password = watch("password");
 
   const resetMutation = useMutation({
     mutationFn: (data: PasswordResetRequest) => authApi.resetPassword(data),
@@ -42,11 +39,10 @@ export const usePasswordReset = ({ defaultValue }: UsePasswordResetProps) => {
           "비밀번호 재설정에 실패했습니다. 다시 시도해주세요.",
       );
     },
-    // 인라인 에러 메세지(setErrorMessage)로 표시하므로 글로벌 toast 비활성
     meta: { skipErrorToast: true },
   });
 
-  const onSubmit = (data: PasswordResetForm) => {
+  const onSubmit = (data: PasswordResetFormField) => {
     resetMutation.mutate({
       token: data.token,
       password: data.password,
@@ -57,7 +53,6 @@ export const usePasswordReset = ({ defaultValue }: UsePasswordResetProps) => {
     register,
     handleSubmit: handleSubmit(onSubmit),
     errors,
-    password,
     errorMessage,
     isPending: resetMutation.isPending,
   };
