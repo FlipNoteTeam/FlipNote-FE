@@ -3,7 +3,7 @@ import { Card, CardContent, CardFooter } from "@/shared/components/card";
 import { Input } from "@/shared/components/input";
 import { PhoneInput } from "@/shared/components/phone-input";
 import { PasswordInput } from "@/shared/components/password-input";
-import { ErrorMessage } from "@/shared/components/error-message";
+import { ErrorMessage } from "@/shared/components/form";
 import { Button } from "@/shared/components/button";
 import { Label } from "@/shared/components/label";
 import { Checkbox } from "@/shared/components/checkbox";

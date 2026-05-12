@@ -31,8 +31,9 @@ export const Description = ({ children, className }: DescriptionProps) => {
   );
 };
 
-type ErrorMessageProps = { children: ReactNode; className?: string };
+type ErrorMessageProps = { children?: ReactNode; className?: string };
 export const ErrorMessage = ({ children, className }: ErrorMessageProps) => {
+  if (!children) return null;
   return (
     <p className={cn("text-xs text-red-500 mt-2 mx-auto", className)}>
       {children}
