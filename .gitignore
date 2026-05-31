@@ -31,6 +31,7 @@ public/firebase-messaging-sw.js
 
 # AI 리팩토링 작업 노트 (로컬 전용)
 docs/refactoring/
+docs/api/
 
 # Playwright E2E 산출물
 test-results/
