@@ -15,6 +15,7 @@ import {
 } from "../schemas/form.schema";
 import { MemorizeSettingsForm } from "./memorize-settings-form";
 import { TestSettingsForm } from "./test-settings-form";
+import { createStorage } from "@/shared/utils/storage";
 
 type StudySettingsProps = {
   groupId: number;
@@ -32,6 +33,9 @@ const MEMORIZE_MODE_DEFAULTS = {
   orderType: "sequential" as const,
 };
 
+const studyDefaultsKey = (cardsetId: number) =>
+  `flipnote-study-defaults-${cardsetId}`;
+
 const getTestModeDefaults = (totalCardCount: number) => ({
   mode: "test" as const,
   isUnlimitedTime: false,
@@ -48,6 +52,11 @@ const StudySettings = ({
   totalCardCount = 0,
 }: StudySettingsProps) => {
   const navigate = useNavigate();
+  const storage = createStorage<StudySettingsFormField>(
+    "local",
+    studyDefaultsKey(cardsetId),
+  );
+
   const {
     register,
     handleSubmit,
@@ -56,7 +65,7 @@ const StudySettings = ({
     formState: { errors },
   } = useForm<StudySettingsFormField>({
     resolver: zodResolver(studySettingsFormSchema),
-    defaultValues: MEMORIZE_MODE_DEFAULTS,
+    defaultValues: storage.get() ?? MEMORIZE_MODE_DEFAULTS,
   });
 
   const { field: modeField } = useController({
@@ -94,7 +103,6 @@ const StudySettings = ({
 
     // testMode가 'all'이면 randomPickCount 제거
 
-    console.log("IN", data);
     const cleanedData = { ...data };
     if (cleanedData.mode === "test" && cleanedData.testMode === "all") {
       delete cleanedData.randomPickCount;
@@ -106,6 +114,7 @@ const StudySettings = ({
       ...cleanedData,
     };
 
+    storage.set(cleanedData);
     navigate({
       to: "/cardsets/learning",
       state: studyOption,
