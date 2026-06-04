@@ -1,6 +1,4 @@
 import { notificationApi } from "@/shared/apis";
-import { NOTIFICATIONS_QUERY_KEY } from "@/shared/apis/notification";
-import { queryClient } from "@/shared/lib/query-client";
 import {
   getFCMToken,
   deleteFCMToken,
@@ -19,14 +17,8 @@ const setStoredFCMToken = (token: string): void =>
 export const removeStoredFCMToken = (): void =>
   localStorage.removeItem(FCM_TOKEN_STORAGE_KEY);
 
-/** Bug 7: 등록된 foreground listener의 unsubscribe. 재로그인 시 중복 방지용. */
 let foregroundUnsubscribe: (() => void) | null = null;
 
-/**
- * FCM 토큰 등록 프로세스.
- * Bug 6: 매 호출마다 getToken() 으로 최신 토큰을 가져와 localStorage와 비교.
- * 토큰이 변경됐거나 없으면 서버에 새로 등록한다.
- */
 export const registerFCMToken = async (): Promise<boolean> => {
   try {
     const permissionGranted = await requestNotificationPermission();
@@ -76,18 +68,17 @@ export const unregisterFCMToken = async (): Promise<boolean> => {
 
 /**
  * 포그라운드 메시지 리스너 초기화.
- * Bug 7: 이전 listener를 먼저 cleanup 후 재등록해 중복 방지.
- * Bug 4: 메시지 수신 시 알림 쿼리 invalidate.
+ * @param onNotificationReceived FCM 메시지 수신 시 실행할 콜백
  */
-export const initializeForegroundMessageListener = (): void => {
+export const initializeForegroundMessageListener = (
+  onNotificationReceived: () => void,
+): void => {
   if (foregroundUnsubscribe) {
     foregroundUnsubscribe();
     foregroundUnsubscribe = null;
   }
 
-  foregroundUnsubscribe = setupForegroundMessageListener(() => {
-    queryClient.invalidateQueries({ queryKey: NOTIFICATIONS_QUERY_KEY });
-  });
+  foregroundUnsubscribe = setupForegroundMessageListener(onNotificationReceived) ?? null;
 };
 
 /**
