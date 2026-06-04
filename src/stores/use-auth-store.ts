@@ -32,7 +32,7 @@ const useAuthStore = create<AuthState & AuthAction>()(
         ({ cleanupForegroundMessageListener, removeStoredFCMToken }) => {
           cleanupForegroundMessageListener();
           removeStoredFCMToken();
-        }
+        },
       );
       set({ user: null, isAuthenticated: false });
     },
@@ -45,14 +45,20 @@ const useAuthStore = create<AuthState & AuthAction>()(
         get().setUser(user);
 
         // FCM은 UI critical path에서 분리 - 백그라운드 처리
-        import("@/shared/services/fcm-service").then(
-          ({ registerFCMToken, initializeForegroundMessageListener }) => {
+        Promise.all([
+          import("@/shared/services/fcm-service"),
+          import("@/shared/services/notification-fcm-handler"),
+        ]).then(
+          ([
+            { registerFCMToken, initializeForegroundMessageListener },
+            { handleFCMMessage },
+          ]) => {
             registerFCMToken().then(() => {
               if (get().isAuthenticated) {
-                initializeForegroundMessageListener();
+                initializeForegroundMessageListener(handleFCMMessage);
               }
             });
-          }
+          },
         );
       } catch (error) {
         console.error("사용자 정보 조회 실패:", error);
@@ -65,7 +71,7 @@ const useAuthStore = create<AuthState & AuthAction>()(
       const baseURL = import.meta.env.DEV
         ? "/api"
         : import.meta.env.VITE_BASE_URL;
-      // const baseURL = import.meta.env.VITE_BASE_URL;
+
       await axios.post(`${baseURL}/auth/token/refresh`, undefined, {
         withCredentials: true,
       });
@@ -94,7 +100,7 @@ const useAuthStore = create<AuthState & AuthAction>()(
         });
       }
     },
-  }))
+  })),
 );
 
 export default useAuthStore;
