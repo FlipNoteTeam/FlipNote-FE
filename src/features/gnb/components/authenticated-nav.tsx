@@ -4,6 +4,7 @@ import { Bell } from "lucide-react";
 import AlarmSheet from "@/features/gnb/components/alarm-sheet";
 import useAuthStore from "@/stores/use-auth-store";
 import { useLogout } from "@/features/auth/hooks/use-logout";
+import { useBackgroundNotificationSync } from "@/features/gnb/hooks/use-background-notification-sync";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,6 +16,8 @@ import {
 const AuthenticatedNav = () => {
   const user = useAuthStore((state) => state.user);
   const { mutate: logout } = useLogout();
+
+  useBackgroundNotificationSync();
 
   if (!user) return null;
   return (
