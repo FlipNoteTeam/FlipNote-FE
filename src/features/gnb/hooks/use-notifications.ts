@@ -8,7 +8,7 @@ import {
 export { NOTIFICATIONS_QUERY_KEY };
 
 export const useNotifications = (
-  params?: Omit<NotificationListRequest, "cursor">
+  params?: Omit<NotificationListRequest, "cursor">,
 ) => {
   return useInfiniteQuery({
     queryKey: [...NOTIFICATIONS_QUERY_KEY, params],
