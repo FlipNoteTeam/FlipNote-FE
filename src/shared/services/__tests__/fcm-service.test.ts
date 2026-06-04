@@ -5,8 +5,11 @@ const mockSetupForegroundMessageListener = vi.fn();
 vi.mock("@/shared/libs/firebase", () => ({
   getFCMToken: vi.fn(),
   deleteFCMToken: vi.fn(),
-  requestNotificationPermission: vi.fn(),
   setupForegroundMessageListener: mockSetupForegroundMessageListener,
+}));
+
+vi.mock("@/shared/libs/notification-permission", () => ({
+  notificationPermissionStore: { requestPermission: vi.fn() },
 }));
 
 vi.mock("@/shared/apis", () => ({
