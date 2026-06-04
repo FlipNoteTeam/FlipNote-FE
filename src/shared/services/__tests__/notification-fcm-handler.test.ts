@@ -39,7 +39,7 @@ const makeNotification = (id: number): NotificationResponse => ({
   metadata: {},
   isRead: false,
   createdAt: new Date(id * 1000).toISOString(),
-  groupId: null,
+  groupId: id,
 });
 
 const makePage = (

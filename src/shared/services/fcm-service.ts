@@ -2,9 +2,9 @@ import { notificationApi } from "@/shared/apis";
 import {
   getFCMToken,
   deleteFCMToken,
-  requestNotificationPermission,
   setupForegroundMessageListener,
 } from "@/shared/libs/firebase";
+import { notificationPermissionStore } from "@/shared/libs/notification-permission";
 
 const FCM_TOKEN_STORAGE_KEY = "fcm_token";
 
@@ -21,7 +21,7 @@ let foregroundUnsubscribe: (() => void) | null = null;
 
 export const registerFCMToken = async (): Promise<boolean> => {
   try {
-    const permissionGranted = await requestNotificationPermission();
+    const permissionGranted = await notificationPermissionStore.requestPermission();
     if (!permissionGranted) {
       return false;
     }

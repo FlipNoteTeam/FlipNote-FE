@@ -82,24 +82,6 @@ export const deleteFCMToken = async (): Promise<boolean> => {
 };
 
 /**
- * 알림 권한 요청
- */
-export const requestNotificationPermission = async (): Promise<boolean> => {
-  if (!("Notification" in window)) {
-    console.warn("이 브라우저는 알림을 지원하지 않습니다.");
-    return false;
-  }
-
-  try {
-    const permission = await Notification.requestPermission();
-    return permission === "granted";
-  } catch (error) {
-    console.error("알림 권한 요청 중 오류:", error);
-    return false;
-  }
-};
-
-/**
  * 포그라운드 메시지 수신 리스너 설정
  */
 export const setupForegroundMessageListener = (
