@@ -6,12 +6,12 @@ export const NOTIFICATIONS_QUERY_KEY = ["notifications"] as const;
 // Notification API 전용 타입들
 export interface NotificationResponse {
   notificationId: number;
-  groupId: number;
   message: string;
   metadata: Record<string, string | number>;
   isRead: boolean;
   readAt?: string;
   createdAt: string;
+  groupId: number | null;
 }
 
 export interface NotificationListRequest {
@@ -32,7 +32,7 @@ export const notificationApi = {
   getNotifications: (params: NotificationListRequest) =>
     apiClient.get<ApiResponse<CursorPagingResponse<NotificationResponse>>>(
       "/notifications",
-      { params }
+      { params },
     ),
 
   // 알림 읽음 처리
