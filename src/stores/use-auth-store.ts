@@ -48,7 +48,9 @@ const useAuthStore = create<AuthState & AuthAction>()(
         import("@/shared/services/fcm-service").then(
           ({ registerFCMToken, initializeForegroundMessageListener }) => {
             registerFCMToken().then(() => {
-              initializeForegroundMessageListener();
+              if (get().isAuthenticated) {
+                initializeForegroundMessageListener();
+              }
             });
           }
         );
