@@ -13,6 +13,8 @@
     "generate:sw": "node scripts/generate-fcm-sw.js",
     "lint": "eslint .",
     "preview": "vite preview",
+    "test:unit": "vitest",
+    "test:unit:run": "vitest run",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:report": "playwright show-report"
@@ -71,6 +73,7 @@
     "tw-animate-css": "^1.3.7",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.39.1",
-    "vite": "^7.1.2"
+    "vite": "^7.1.2",
+    "vitest": "^4.1.8"
   }
 }
