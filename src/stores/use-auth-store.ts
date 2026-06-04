@@ -29,8 +29,9 @@ const useAuthStore = create<AuthState & AuthAction>()(
 
     clearUser: () => {
       import("@/shared/services/fcm-service").then(
-        ({ cleanupForegroundMessageListener }) => {
+        ({ cleanupForegroundMessageListener, removeStoredFCMToken }) => {
           cleanupForegroundMessageListener();
+          removeStoredFCMToken();
         }
       );
       set({ user: null, isAuthenticated: false });

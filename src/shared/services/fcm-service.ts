@@ -16,7 +16,7 @@ const getStoredFCMToken = (): string | null =>
 const setStoredFCMToken = (token: string): void =>
   localStorage.setItem(FCM_TOKEN_STORAGE_KEY, token);
 
-const removeStoredFCMToken = (): void =>
+export const removeStoredFCMToken = (): void =>
   localStorage.removeItem(FCM_TOKEN_STORAGE_KEY);
 
 /** Bug 7: 등록된 foreground listener의 unsubscribe. 재로그인 시 중복 방지용. */
