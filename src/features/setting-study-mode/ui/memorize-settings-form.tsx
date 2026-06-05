@@ -3,40 +3,21 @@ import { Description } from "@/shared/components/form";
 import { Label } from "@/shared/components/label";
 import { NumberInput } from "@/shared/components/number-input";
 import { ToggleGroup } from "@/shared/components/toggle-group";
-import type { Control, FieldErrors, UseFormRegister } from "react-hook-form";
+import type { Control, FieldErrors } from "react-hook-form";
 import { useController, useWatch } from "react-hook-form";
 import type { StudySettingsFormField } from "../schemas/form.schema";
 
 type MemorizeSettingsFormProps = {
   control: Control<StudySettingsFormField>;
-  register: UseFormRegister<StudySettingsFormField>;
   errors: FieldErrors<StudySettingsFormField>;
 };
 
-export function MemorizeSettingsForm({
-  control,
-  register,
-  errors,
-}: MemorizeSettingsFormProps) {
-  const { field: orderTypeField } = useController({
-    name: "orderType",
-    control,
-  });
-
-  const { field: navigationTypeField } = useController({
-    name: "navigationType",
-    control,
-  });
-
-  const { field: repeatCountField } = useController({
-    name: "repeatCount",
-    control,
-  });
-
-  const { field: autoTimerSecondsField } = useController({
-    name: "autoTimerSeconds",
-    control,
-  });
+export function MemorizeSettingsForm({ control, errors }: MemorizeSettingsFormProps) {
+  const { field: orderTypeField } = useController({ name: "orderType", control });
+  const { field: navigationTypeField } = useController({ name: "navigationType", control });
+  const { field: repeatCountField } = useController({ name: "repeatCount", control });
+  const { field: autoTimerSecondsField } = useController({ name: "autoTimerSeconds", control });
+  const { field: isUnlimitedRepeatField } = useController({ name: "isUnlimitedRepeat", control });
 
   const navigationType = useWatch({ control, name: "navigationType" });
   const isUnlimitedRepeat = useWatch({ control, name: "isUnlimitedRepeat" });
@@ -59,15 +40,19 @@ export function MemorizeSettingsForm({
           <span className="text-sm">회</span>
         </div>
         <div className="flex items-center gap-2">
-          <Checkbox id="unlimited-repeat" {...register("isUnlimitedRepeat")} />
+          <Checkbox
+            id="unlimited-repeat"
+            checked={Boolean(isUnlimitedRepeatField.value)}
+            onCheckedChange={isUnlimitedRepeatField.onChange}
+            onBlur={isUnlimitedRepeatField.onBlur}
+            ref={isUnlimitedRepeatField.ref}
+          />
           <label htmlFor="unlimited-repeat" className="text-sm cursor-pointer">
             제한 없음
           </label>
         </div>
         {"repeatCount" in errors && errors.repeatCount && (
-          <p className="text-sm text-red-500 mt-1">
-            {errors.repeatCount.message}
-          </p>
+          <p className="text-sm text-red-500 mt-1">{errors.repeatCount.message}</p>
         )}
       </fieldset>
 
@@ -86,9 +71,7 @@ export function MemorizeSettingsForm({
             ]}
           />
           {errors.orderType && (
-            <p className="text-sm text-red-500 mt-1">
-              {errors.orderType.message}
-            </p>
+            <p className="text-sm text-red-500 mt-1">{errors.orderType.message}</p>
           )}
         </fieldset>
 
@@ -105,9 +88,7 @@ export function MemorizeSettingsForm({
             ]}
           />
           {"navigationType" in errors && errors.navigationType && (
-            <p className="text-sm text-red-500 mt-1">
-              {errors.navigationType.message}
-            </p>
+            <p className="text-sm text-red-500 mt-1">{errors.navigationType.message}</p>
           )}
         </fieldset>
       </div>
@@ -118,9 +99,7 @@ export function MemorizeSettingsForm({
           <Label htmlFor="autoTimerSeconds" className="text-sm font-medium">
             자동 넘김 시간
           </Label>
-          <Description>
-            카드가 자동으로 넘어가는 시간을 설정해주세요
-          </Description>
+          <Description>카드가 자동으로 넘어가는 시간을 설정해주세요</Description>
           <div className="flex items-center gap-2">
             <NumberInput
               id="autoTimerSeconds"
@@ -132,9 +111,7 @@ export function MemorizeSettingsForm({
             <span className="text-sm">초</span>
           </div>
           {"autoTimerSeconds" in errors && errors.autoTimerSeconds && (
-            <p className="text-sm text-red-500 mt-1">
-              {errors.autoTimerSeconds.message}
-            </p>
+            <p className="text-sm text-red-500 mt-1">{errors.autoTimerSeconds.message}</p>
           )}
         </div>
       )}

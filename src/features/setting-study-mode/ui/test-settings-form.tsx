@@ -3,20 +3,18 @@ import { Description } from "@/shared/components/form";
 import { Label } from "@/shared/components/label";
 import { NumberInput } from "@/shared/components/number-input";
 import { ToggleGroup } from "@/shared/components/toggle-group";
-import type { Control, FieldErrors, UseFormRegister } from "react-hook-form";
+import type { Control, FieldErrors } from "react-hook-form";
 import { useController, useWatch } from "react-hook-form";
 import type { StudySettingsFormField } from "../schemas/form.schema";
 
 type TestSettingsFormProps = {
   control: Control<StudySettingsFormField>;
-  register: UseFormRegister<StudySettingsFormField>;
   errors: FieldErrors<StudySettingsFormField>;
   totalCardCount: number;
 };
 
 export function TestSettingsForm({
   control,
-  register,
   errors,
   totalCardCount,
 }: TestSettingsFormProps) {
@@ -24,14 +22,17 @@ export function TestSettingsForm({
     name: "orderType",
     control,
   });
-
-  const { field: testModeField } = useController({
-    name: "testMode",
-    control,
-  });
-
+  const { field: testModeField } = useController({ name: "testMode", control });
   const { field: testTimeMinutesField } = useController({
     name: "testTimeMinutes",
+    control,
+  });
+  const { field: isUnlimitedTimeField } = useController({
+    name: "isUnlimitedTime",
+    control,
+  });
+  const { field: randomPickCountField } = useController({
+    name: "randomPickCount",
     control,
   });
 
@@ -48,7 +49,9 @@ export function TestSettingsForm({
             className="w-24"
             disabled={isUnlimitedTime}
             value={testTimeMinutesField.value}
-            onChange={(e) => testTimeMinutesField.onChange(parseInt(e.target.value) || 1)}
+            onChange={(e) =>
+              testTimeMinutesField.onChange(parseInt(e.target.value) || 1)
+            }
             onBlur={testTimeMinutesField.onBlur}
             min={1}
             max={180}
@@ -56,7 +59,13 @@ export function TestSettingsForm({
           <span className="text-sm">분</span>
         </div>
         <div className="flex items-center gap-2">
-          <Checkbox id="unlimited-time" {...register("isUnlimitedTime")} />
+          <Checkbox
+            id="unlimited-time"
+            checked={Boolean(isUnlimitedTimeField.value)}
+            onCheckedChange={isUnlimitedTimeField.onChange}
+            onBlur={isUnlimitedTimeField.onBlur}
+            ref={isUnlimitedTimeField.ref}
+          />
           <label htmlFor="unlimited-time" className="text-sm cursor-pointer">
             제한 없음
           </label>
@@ -117,14 +126,19 @@ export function TestSettingsForm({
                 전체 {totalCardCount}개 중 몇 개를 시험 볼까요?
               </Description>
               <div className="flex items-center gap-2">
-                <input
+                <NumberInput
                   id="randomPickCount"
-                  type="number"
-                  className="w-24 flex h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 text-center"
-                  {...register("randomPickCount", {
-                    valueAsNumber: true,
-                    setValueAs: (v) => (v === "" ? undefined : Number(v)),
-                  })}
+                  className="w-24"
+                  value={randomPickCountField.value ?? ""}
+                  onChange={(e) =>
+                    randomPickCountField.onChange(
+                      e.target.value === ""
+                        ? undefined
+                        : Number(e.target.value),
+                    )
+                  }
+                  onBlur={randomPickCountField.onBlur}
+                  ref={randomPickCountField.ref}
                   min={1}
                   max={totalCardCount}
                 />
