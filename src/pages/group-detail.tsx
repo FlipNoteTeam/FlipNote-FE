@@ -6,7 +6,7 @@ import { useGroupDetail } from "@/domain/group/hooks/use-group-detail";
 import { useGroupMembers } from "@/domain/members/hooks/use-group-members";
 import { useGroupCardsets } from "@/domain/cardsets/hooks/use-group-cardsets";
 import useAuthStore from "@/stores/use-auth-store";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link, useRouter } from "@tanstack/react-router";
 import { GroupDetailSkeleton } from "@/shared/components/skeletons";
 import { useMeta } from "@/shared/hooks/use-meta";
 import type { ApiError } from "@/shared/apis";
@@ -20,7 +20,7 @@ type Props = { id: string };
 const GroupDetailPage = ({ id }: Props) => {
   const groupId = Number(id);
   const user = useAuthStore((state) => state.user);
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const {
     data: groupData,
@@ -74,7 +74,7 @@ const GroupDetailPage = ({ id }: Props) => {
           <p className="text-muted-foreground">
             더 많은 카드셋을 보려면 멤버가 되어 보세요!
           </p>
-          <Button onClick={() => navigate({ to: -1 as never })} variant="outline">
+          <Button onClick={() => router.history.go(-1)} variant="outline">
             돌아가기
           </Button>
         </div>

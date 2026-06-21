@@ -3,7 +3,7 @@ import type { ApiError } from "@/shared/apis";
 import { Button } from "@/shared/components/button";
 import BaseLayout from "@/shared/layouts/base-layout";
 import useAuthStore from "@/stores/use-auth-store";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useRouter } from "@tanstack/react-router";
 import { UserPlus } from "lucide-react";
 
 type Props = {
@@ -13,6 +13,7 @@ type Props = {
 
 export const GroupDetailErrorView = ({ error, groupId }: Props) => {
   const navigate = useNavigate();
+  const router = useRouter();
   const user = useAuthStore((state) => state.user);
 
   const errorCode = error?.response?.data?.["code"] as string | undefined;
@@ -46,7 +47,7 @@ export const GroupDetailErrorView = ({ error, groupId }: Props) => {
             </Button>
           )}
           <div>
-            <Button onClick={() => window.history.back()} variant="outline">
+            <Button onClick={() => router.history.go(-1)} variant="outline">
               돌아가기
             </Button>
           </div>
