@@ -6,7 +6,7 @@ import { Skeleton } from "@/shared/components/skeleton";
 import useAuthStore from "@/stores/use-auth-store";
 import { Link } from "@tanstack/react-router";
 
-const GNB = () => {
+const GrobalNavigationBar = () => {
   const isInitializing = useAuthStore((state) => state.isInitializing);
   const user = useAuthStore((state) => state.user);
 
@@ -47,4 +47,4 @@ const GNB = () => {
   );
 };
 
-export default GNB;
+export default GrobalNavigationBar;
