@@ -18,7 +18,7 @@ const CardsetDetailSheet = ({ groupId, cardsetId }: Props) => {
   const navigate = useNavigate();
 
   const handleClose = () => {
-    navigate({ to: "/groups/$groupId", params: { groupId: String(groupId) } });
+    navigate({ to: "/groups/$groupId", params: { groupId: String(groupId) }, replace: true });
   };
 
   return (
@@ -29,15 +29,17 @@ const CardsetDetailSheet = ({ groupId, cardsetId }: Props) => {
       }}
     >
       <SheetContent
-        side="bottom"
-        className="h-[85vh] overflow-y-auto rounded-t-2xl p-0"
+        side="right"
+        className="w-full sm:max-w-xl overflow-hidden p-0 flex flex-col"
       >
-        <SheetHeader className="px-6 pt-6 pb-2">
+        <SheetHeader className="px-6 pt-6 pb-2 shrink-0">
           <SheetTitle className="text-lg font-bold">카드셋 상세</SheetTitle>
         </SheetHeader>
-        <Suspense fallback={<PageSkeleton />}>
-          <CardsetDetailContent groupId={groupId} cardsetId={cardsetId} />
-        </Suspense>
+        <div className="overflow-y-auto flex-1">
+          <Suspense fallback={<PageSkeleton />}>
+            <CardsetDetailContent groupId={groupId} cardsetId={cardsetId} />
+          </Suspense>
+        </div>
       </SheetContent>
     </Sheet>
   );
