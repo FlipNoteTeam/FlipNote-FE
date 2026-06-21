@@ -6,7 +6,7 @@ import { useGroupDetail } from "@/domain/group/hooks/use-group-detail";
 import { useGroupMembers } from "@/domain/members/hooks/use-group-members";
 import { useGroupCardsets } from "@/domain/cardsets/hooks/use-group-cardsets";
 import useAuthStore from "@/stores/use-auth-store";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { GroupDetailSkeleton } from "@/shared/components/skeletons";
 import { useMeta } from "@/shared/hooks/use-meta";
 import type { ApiError } from "@/shared/apis";
@@ -20,6 +20,7 @@ type Props = { id: string };
 const GroupDetailPage = ({ id }: Props) => {
   const groupId = Number(id);
   const user = useAuthStore((state) => state.user);
+  const navigate = useNavigate();
 
   const {
     data: groupData,
@@ -69,11 +70,11 @@ const GroupDetailPage = ({ id }: Props) => {
     return (
       <BaseLayout>
         <div className="mx-auto max-w-6xl p-6 text-center space-y-4">
-          <h2 className="text-2xl font-bold">비공개 그룹입니다</h2>
+          <h2 className="text-2xl font-bold">이 그룹은 비공개입니다</h2>
           <p className="text-muted-foreground">
-            이 그룹은 비공개 그룹으로 멤버만 접근할 수 있습니다.
+            더 많은 카드셋을 보려면 멤버가 되어 보세요!
           </p>
-          <Button onClick={() => window.history.back()} variant="outline">
+          <Button onClick={() => navigate({ to: -1 as never })} variant="outline">
             돌아가기
           </Button>
         </div>
