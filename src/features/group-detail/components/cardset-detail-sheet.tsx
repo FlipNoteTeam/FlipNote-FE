@@ -1,4 +1,4 @@
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import {
   Sheet,
@@ -16,21 +16,26 @@ type Props = {
 
 const CardsetDetailSheet = ({ groupId, cardsetId }: Props) => {
   const navigate = useNavigate();
+  const [isOpen, setIsOpen] = useState(true);
 
-  const handleClose = () => {
-    navigate({ to: "/groups/$groupId", params: { groupId: String(groupId) }, replace: true });
+  const handleClose = () => setIsOpen(false);
+
+  const handleOpenChange = (open: boolean) => {
+    if (!open) handleClose();
+  };
+
+  const handleAnimationEnd = () => {
+    if (!isOpen) {
+      navigate({ to: "/groups/$groupId", params: { groupId: String(groupId) }, replace: true });
+    }
   };
 
   return (
-    <Sheet
-      open
-      onOpenChange={(open) => {
-        if (!open) handleClose();
-      }}
-    >
+    <Sheet open={isOpen} onOpenChange={handleOpenChange}>
       <SheetContent
         side="right"
         className="w-full sm:max-w-xl overflow-hidden p-0 flex flex-col"
+        onAnimationEnd={handleAnimationEnd}
       >
         <SheetHeader className="px-6 pt-6 pb-2 shrink-0">
           <SheetTitle className="text-lg font-bold">카드셋 상세</SheetTitle>
