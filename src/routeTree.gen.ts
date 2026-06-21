@@ -21,6 +21,7 @@ import { Route as SocialLinkSuccessRouteImport } from './routes/social-link/succ
 import { Route as SocialLinkFailureRouteImport } from './routes/social-link/failure'
 import { Route as SocialLinkConflictRouteImport } from './routes/social-link/conflict'
 import { Route as GroupsCreateRouteImport } from './routes/groups/create'
+import { Route as GroupsGroupIdRouteImport } from './routes/groups/$groupId'
 import { Route as AuthRegisterRouteImport } from './routes/auth/register'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
 import { Route as UserUserIdIndexRouteImport } from './routes/user/$userId/index'
@@ -90,6 +91,11 @@ const GroupsCreateRoute = GroupsCreateRouteImport.update({
   path: '/groups/create',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GroupsGroupIdRoute = GroupsGroupIdRouteImport.update({
+  id: '/groups/$groupId',
+  path: '/groups/$groupId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRegisterRoute = AuthRegisterRouteImport.update({
   id: '/auth/register',
   path: '/auth/register',
@@ -106,9 +112,9 @@ const UserUserIdIndexRoute = UserUserIdIndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const GroupsGroupIdIndexRoute = GroupsGroupIdIndexRouteImport.update({
-  id: '/groups/$groupId/',
-  path: '/groups/$groupId/',
-  getParentRoute: () => rootRouteImport,
+  id: '/',
+  path: '/',
+  getParentRoute: () => GroupsGroupIdRoute,
 } as any)
 const CardsetsLearningIndexRoute = CardsetsLearningIndexRouteImport.update({
   id: '/cardsets/learning/',
@@ -116,9 +122,9 @@ const CardsetsLearningIndexRoute = CardsetsLearningIndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const GroupsGroupIdManageRoute = GroupsGroupIdManageRouteImport.update({
-  id: '/groups/$groupId/manage',
-  path: '/groups/$groupId/manage',
-  getParentRoute: () => rootRouteImport,
+  id: '/manage',
+  path: '/manage',
+  getParentRoute: () => GroupsGroupIdRoute,
 } as any)
 const CardsetsEditorIdRoute = CardsetsEditorIdRouteImport.update({
   id: '/cardsets/editor/$id',
@@ -127,9 +133,9 @@ const CardsetsEditorIdRoute = CardsetsEditorIdRouteImport.update({
 } as any)
 const GroupsGroupIdCardsetsCardsetIdIndexRoute =
   GroupsGroupIdCardsetsCardsetIdIndexRouteImport.update({
-    id: '/groups/$groupId/cardsets/$cardsetId/',
-    path: '/groups/$groupId/cardsets/$cardsetId/',
-    getParentRoute: () => rootRouteImport,
+    id: '/cardsets/$cardsetId/',
+    path: '/cardsets/$cardsetId/',
+    getParentRoute: () => GroupsGroupIdRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -140,6 +146,7 @@ export interface FileRoutesByFullPath {
   '/password-reset': typeof PasswordResetRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
+  '/groups/$groupId': typeof GroupsGroupIdRouteWithChildren
   '/groups/create': typeof GroupsCreateRoute
   '/social-link/conflict': typeof SocialLinkConflictRoute
   '/social-link/failure': typeof SocialLinkFailureRoute
@@ -185,6 +192,7 @@ export interface FileRoutesById {
   '/password-reset': typeof PasswordResetRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
+  '/groups/$groupId': typeof GroupsGroupIdRouteWithChildren
   '/groups/create': typeof GroupsCreateRoute
   '/social-link/conflict': typeof SocialLinkConflictRoute
   '/social-link/failure': typeof SocialLinkFailureRoute
@@ -209,6 +217,7 @@ export interface FileRouteTypes {
     | '/password-reset'
     | '/auth/login'
     | '/auth/register'
+    | '/groups/$groupId'
     | '/groups/create'
     | '/social-link/conflict'
     | '/social-link/failure'
@@ -253,6 +262,7 @@ export interface FileRouteTypes {
     | '/password-reset'
     | '/auth/login'
     | '/auth/register'
+    | '/groups/$groupId'
     | '/groups/create'
     | '/social-link/conflict'
     | '/social-link/failure'
@@ -276,6 +286,7 @@ export interface RootRouteChildren {
   PasswordResetRoute: typeof PasswordResetRoute
   AuthLoginRoute: typeof AuthLoginRoute
   AuthRegisterRoute: typeof AuthRegisterRoute
+  GroupsGroupIdRoute: typeof GroupsGroupIdRouteWithChildren
   GroupsCreateRoute: typeof GroupsCreateRoute
   SocialLinkConflictRoute: typeof SocialLinkConflictRoute
   SocialLinkFailureRoute: typeof SocialLinkFailureRoute
@@ -284,11 +295,8 @@ export interface RootRouteChildren {
   SocialLoginSuccessRoute: typeof SocialLoginSuccessRoute
   GroupsIndexRoute: typeof GroupsIndexRoute
   CardsetsEditorIdRoute: typeof CardsetsEditorIdRoute
-  GroupsGroupIdManageRoute: typeof GroupsGroupIdManageRoute
   CardsetsLearningIndexRoute: typeof CardsetsLearningIndexRoute
-  GroupsGroupIdIndexRoute: typeof GroupsGroupIdIndexRoute
   UserUserIdIndexRoute: typeof UserUserIdIndexRoute
-  GroupsGroupIdCardsetsCardsetIdIndexRoute: typeof GroupsGroupIdCardsetsCardsetIdIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -377,6 +385,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GroupsCreateRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/groups/$groupId': {
+      id: '/groups/$groupId'
+      path: '/groups/$groupId'
+      fullPath: '/groups/$groupId'
+      preLoaderRoute: typeof GroupsGroupIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth/register': {
       id: '/auth/register'
       path: '/auth/register'
@@ -400,10 +415,10 @@ declare module '@tanstack/react-router' {
     }
     '/groups/$groupId/': {
       id: '/groups/$groupId/'
-      path: '/groups/$groupId'
+      path: '/'
       fullPath: '/groups/$groupId/'
       preLoaderRoute: typeof GroupsGroupIdIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof GroupsGroupIdRoute
     }
     '/cardsets/learning/': {
       id: '/cardsets/learning/'
@@ -414,10 +429,10 @@ declare module '@tanstack/react-router' {
     }
     '/groups/$groupId/manage': {
       id: '/groups/$groupId/manage'
-      path: '/groups/$groupId/manage'
+      path: '/manage'
       fullPath: '/groups/$groupId/manage'
       preLoaderRoute: typeof GroupsGroupIdManageRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof GroupsGroupIdRoute
     }
     '/cardsets/editor/$id': {
       id: '/cardsets/editor/$id'
@@ -428,13 +443,30 @@ declare module '@tanstack/react-router' {
     }
     '/groups/$groupId/cardsets/$cardsetId/': {
       id: '/groups/$groupId/cardsets/$cardsetId/'
-      path: '/groups/$groupId/cardsets/$cardsetId'
+      path: '/cardsets/$cardsetId'
       fullPath: '/groups/$groupId/cardsets/$cardsetId/'
       preLoaderRoute: typeof GroupsGroupIdCardsetsCardsetIdIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof GroupsGroupIdRoute
     }
   }
 }
+
+interface GroupsGroupIdRouteChildren {
+  GroupsGroupIdManageRoute: typeof GroupsGroupIdManageRoute
+  GroupsGroupIdIndexRoute: typeof GroupsGroupIdIndexRoute
+  GroupsGroupIdCardsetsCardsetIdIndexRoute: typeof GroupsGroupIdCardsetsCardsetIdIndexRoute
+}
+
+const GroupsGroupIdRouteChildren: GroupsGroupIdRouteChildren = {
+  GroupsGroupIdManageRoute: GroupsGroupIdManageRoute,
+  GroupsGroupIdIndexRoute: GroupsGroupIdIndexRoute,
+  GroupsGroupIdCardsetsCardsetIdIndexRoute:
+    GroupsGroupIdCardsetsCardsetIdIndexRoute,
+}
+
+const GroupsGroupIdRouteWithChildren = GroupsGroupIdRoute._addFileChildren(
+  GroupsGroupIdRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -444,6 +476,7 @@ const rootRouteChildren: RootRouteChildren = {
   PasswordResetRoute: PasswordResetRoute,
   AuthLoginRoute: AuthLoginRoute,
   AuthRegisterRoute: AuthRegisterRoute,
+  GroupsGroupIdRoute: GroupsGroupIdRouteWithChildren,
   GroupsCreateRoute: GroupsCreateRoute,
   SocialLinkConflictRoute: SocialLinkConflictRoute,
   SocialLinkFailureRoute: SocialLinkFailureRoute,
@@ -452,12 +485,8 @@ const rootRouteChildren: RootRouteChildren = {
   SocialLoginSuccessRoute: SocialLoginSuccessRoute,
   GroupsIndexRoute: GroupsIndexRoute,
   CardsetsEditorIdRoute: CardsetsEditorIdRoute,
-  GroupsGroupIdManageRoute: GroupsGroupIdManageRoute,
   CardsetsLearningIndexRoute: CardsetsLearningIndexRoute,
-  GroupsGroupIdIndexRoute: GroupsGroupIdIndexRoute,
   UserUserIdIndexRoute: UserUserIdIndexRoute,
-  GroupsGroupIdCardsetsCardsetIdIndexRoute:
-    GroupsGroupIdCardsetsCardsetIdIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -1,4 +1,4 @@
-import CardsetDetail from "@/pages/cardset-detail";
+import CardsetDetailSheet from "@/features/group-detail/components/cardset-detail-sheet";
 import { PageSkeleton } from "@/shared/components/skeletons/page-skeleton";
 import { createFileRoute } from "@tanstack/react-router";
 
@@ -11,6 +11,9 @@ function RouteComponent() {
   const { groupId, cardsetId } = Route.useParams();
 
   return (
-    <CardsetDetail groupId={Number(groupId)} cardsetId={Number(cardsetId)} />
+    <CardsetDetailSheet
+      groupId={Number(groupId)}
+      cardsetId={Number(cardsetId)}
+    />
   );
 }

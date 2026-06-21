@@ -1,11 +1,5 @@
-import GroupDetail from "@/pages/group-detail";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/groups/$groupId/")({
-  component: RouteComponent,
+  component: () => null,
 });
-
-function RouteComponent() {
-  const { groupId } = Route.useParams();
-  return <GroupDetail id={groupId} />;
-}
