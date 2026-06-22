@@ -13,6 +13,7 @@ import { Separator } from "@/shared/components/separator";
 import Badge from "@/shared/components/badge";
 import { useMeta } from "@/shared/hooks/use-meta";
 import { toast } from "sonner";
+import { queryClient } from "@/shared/lib/query-client";
 
 type Props = {
   groupId: number;
@@ -31,8 +32,15 @@ const CardsetDetailContent = ({ groupId, cardsetId }: Props) => {
   const { mutate, isPending } = useMutation({
     mutationFn: () => cardSetApi.deleteCardSet(cardsetId),
     onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["group", "cardsets", groupId],
+      });
+
       toast.success("카드셋이 삭제되었습니다.");
-      navigate({ to: "/groups/$groupId", params: { groupId: String(groupId) } });
+      navigate({
+        to: "/groups/$groupId",
+        params: { groupId: String(groupId) },
+      });
     },
     meta: { errorFallback: "카드셋 삭제를 실패했습니다." },
   });
@@ -124,9 +132,15 @@ const CardsetDetailContent = ({ groupId, cardsetId }: Props) => {
         <div className="flex-1 space-y-4">
           <div className="flex gap-2">
             <Badge>
-              {GROUP_CATEGORY_MAP[cardset.category as keyof typeof GROUP_CATEGORY_MAP]}
+              {
+                GROUP_CATEGORY_MAP[
+                  cardset.category as keyof typeof GROUP_CATEGORY_MAP
+                ]
+              }
             </Badge>
-            <Badge colorVariant={cardset.visibility === "PUBLIC" ? "green" : "red"}>
+            <Badge
+              colorVariant={cardset.visibility === "PUBLIC" ? "green" : "red"}
+            >
               {cardset.visibility === "PUBLIC" ? "공개" : "비공개"}
             </Badge>
           </div>
