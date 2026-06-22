@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import GrobalNavigationBar from "@/shared/layouts/gnb";
 import FlipCard from "@/shared/components/flip-card";
@@ -25,41 +25,6 @@ import {
 } from "lucide-react";
 import { cardApi, type CardResponse } from "@/shared/apis/card";
 
-// [DEV_MOCK] UI 작업용 임시 목 데이터 - 작업 완료 후 제거
-const DEV_MOCK = true;
-const MOCK_CARDS: CardResponse[] = [
-  {
-    id: "1",
-    question: "React에서 상태 관리를 위한 기본 훅은 무엇인가?",
-    answer: "useState",
-  },
-  {
-    id: "2",
-    question: "컴포넌트의 사이드 이펙트를 처리하는 훅은 무엇인가?",
-    answer: "useEffect",
-  },
-  {
-    id: "3",
-    question: "컨텍스트 값을 구독할 때 사용하는 훅은 무엇인가?",
-    answer: "useContext",
-  },
-  {
-    id: "4",
-    question: "이전 렌더링 값을 기억할 때 사용하는 훅은 무엇인가?",
-    answer: "useRef",
-  },
-  {
-    id: "5",
-    question: "비용이 큰 계산 결과를 메모이제이션할 때 사용하는 훅은?",
-    answer: "useMemo",
-  },
-  {
-    id: "6",
-    question: "함수를 메모이제이션할 때 사용하는 훅은?",
-    answer: "useCallback",
-  },
-];
-
 type MemoizeControllerProps = {
   settings: MemorizeSettings;
   setSettings: React.Dispatch<React.SetStateAction<MemorizeSettings>>;
@@ -69,6 +34,7 @@ type MemoizeControllerProps = {
   totalCount: number;
   onPrevious: () => void;
   onNext: () => void;
+  isNextDisabled: boolean;
 };
 
 const MemoizeController = ({
@@ -80,6 +46,7 @@ const MemoizeController = ({
   totalCount,
   onPrevious,
   onNext,
+  isNextDisabled,
 }: MemoizeControllerProps) => {
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg">
@@ -90,6 +57,7 @@ const MemoizeController = ({
             <span>
               {currentIndex + 1} / {totalCount}
             </span>
+
             <span>{Math.round(((currentIndex + 1) / totalCount) * 100)}%</span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-1.5">
@@ -114,7 +82,9 @@ const MemoizeController = ({
                     prev.orderType === "sequential" ? "random" : "sequential",
                 }))
               }
-              title={settings.orderType === "sequential" ? "순차" : "랜덤"}
+              aria-label={
+                settings.orderType === "sequential" ? "순차 정렬" : "랜덤 정렬"
+              }
             >
               {settings.orderType === "sequential" ? (
                 <ListOrdered className="h-5 w-5" />
@@ -123,7 +93,7 @@ const MemoizeController = ({
               )}
             </Button>
 
-            {/* 반복 토글 */}
+            {/* 반복 토글 + 횟수 설정 */}
             <Button
               variant="ghost"
               size="icon"
@@ -133,7 +103,9 @@ const MemoizeController = ({
                   isUnlimitedRepeat: !prev.isUnlimitedRepeat,
                 }))
               }
-              title={settings.isUnlimitedRepeat ? "무한 반복" : "반복 끝"}
+              aria-label={
+                settings.isUnlimitedRepeat ? "무한 반복" : "횟수 반복"
+              }
             >
               {settings.isUnlimitedRepeat ? (
                 <Repeat className="h-5 w-5" />
@@ -141,6 +113,26 @@ const MemoizeController = ({
                 <Repeat1 className="h-5 w-5" />
               )}
             </Button>
+
+            {!settings.isUnlimitedRepeat && (
+              <div className="flex items-center gap-1">
+                <Input
+                  type="number"
+                  min={1}
+                  max={99}
+                  value={settings.repeatCount ?? 1}
+                  aria-label="반복 횟수"
+                  onChange={(e) =>
+                    setSettings((prev) => ({
+                      ...prev,
+                      repeatCount: Number.parseInt(e.target.value) || 1,
+                    }))
+                  }
+                  className="w-14 text-center"
+                />
+                <span className="text-sm text-gray-600">회</span>
+              </div>
+            )}
           </div>
 
           {/* 중앙: 플레이어 컨트롤 */}
@@ -148,6 +140,7 @@ const MemoizeController = ({
             <Button
               variant="ghost"
               size="icon"
+              aria-label="이전 카드"
               onClick={onPrevious}
               disabled={currentIndex === 0}
             >
@@ -158,6 +151,7 @@ const MemoizeController = ({
               variant="default"
               size="icon"
               className="h-12 w-12 rounded-full"
+              aria-label={isPlaying ? "일시정지" : "재생"}
               onClick={() => setIsPlaying(!isPlaying)}
             >
               {isPlaying ? (
@@ -170,10 +164,9 @@ const MemoizeController = ({
             <Button
               variant="ghost"
               size="icon"
+              aria-label="다음 카드"
               onClick={onNext}
-              disabled={
-                !settings.isUnlimitedRepeat && currentIndex === totalCount - 1
-              }
+              disabled={isNextDisabled}
             >
               <SkipForward className="h-6 w-6" />
             </Button>
@@ -187,6 +180,7 @@ const MemoizeController = ({
               min={1}
               max={60}
               value={settings.autoTimerSeconds ?? 5}
+              aria-label="자동 넘김 속도"
               onChange={(e) =>
                 setSettings((prev) => ({
                   ...prev,
@@ -211,7 +205,7 @@ type CardCarouselProps = {
   setCurrent: (index: number) => void;
   isPlaying: boolean;
   duration: number;
-  repeat: boolean;
+  onAdvance: () => void;
 };
 
 const CardCarousel = ({
@@ -222,7 +216,7 @@ const CardCarousel = ({
   setCurrent,
   isPlaying,
   duration,
-  repeat,
+  onAdvance,
 }: CardCarouselProps) => {
   useEffect(() => {
     if (!api) return;
@@ -238,28 +232,22 @@ const CardCarousel = ({
     if (!isPlaying || !api || cards.length === 0) return;
 
     const interval = setInterval(() => {
-      if (repeat) {
-        // 무한 반복: 마지막 슬라이드에서 첫 슬라이드로
-        if (current === cards.length - 1) {
-          api.scrollTo(0);
-        } else {
-          api.scrollNext();
-        }
-      } else if (api.canScrollNext()) {
-        // 마지막 슬라이드면 멈춤
-        api.scrollNext();
-      }
+      onAdvance();
     }, duration);
 
     return () => clearInterval(interval);
-  }, [isPlaying, duration, repeat, api, current, cards.length]);
+  }, [isPlaying, duration, onAdvance, api, cards.length]);
 
   return (
     <div className="w-full max-w-2xl">
       <Carousel setApi={setApi} opts={{ loop: false }}>
         <CarouselContent>
           {cards.map((card, index) => (
-            <CarouselItem key={card.id} className="flex justify-center">
+            <CarouselItem
+              key={card.id}
+              className="flex justify-center"
+              aria-current={index === current ? "true" : undefined}
+            >
               <div
                 className="w-full"
                 style={{ height: "clamp(200px, calc(100dvh - 280px), 500px)" }}
@@ -290,20 +278,15 @@ type MemoizeModeProps = {
 
 const MemoizeMode = ({ settings: studySettings }: MemoizeModeProps) => {
   // 카드 데이터 조회
-  // [DEV_MOCK] 실서버 연결 시 queryFn과 enabled를 원래대로 복원:
-  // queryFn: () => cardApi.getCards(studySettings.cardsetId),
-  // enabled: !!studySettings.cardsetId,
+
   const {
     data: cardsData,
     isLoading,
     isError,
   } = useQuery({
     queryKey: ["cards", studySettings.cardsetId],
-    queryFn: () =>
-      DEV_MOCK
-        ? Promise.resolve({ data: { data: MOCK_CARDS } })
-        : cardApi.getCards(studySettings.cardsetId),
-    enabled: DEV_MOCK || !!studySettings.cardsetId,
+    queryFn: () => cardApi.getCards(studySettings.cardsetId),
+    enabled: !!studySettings.cardsetId,
   });
 
   const rawCards = useMemo(() => cardsData?.data?.data ?? [], [cardsData]);
@@ -322,13 +305,19 @@ const MemoizeMode = ({ settings: studySettings }: MemoizeModeProps) => {
     console.log("[MemoizeMode] settings:", settings);
   }, [settings]);
 
-  // orderType이 random이면 섞어서 반환, 런타임 토글 시 재적용
-  const cards = useMemo(() => {
+  // orderType 변경 시 재계산, 라운드 전환 시엔 advance()에서 직접 setCards
+  const baseCards = useMemo(() => {
     if (settings.orderType === "random") {
       return [...rawCards].sort(() => Math.random() - 0.5);
     }
     return rawCards;
   }, [rawCards, settings.orderType]);
+
+  const [cards, setCards] = useState(baseCards);
+
+  useEffect(() => {
+    setCards(baseCards);
+  }, [baseCards]);
 
   // Carousel API 및 현재 인덱스
   const [api, setApi] = useState<CarouselApi>();
@@ -339,18 +328,54 @@ const MemoizeMode = ({ settings: studySettings }: MemoizeModeProps) => {
     (studySettings?.navigationType ?? "auto") === "auto",
   );
 
+  // 현재 회차 (1-indexed)
+  const [currentRound, setCurrentRound] = useState(1);
+
   const autoPlayDuration = (settings.autoTimerSeconds ?? 5) * 1000;
+
+  const isNextDisabled =
+    !settings.isUnlimitedRepeat &&
+    currentRound >= (settings.repeatCount ?? 1) &&
+    current === cards.length - 1;
+
+  const reshuffle = useCallback(() => {
+    if (settings.orderType === "random") {
+      setCards([...rawCards].sort(() => Math.random() - 0.5));
+    }
+  }, [settings.orderType, rawCards]);
+
+  const advance = useCallback(() => {
+    if (!api) return;
+    if (current < cards.length - 1) {
+      api.scrollNext();
+      return;
+    }
+    // 마지막 카드
+    if (settings.isUnlimitedRepeat) {
+      reshuffle();
+      api.scrollTo(0);
+      return;
+    }
+    const nextRound = currentRound + 1;
+    if (nextRound <= (settings.repeatCount ?? 1)) {
+      reshuffle();
+      api.scrollTo(0);
+      setCurrentRound(nextRound);
+    } else {
+      setIsPlaying(false);
+    }
+  }, [
+    api,
+    current,
+    cards.length,
+    settings.isUnlimitedRepeat,
+    settings.repeatCount,
+    currentRound,
+    reshuffle,
+  ]);
 
   const handlePrevious = () => {
     api?.scrollPrev();
-  };
-
-  const handleNext = () => {
-    if (settings.isUnlimitedRepeat && current === cards.length - 1) {
-      api?.scrollTo(0);
-    } else {
-      api?.scrollNext();
-    }
   };
 
   if (isLoading) {
@@ -387,7 +412,7 @@ const MemoizeMode = ({ settings: studySettings }: MemoizeModeProps) => {
           setCurrent={setCurrent}
           isPlaying={isPlaying}
           duration={autoPlayDuration}
-          repeat={settings.isUnlimitedRepeat}
+          onAdvance={advance}
         />
       </div>
       <MemoizeController
@@ -398,7 +423,8 @@ const MemoizeMode = ({ settings: studySettings }: MemoizeModeProps) => {
         currentIndex={current}
         totalCount={cards.length}
         onPrevious={handlePrevious}
-        onNext={handleNext}
+        onNext={advance}
+        isNextDisabled={isNextDisabled}
       />
     </div>
   );
