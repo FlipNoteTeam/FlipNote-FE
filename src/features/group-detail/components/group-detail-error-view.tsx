@@ -61,10 +61,14 @@ export const GroupDetailErrorView = ({ error, groupId }: Props) => {
       <BaseLayout>
         <div className="mx-auto max-w-6xl p-6 text-center space-y-3">
           {errorCode && (
-            <p className="text-sm font-mono text-muted-foreground">{errorCode}</p>
+            <p className="text-sm font-mono text-muted-foreground">
+              {errorCode}
+            </p>
           )}
-          <p className="text-red-500">{errorMessage || "오류가 발생했습니다."}</p>
-          <Button onClick={() => window.history.back()} variant="outline">
+          <p className="text-red-500">
+            {errorMessage || "오류가 발생했습니다."}
+          </p>
+          <Button onClick={() => router.history.go(-1)} variant="outline">
             돌아가기
           </Button>
         </div>
@@ -75,7 +79,9 @@ export const GroupDetailErrorView = ({ error, groupId }: Props) => {
   return (
     <BaseLayout>
       <div className="mx-auto max-w-6xl p-6">
-        <p className="text-center text-muted-foreground">그룹을 찾을 수 없습니다.</p>
+        <p className="text-center text-muted-foreground">
+          그룹을 찾을 수 없습니다.
+        </p>
       </div>
     </BaseLayout>
   );

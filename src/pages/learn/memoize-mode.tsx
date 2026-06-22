@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import GNB from "@/shared/layouts/gnb";
+import GrobalNavigationBar from "@/shared/layouts/gnb";
 import FlipCard from "@/shared/components/flip-card";
 import {
   Carousel,
@@ -28,12 +28,36 @@ import { cardApi, type CardResponse } from "@/shared/apis/card";
 // [DEV_MOCK] UI 작업용 임시 목 데이터 - 작업 완료 후 제거
 const DEV_MOCK = true;
 const MOCK_CARDS: CardResponse[] = [
-  { id: "1", question: "React에서 상태 관리를 위한 기본 훅은 무엇인가?", answer: "useState" },
-  { id: "2", question: "컴포넌트의 사이드 이펙트를 처리하는 훅은 무엇인가?", answer: "useEffect" },
-  { id: "3", question: "컨텍스트 값을 구독할 때 사용하는 훅은 무엇인가?", answer: "useContext" },
-  { id: "4", question: "이전 렌더링 값을 기억할 때 사용하는 훅은 무엇인가?", answer: "useRef" },
-  { id: "5", question: "비용이 큰 계산 결과를 메모이제이션할 때 사용하는 훅은?", answer: "useMemo" },
-  { id: "6", question: "함수를 메모이제이션할 때 사용하는 훅은?", answer: "useCallback" },
+  {
+    id: "1",
+    question: "React에서 상태 관리를 위한 기본 훅은 무엇인가?",
+    answer: "useState",
+  },
+  {
+    id: "2",
+    question: "컴포넌트의 사이드 이펙트를 처리하는 훅은 무엇인가?",
+    answer: "useEffect",
+  },
+  {
+    id: "3",
+    question: "컨텍스트 값을 구독할 때 사용하는 훅은 무엇인가?",
+    answer: "useContext",
+  },
+  {
+    id: "4",
+    question: "이전 렌더링 값을 기억할 때 사용하는 훅은 무엇인가?",
+    answer: "useRef",
+  },
+  {
+    id: "5",
+    question: "비용이 큰 계산 결과를 메모이제이션할 때 사용하는 훅은?",
+    answer: "useMemo",
+  },
+  {
+    id: "6",
+    question: "함수를 메모이제이션할 때 사용하는 훅은?",
+    answer: "useCallback",
+  },
 ];
 
 type MemoizeControllerProps = {
@@ -166,7 +190,7 @@ const MemoizeController = ({
               onChange={(e) =>
                 setSettings((prev) => ({
                   ...prev,
-                  autoTimerSeconds: parseInt(e.target.value) || 5,
+                  autoTimerSeconds: Number.parseInt(e.target.value) || 5,
                 }))
               }
               className="w-16 text-center"
@@ -178,7 +202,6 @@ const MemoizeController = ({
     </div>
   );
 };
-
 
 type CardCarouselProps = {
   cards: CardResponse[];
@@ -222,11 +245,9 @@ const CardCarousel = ({
         } else {
           api.scrollNext();
         }
-      } else {
+      } else if (api.canScrollNext()) {
         // 마지막 슬라이드면 멈춤
-        if (api.canScrollNext()) {
-          api.scrollNext();
-        }
+        api.scrollNext();
       }
     }, duration);
 
@@ -321,7 +342,7 @@ const MemoizeMode = ({ settings: studySettings }: MemoizeModeProps) => {
   if (isLoading) {
     return (
       <div className="h-dvh flex flex-col overflow-hidden">
-        <GNB />
+        <GrobalNavigationBar />
         <div className="flex-1 flex items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
         </div>
@@ -332,7 +353,7 @@ const MemoizeMode = ({ settings: studySettings }: MemoizeModeProps) => {
   if (isError || cards.length === 0) {
     return (
       <div className="h-dvh flex flex-col overflow-hidden">
-        <GNB />
+        <GrobalNavigationBar />
         <div className="flex-1 flex items-center justify-center">
           <p className="text-gray-500">카드를 불러올 수 없습니다.</p>
         </div>
@@ -342,7 +363,7 @@ const MemoizeMode = ({ settings: studySettings }: MemoizeModeProps) => {
 
   return (
     <div className="h-dvh flex flex-col overflow-hidden">
-      <GNB />
+      <GrobalNavigationBar />
       <div className="flex-1 min-h-0 flex items-center justify-center px-4 pb-32">
         <CardCarousel
           cards={cards}
