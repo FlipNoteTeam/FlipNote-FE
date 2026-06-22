@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import GrobalNavigationBar from "@/shared/layouts/gnb";
 import FlipCard from "@/shared/components/flip-card";
@@ -306,7 +306,7 @@ const MemoizeMode = ({ settings: studySettings }: MemoizeModeProps) => {
     enabled: DEV_MOCK || !!studySettings.cardsetId,
   });
 
-  const cards = cardsData?.data?.data ?? [];
+  const rawCards = useMemo(() => cardsData?.data?.data ?? [], [cardsData]);
 
   // 컨트롤 가능한 설정값들을 state로 관리
   const [settings, setSettings] = useState<MemorizeSettings>({
@@ -318,12 +318,26 @@ const MemoizeMode = ({ settings: studySettings }: MemoizeModeProps) => {
     orderType: studySettings?.orderType ?? "sequential",
   });
 
+  useEffect(() => {
+    console.log("[MemoizeMode] settings:", settings);
+  }, [settings]);
+
+  // orderType이 random이면 섞어서 반환, 런타임 토글 시 재적용
+  const cards = useMemo(() => {
+    if (settings.orderType === "random") {
+      return [...rawCards].sort(() => Math.random() - 0.5);
+    }
+    return rawCards;
+  }, [rawCards, settings.orderType]);
+
   // Carousel API 및 현재 인덱스
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
 
-  // 재생/일시정지 상태
-  const [isPlaying, setIsPlaying] = useState(true);
+  // 재생/일시정지 상태 — navigationType이 manual이면 초기엔 정지
+  const [isPlaying, setIsPlaying] = useState(
+    (studySettings?.navigationType ?? "auto") === "auto",
+  );
 
   const autoPlayDuration = (settings.autoTimerSeconds ?? 5) * 1000;
 
