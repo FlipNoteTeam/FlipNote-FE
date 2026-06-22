@@ -1,5 +1,6 @@
 import { test, expect } from "../fixtures/auth";
 import { mockApi } from "../helpers/mock-api";
+import { mockCards } from "../fixtures/mock-data";
 
 /**
  * 암기 모드 회차(repeatCount) 반복 동작 회귀 테스트.
@@ -26,10 +27,7 @@ const CARDSET_ID = 42;
 const CARDSET_URL = `/groups/${GROUP_ID}/cardsets/${CARDSET_ID}`;
 const LS_KEY = `flipnote-study-defaults-${CARDSET_ID}`;
 
-const MOCK_CARDS = [
-  { id: "card-1", question: "Q1", answer: "A1" },
-  { id: "card-2", question: "Q2", answer: "A2" },
-];
+const MOCK_CARDS = mockCards.slice(0, 2);
 
 async function mockAllApis(page: Parameters<typeof mockApi>[0]) {
   const m = mockApi(page);
