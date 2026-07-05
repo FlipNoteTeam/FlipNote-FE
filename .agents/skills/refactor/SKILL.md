@@ -38,7 +38,7 @@ Role split for every refactoring task:
 ### Step 3: Write test code (Claude's role)
 
 - Write E2E regression tests **before** refactoring begins — no post-hoc tests.
-- Place tests under `tests/`, filename convention: `NN-<feature>.spec.ts`.
+- Place tests under `e2e/tests/`, filename convention: `<feature>.spec.ts`.
 - Confirm the tests cover current behavior, then hand off to the developer.
 
 ### Step 4: Refactor (developer leads)
