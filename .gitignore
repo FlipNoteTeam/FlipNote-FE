@@ -38,3 +38,6 @@ test-results/
 playwright-report/
 playwright/.cache/
 .auth/
+
+# 로컬 실험용 샌드박스 (프로젝트 사본, 커밋 대상 아님)
+design_claude/
