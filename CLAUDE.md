@@ -291,7 +291,7 @@ Required in `.env.development` and `.env.production`:
 3. **연관 문서 참조**: 작업 시작 전 `docs/architecture.md`, `docs/fsd-architecture-guide.md`, `docs/component-patterns.md`, `docs/component-reusability-guide.md` 중 관련 문서를 함께 읽어 기존 패턴을 우선 재사용
 4. **금지**: `any` 타입, 미사용 import, 주석 처리된 죽은 코드
 5. **네이밍**: 기존 코드 컨벤션 유지 (kebab-case 파일명, camelCase 변수)
-6. **커밋**: `fix:` / `feat:` / `refactor:` prefix만 사용. 브랜치명에 Jira 키(`XX-123`)가 있으면 `scripts/prepare-commit-jira.sh`가 자동 삽입
+6. **커밋**: `fix:` / `feat:` / `refactor:` / `chore:` / `test:` / `docs:` prefix 사용. 브랜치명에 Jira 키(`XX-123`)가 있으면 `scripts/prepare-commit-jira.sh`가 자동 삽입
 7. **완료 기준 (husky pre-push와 동일)**:
    - `npm run lint` 통과
    - `npx tsc -b` 통과
