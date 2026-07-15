@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { cardApi } from "@/shared/apis/card";
 import BaseLayout from "@/shared/layouts/base-layout";
@@ -35,9 +35,50 @@ type TestResult = {
   isCorrect: boolean;
 };
 
+type ExamSession = {
+  answers: Answer[];
+};
+
+const formatTime = (seconds: number) => {
+  const total = Math.floor(seconds);
+  const hours = Math.floor(total / 3600);
+  const minutes = Math.floor((total % 3600) / 60);
+  const secs = total % 60;
+
+  if (hours > 0) {
+    return `${hours}:${String(minutes).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+  }
+  return `${minutes}:${String(secs).padStart(2, "0")}`;
+};
+
 const TestMode = () => {
   const { state } = useLocation();
   const studySettings = state as unknown as StudyState | null;
+
+  const cardsetId = studySettings?.cardsetId ?? "exam";
+  const savedSessionKey = `flipnote-exam-session-${cardsetId}`;
+  const timerKey = `flipnote-timer-${cardsetId}`;
+
+  // 이전 세션 존재 여부와 남은 시간을 초기 렌더에서 동기적으로 읽음
+  const [restoreDialogOpen, setRestoreDialogOpen] = useState(
+    () => !!sessionStorage.getItem(savedSessionKey),
+  );
+
+  const [savedRemainingSeconds] = useState<number>(() => {
+    const raw = sessionStorage.getItem(timerKey);
+    if (!raw) return 0;
+    try {
+      const saved = JSON.parse(raw) as
+        | { status: "running"; endTime: number }
+        | { status: "paused"; remainingMs: number };
+      if (saved.status === "running")
+        return Math.max(0, (saved.endTime - Date.now()) / 1000);
+      if (saved.status === "paused") return saved.remainingMs / 1000;
+    } catch {
+      // 파싱 실패 시 0 반환
+    }
+    return 0;
+  });
 
   // 카드 데이터 조회
   const {
@@ -54,16 +95,26 @@ const TestMode = () => {
 
   // 답변 저장
   const [answers, setAnswers] = useState<Answer[]>([]);
-
-  // 카드 데이터가 로드되면 answers 초기화
+  const answersRef = useRef<Answer[]>([]);
   useEffect(() => {
-    if (cards.length > 0 && answers.length === 0) {
+    answersRef.current = answers;
+  }, [answers]);
+
+  // 카드 데이터가 로드되면 answers 초기화 (복원 세션에서는 건너뜀)
+  useEffect(() => {
+    if (cards.length > 0 && answers.length === 0 && !restoreDialogOpen) {
       setAnswers(cards.map((q) => ({ questionKey: q.id, userAnswer: "" })));
     }
-  }, [cards, answers.length]);
+  }, [cards, answers.length, restoreDialogOpen]);
 
   // 시험 진행 단계: 'answering' | 'grading'
   const [phase, setPhase] = useState<"answering" | "grading">("answering");
+  const phaseRef = useRef<"answering" | "grading">("answering");
+  useEffect(() => {
+    phaseRef.current = phase;
+  }, [phase]);
+
+  const submittedRef = useRef(false);
 
   // 답변 현황 패널 열림/닫힘
   const [isNavOpen, setIsNavOpen] = useState(true);
@@ -84,41 +135,87 @@ const TestMode = () => {
   };
 
   const handleSubmit = () => {
-    // 채점 페이지로 이동
+    submittedRef.current = true;
     const results: TestResult[] = cards.map((q) => {
       const userAnswer =
-        answers.find((a) => a.questionKey === q.id)?.userAnswer || "";
+        answersRef.current.find((a) => a.questionKey === q.id)?.userAnswer ||
+        "";
       return {
         questionKey: q.id,
         question: q.question,
         correctAnswer: q.answer,
         userAnswer,
-        isCorrect: false, // 초기값, 사용자가 수동으로 채점
+        isCorrect: false,
       };
     });
     setTestResults(results);
     setPhase("grading");
   };
 
-  // 타이머 초기화 (handleSubmit 이후에 선언)
+  // 타이머 초기화
   const timer = useTimer({
+    storageKey: timerKey,
     onComplete: () => {
-      // 시간 종료 시 자동 제출
       alert("시험 시간이 종료되었습니다. 자동으로 제출됩니다.");
       handleSubmit();
     },
   });
 
-  // 타이머 시작
+  // 타이머 시작 — 복원 다이얼로그가 없을 때만 바로 시작
   useEffect(() => {
-    if (!isUnlimitedTime && phase === "answering") {
+    if (!isUnlimitedTime && !restoreDialogOpen) {
       timer.start(testDurationMinutes * 60);
     }
+
     return () => {
-      timer.stop();
+      // 제출 완료 시에만 세션 삭제
+      if (submittedRef.current || phaseRef.current === "grading") {
+        timer.stop();
+        sessionStorage.removeItem(savedSessionKey);
+        return;
+      }
+
+      // 이탈: 답변이 있으면 세션 업데이트, 없으면 기존 세션 유지 (삭제하지 않음)
+      const hasProgress = answersRef.current.some(
+        (a) => a.userAnswer.trim().length > 0,
+      );
+      if (hasProgress) {
+        sessionStorage.setItem(
+          savedSessionKey,
+          JSON.stringify({ answers: answersRef.current } satisfies ExamSession),
+        );
+      }
+      timer.pauseAndKeep();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // 복원 다이얼로그 — 이어서 풀기
+  const handleResume = () => {
+    const raw = sessionStorage.getItem(savedSessionKey);
+    if (raw) {
+      try {
+        const session = JSON.parse(raw) as ExamSession;
+        setAnswers(session.answers);
+      } catch {
+        // 파싱 실패 시 빈 상태로 시작
+      }
+    }
+    if (timer.isPaused) timer.resume();
+    setRestoreDialogOpen(false);
+  };
+
+  // 복원 다이얼로그 — 처음부터
+  const handleRestart = () => {
+    timer.stop();
+    sessionStorage.removeItem(savedSessionKey);
+    setRestoreDialogOpen(false);
+    // 카드 로드 후 answers 초기화는 useEffect가 담당
+    setAnswers([]);
+    if (!isUnlimitedTime) {
+      timer.start(testDurationMinutes * 60);
+    }
+  };
 
   const handleGradeChange = (questionKey: string, isCorrect: boolean) => {
     setTestResults((prev) =>
@@ -136,7 +233,6 @@ const TestMode = () => {
     alert(
       `채점이 완료되었습니다!\n정답: ${correctCount}/${totalCount}\n점수: ${score}점`,
     );
-    // TODO: 결과 저장 및 결과 페이지로 이동
   };
 
   if (isLoading) {
@@ -215,20 +311,48 @@ const TestMode = () => {
     );
   }
 
-  // 시간 포맷 함수
-  const formatTime = (seconds: number) => {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
-
-    if (hours > 0) {
-      return `${hours}:${String(minutes).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
-    }
-    return `${minutes}:${String(secs).padStart(2, "0")}`;
-  };
-
   return (
     <BaseLayout>
+      {/* 이전 세션 복원 다이얼로그 */}
+      {restoreDialogOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="이전 시험 내역"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+        >
+          <div className="bg-white rounded-2xl shadow-xl p-8 max-w-sm w-full mx-4 space-y-5">
+            <div className="space-y-1 text-center">
+              <h2 className="text-xl font-bold">이전에 풀던 내역이 있습니다</h2>
+              <p className="text-sm text-gray-500">이어서 풀겠습니까?</p>
+            </div>
+
+            {!isUnlimitedTime && savedRemainingSeconds > 0 && (
+              <div className="flex items-center justify-center gap-2 bg-gray-50 rounded-xl py-3">
+                <Clock className="h-4 w-4 text-gray-500" />
+                <span className="text-sm text-gray-600">남은 시간</span>
+                <span className="font-mono font-semibold text-gray-900">
+                  {formatTime(savedRemainingSeconds)}
+                </span>
+              </div>
+            )}
+
+            <div className="flex gap-3">
+              <Button
+                className="flex-1"
+                variant="outline"
+                onClick={handleRestart}
+              >
+                처음부터
+              </Button>
+              <Button className="flex-1" onClick={handleResume}>
+                이어서 풀기
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="max-w-4xl mx-auto py-8 space-y-6">
         {/* 헤더와 타이머 */}
         <div className="flex justify-between items-center">
