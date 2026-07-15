@@ -39,6 +39,7 @@ type ExamSession = {
   answers: Answer[];
 };
 
+/** move to utils. */
 const formatTime = (seconds: number) => {
   const total = Math.floor(seconds);
   const hours = Math.floor(total / 3600);
@@ -161,13 +162,17 @@ const TestMode = () => {
     },
   });
 
-  // 타이머 시작 — 복원 다이얼로그가 없을 때만 바로 시작
+  // 타이머 시작 및 이탈 시 상태 저장
+  // - 최초 진입에서만 새 타이머 시작. 복원 다이얼로그가 열려 있거나 이미
+  //   진행 중인 타이머(timerKey)가 있으면 useTimer의 복원값을 덮어쓰지 않음.
+  // - SPA 이동은 effect cleanup, 새로고침·탭 닫기는 pagehide로 동일하게 저장.
   useEffect(() => {
-    if (!isUnlimitedTime && !restoreDialogOpen) {
+    const hasPersistedTimer = !!sessionStorage.getItem(timerKey);
+    if (!isUnlimitedTime && !restoreDialogOpen && !hasPersistedTimer) {
       timer.start(testDurationMinutes * 60);
     }
 
-    return () => {
+    const finalizeOnLeave = () => {
       // 제출 완료 시에만 세션 삭제
       if (submittedRef.current || phaseRef.current === "grading") {
         timer.stop();
@@ -175,7 +180,10 @@ const TestMode = () => {
         return;
       }
 
-      // 이탈: 답변이 있으면 세션 업데이트, 없으면 기존 세션 유지 (삭제하지 않음)
+      // 이탈: 답변이 있을 때만 세션과 타이머 상태를 함께 보존한다.
+      // pauseAndKeep을 무조건 호출하면 StrictMode 이중 마운트나 답변 없는
+      // 이탈에서 timerKey가 paused로 덮여, hasPersistedTimer 가드가 start()를
+      // 막은 채 멈춘 타이머로 복원되는 문제가 생긴다.
       const hasProgress = answersRef.current.some(
         (a) => a.userAnswer.trim().length > 0,
       );
@@ -184,8 +192,16 @@ const TestMode = () => {
           savedSessionKey,
           JSON.stringify({ answers: answersRef.current } satisfies ExamSession),
         );
+        timer.pauseAndKeep();
       }
-      timer.pauseAndKeep();
+    };
+
+    // 새로고침·탭 닫기 시엔 React cleanup이 실행되지 않으므로 pagehide로 저장
+    window.addEventListener("pagehide", finalizeOnLeave);
+
+    return () => {
+      window.removeEventListener("pagehide", finalizeOnLeave);
+      finalizeOnLeave();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
