@@ -9,9 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as TestRouteImport } from './routes/test'
 import { Route as PasswordResetRouteImport } from './routes/password-reset'
-import { Route as ImageOptimizationRouteImport } from './routes/image-optimization'
 import { Route as GroupListRouteImport } from './routes/group-list'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CardsetListRouteImport } from './routes/cardset-list'
@@ -33,19 +31,9 @@ import { Route as GroupsGroupIdManageRouteImport } from './routes/groups/$groupI
 import { Route as CardsetsEditorIdRouteImport } from './routes/cardsets/editor/$id'
 import { Route as GroupsGroupIdCardsetsCardsetIdIndexRouteImport } from './routes/groups/$groupId/cardsets/$cardsetId/index'
 
-const TestRoute = TestRouteImport.update({
-  id: '/test',
-  path: '/test',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const PasswordResetRoute = PasswordResetRouteImport.update({
   id: '/password-reset',
   path: '/password-reset',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ImageOptimizationRoute = ImageOptimizationRouteImport.update({
-  id: '/image-optimization',
-  path: '/image-optimization',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GroupListRoute = GroupListRouteImport.update({
@@ -155,9 +143,7 @@ export interface FileRoutesByFullPath {
   '/cardset-list': typeof CardsetListRoute
   '/dashboard': typeof DashboardRoute
   '/group-list': typeof GroupListRoute
-  '/image-optimization': typeof ImageOptimizationRoute
   '/password-reset': typeof PasswordResetRoute
-  '/test': typeof TestRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
   '/groups/$groupId': typeof GroupsGroupIdRouteWithChildren
@@ -180,9 +166,7 @@ export interface FileRoutesByTo {
   '/cardset-list': typeof CardsetListRoute
   '/dashboard': typeof DashboardRoute
   '/group-list': typeof GroupListRoute
-  '/image-optimization': typeof ImageOptimizationRoute
   '/password-reset': typeof PasswordResetRoute
-  '/test': typeof TestRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
   '/groups/create': typeof GroupsCreateRoute
@@ -205,9 +189,7 @@ export interface FileRoutesById {
   '/cardset-list': typeof CardsetListRoute
   '/dashboard': typeof DashboardRoute
   '/group-list': typeof GroupListRoute
-  '/image-optimization': typeof ImageOptimizationRoute
   '/password-reset': typeof PasswordResetRoute
-  '/test': typeof TestRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
   '/groups/$groupId': typeof GroupsGroupIdRouteWithChildren
@@ -232,9 +214,7 @@ export interface FileRouteTypes {
     | '/cardset-list'
     | '/dashboard'
     | '/group-list'
-    | '/image-optimization'
     | '/password-reset'
-    | '/test'
     | '/auth/login'
     | '/auth/register'
     | '/groups/$groupId'
@@ -257,9 +237,7 @@ export interface FileRouteTypes {
     | '/cardset-list'
     | '/dashboard'
     | '/group-list'
-    | '/image-optimization'
     | '/password-reset'
-    | '/test'
     | '/auth/login'
     | '/auth/register'
     | '/groups/create'
@@ -281,9 +259,7 @@ export interface FileRouteTypes {
     | '/cardset-list'
     | '/dashboard'
     | '/group-list'
-    | '/image-optimization'
     | '/password-reset'
-    | '/test'
     | '/auth/login'
     | '/auth/register'
     | '/groups/$groupId'
@@ -307,9 +283,7 @@ export interface RootRouteChildren {
   CardsetListRoute: typeof CardsetListRoute
   DashboardRoute: typeof DashboardRoute
   GroupListRoute: typeof GroupListRoute
-  ImageOptimizationRoute: typeof ImageOptimizationRoute
   PasswordResetRoute: typeof PasswordResetRoute
-  TestRoute: typeof TestRoute
   AuthLoginRoute: typeof AuthLoginRoute
   AuthRegisterRoute: typeof AuthRegisterRoute
   GroupsGroupIdRoute: typeof GroupsGroupIdRouteWithChildren
@@ -327,25 +301,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/test': {
-      id: '/test'
-      path: '/test'
-      fullPath: '/test'
-      preLoaderRoute: typeof TestRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/password-reset': {
       id: '/password-reset'
       path: '/password-reset'
       fullPath: '/password-reset'
       preLoaderRoute: typeof PasswordResetRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/image-optimization': {
-      id: '/image-optimization'
-      path: '/image-optimization'
-      fullPath: '/image-optimization'
-      preLoaderRoute: typeof ImageOptimizationRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/group-list': {
@@ -513,9 +473,7 @@ const rootRouteChildren: RootRouteChildren = {
   CardsetListRoute: CardsetListRoute,
   DashboardRoute: DashboardRoute,
   GroupListRoute: GroupListRoute,
-  ImageOptimizationRoute: ImageOptimizationRoute,
   PasswordResetRoute: PasswordResetRoute,
-  TestRoute: TestRoute,
   AuthLoginRoute: AuthLoginRoute,
   AuthRegisterRoute: AuthRegisterRoute,
   GroupsGroupIdRoute: GroupsGroupIdRouteWithChildren,
