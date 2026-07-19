@@ -171,7 +171,7 @@ test.describe("암기 모드 — 회차 반복 동작", () => {
     await expect(page.getByRole("button", { name: "재생" })).toBeVisible();
   });
 
-  test("무한 반복 모드에서는 회차가 계속 증가하고 Next가 비활성화되지 않음", async ({
+  test("무한 반복 모드에서는 회차 표시가 없고 Next가 비활성화되지 않음", async ({
     authenticatedPage: page,
   }) => {
     await navigateToLearning(page, {
@@ -181,13 +181,16 @@ test.describe("암기 모드 — 회차 반복 동작", () => {
 
     const nextBtn = page.getByRole("button", { name: "다음 카드" });
 
-    // 3회차까지 반복
+    // 무한 반복은 회차 카운트가 의미 없으므로 "현재 회차" 표시를 렌더하지 않는다.
+    await expect(roundDisplay(page)).toHaveCount(0);
+
+    // 여러 회차를 돌아도 Next는 계속 활성화 상태를 유지한다.
     for (let round = 0; round < 3; round++) {
       await nextBtn.click(); // Q1 → Q2
       await nextBtn.click(); // Q2 → 다음 회차 Q1
     }
 
-    await expect(roundDisplay(page)).toContainText("4회차");
+    await expect(roundDisplay(page)).toHaveCount(0);
     await expect(nextBtn).toBeEnabled();
   });
 

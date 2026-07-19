@@ -1,8 +1,10 @@
+// E2E 픽스처. 캐러셀/회차 테스트가 카드 텍스트("Q1"·"Q2"…)에 직접 assert하므로
+// 질문/답변을 합성 라벨로 둔다. (실제 문구가 아니라 순서 식별용)
 export const mockCards = [
-  { id: "1", question: "React에서 상태 관리를 위한 기본 훅은 무엇인가?", answer: "useState" },
-  { id: "2", question: "컴포넌트의 사이드 이펙트를 처리하는 훅은 무엇인가?", answer: "useEffect" },
-  { id: "3", question: "컨텍스트 값을 구독할 때 사용하는 훅은 무엇인가?", answer: "useContext" },
-  { id: "4", question: "이전 렌더링 값을 기억할 때 사용하는 훅은 무엇인가?", answer: "useRef" },
-  { id: "5", question: "비용이 큰 계산 결과를 메모이제이션할 때 사용하는 훅은?", answer: "useMemo" },
-  { id: "6", question: "함수를 메모이제이션할 때 사용하는 훅은?", answer: "useCallback" },
+  { id: "1", question: "Q1", answer: "A1" },
+  { id: "2", question: "Q2", answer: "A2" },
+  { id: "3", question: "Q3", answer: "A3" },
+  { id: "4", question: "Q4", answer: "A4" },
+  { id: "5", question: "Q5", answer: "A5" },
+  { id: "6", question: "Q6", answer: "A6" },
 ] as const;

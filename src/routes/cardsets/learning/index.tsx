@@ -1,4 +1,4 @@
-import MemoizeMode from "@/pages/learn/memoize-mode";
+import { MemoizeMode } from "@/features/memoize-mode";
 import TestMode from "@/pages/learn/test-mode";
 import { createFileRoute, useLocation } from "@tanstack/react-router";
 

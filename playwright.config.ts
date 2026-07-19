@@ -22,7 +22,12 @@ export default defineConfig({
     },
   ],
   webServer: {
+    // `npm run dev`는 MSW 없이 실서버 프록시로 뜬다(모킹은 dev:mock 전용).
+    // E2E는 Playwright page.route로 API를 모킹하는데, MSW 서비스워커가 켜지면
+    // 앱의 모든 fetch를 SW가 가로채고 page.route는 SW 발생 요청을 인터셉트하지
+    // 못해 mock이 전부 실서버로 새어나간다. env로 한 번 더 못박아 격리한다.
     command: "npm run dev",
+    env: { ...process.env, VITE_USE_MOCK: "false" },
     url: BASE_URL,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

@@ -256,3 +256,83 @@ export const useUserInfoEdit = () => {
 - [Single Responsibility Principle in React](https://www.developerway.com/posts/how-to-write-resilient-react-components#part3-single-responsibility-principle)
 
 ---
+
+## 2026-07-17
+
+### E2E 테스트 전면 실패 — MSW ↔ Playwright page.route 충돌
+
+**질문 내용**:
+
+> "E2E 테스트 시 모두 에러가 발생하고 있는데, testing library 자체에서도 api를 mocking하려고 하는데 또 별도로 MSW가 돌아가버리니까 문제인 것 같아."
+
+**증상**:
+
+- `memoize-settings-contract` 등 e2e 스펙이 학습 화면 진입 전 `page.waitForSelector("text=학습 모드 선택")`에서 30초 타임아웃 → 전 스펙 실패("모두 에러").
+- Playwright 페이지 스냅샷에 에러 바운더리: `오류가 발생했습니다 / Cannot read properties of null (reading 'liked')`.
+
+**원인**:
+
+1. **MSW가 e2e 중에도 켜짐**
+   - `src/main.tsx`의 `prepare()`가 `import.meta.env.DEV`이면 **무조건** MSW worker를 start.
+   - Playwright `webServer`가 `npm run dev`(= dev 모드)로 앱을 띄우므로 e2e 실행 중에도 MSW 서비스워커가 ON.
+
+2. **서비스워커가 page.route를 통째로 무력화**
+   - MSW 서비스워커는 앱의 *모든* fetch를 렌더러 안에서 가로챈다.
+   - Playwright `page.route`는 네트워크 계층에서 동작하는데, **서비스워커가 발생시킨 요청은 page.route가 인터셉트하지 못한다.**
+   - 결과: cards뿐 아니라 `/api/card-sets/:id`, `/api/groups/:id` 등 e2e의 모든 mock이 실서버로 새어나감 → 실서버에 없는 카드셋(id 42) → `data` null → `cardset.liked` 크래시(`src/features/cardset/components/cardset-detail-content.tsx:57`) → 학습 화면 진입 실패.
+
+3. **죽은 플래그**
+   - `.env.development`의 `VITE_USE_MOCK`은 src 어디서도 참조되지 않는 미사용 플래그였음.
+
+**해결 방법**:
+
+- **MSW 게이트를 명시 플래그로 전환** — `src/main.tsx`
+  ```ts
+  // Before: dev면 무조건 MSW start
+  if (import.meta.env.DEV) { ... }
+  // After: 명시적 옵트인
+  if (import.meta.env.VITE_USE_MOCK === "true") { ... }
+  ```
+
+- **npm scripts로 모드 분리** — `package.json` (`.env`에 플래그를 두지 않음)
+  ```jsonc
+  "predev": "npm run generate:sw",      // 라이프사이클 훅으로 이관
+  "dev": "vite",                        // 실서버 프록시 (MSW off)
+  "dev:mock": "VITE_USE_MOCK=true npm run dev", // MSW on (predev 자동 실행)
+  "prebuild": "npm run generate:sw",
+  "build": "tsc -b && vite build",
+  ```
+
+- **e2e 격리 못박음** — `playwright.config.ts`
+  ```ts
+  webServer: {
+    command: "npm run dev",
+    env: { ...process.env, VITE_USE_MOCK: "false" },
+    // ...
+  }
+  ```
+
+**Best Practice**:
+
+- ✅ **e2e는 page.route(또는 실서버) 한 가지 모킹 계층만** — 서비스워커 기반 MSW와 병용 금지
+- ✅ **개발용 mock은 옵트인** — 안정적인 dev 백엔드가 있으면 기본은 실서버, mock은 필요할 때만(`dev:mock`)
+- ✅ **반복되는 사전 작업은 `pre*` 라이프사이클 훅으로** — `dev`/`build` 커맨드 자체는 깔끔하게
+
+**결과**:
+
+- `memoize-settings-contract.spec.ts` **6/6 green** (각 30초 타임아웃 → 1.2초).
+- 전체 스위트 27/30. 남은 3건(`memoize-round.spec.ts`)은 이 하니스와 무관한 별개 이슈: ∞모드 회차 계약(:174)·Next 비활성화 off-by-one(:155)·24장 mock이 route 등록 순서로 가려지는 테스트 버그(:208).
+
+**수정 파일**:
+
+- `src/main.tsx` (MSW start 게이트 → `VITE_USE_MOCK`)
+- `package.json` (`predev`/`prebuild` 훅, `dev:mock` 추가)
+- `playwright.config.ts` (webServer `env`로 e2e MSW off)
+- `.env.development` (미사용 `VITE_USE_MOCK` 플래그 제거)
+
+**참고**:
+
+- [Playwright - Network / Service Workers](https://playwright.dev/docs/network#missing-network-events-and-service-workers)
+- [MSW - Integrations / Browser](https://mswjs.io/docs/integrations/browser)
+
+---

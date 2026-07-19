@@ -8,8 +8,11 @@
   },
   "homepage": "/",
   "scripts": {
-    "dev": "npm run generate:sw && vite",
-    "build": "npm run generate:sw && tsc -b && vite build",
+    "predev": "npm run generate:sw",
+    "dev": "vite",
+    "dev:mock": "VITE_USE_MOCK=true npm run dev",
+    "prebuild": "npm run generate:sw",
+    "build": "tsc -b && vite build",
     "generate:sw": "node scripts/generate-fcm-sw.js",
     "lint": "eslint .",
     "preview": "vite preview",
