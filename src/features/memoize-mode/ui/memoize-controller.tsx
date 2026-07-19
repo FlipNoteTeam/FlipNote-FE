@@ -63,9 +63,6 @@ const ProgressIndicator = ({
   isUnlimitedRepeat,
 }: ProgressIndicatorProps) => {
   const progress = ((currentIndex + 1) / totalCount) * 100;
-  const roundLabel = isUnlimitedRepeat
-    ? `${currentRound}회차`
-    : `${currentRound} / ${repeatCount}회차`;
 
   return (
     <div className="mb-4">
@@ -73,7 +70,12 @@ const ProgressIndicator = ({
         <span>
           {currentIndex + 1} / {totalCount}
         </span>
-        <span aria-label="현재 회차">{roundLabel}</span>
+        {/* 무한 반복은 회차 카운트가 무의미하므로 회차 표시를 렌더하지 않는다. */}
+        {!isUnlimitedRepeat && (
+          <span aria-label="현재 회차">
+            {currentRound} / {repeatCount}회차
+          </span>
+        )}
         <span>{Math.round(progress)}%</span>
       </div>
       <div className="h-1.5 w-full rounded-full bg-gray-200">
