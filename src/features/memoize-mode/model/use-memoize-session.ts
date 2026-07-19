@@ -2,8 +2,16 @@ import { useCallback, useMemo, useReducer, useRef } from "react";
 import {
   DEFAULT_AUTO_TIMER_SECONDS,
   DEFAULT_REPEAT_COUNT,
+  MAX_AUTO_TIMER_SECONDS,
+  MAX_REPEAT_COUNT,
+  MIN_AUTO_TIMER_SECONDS,
   MIN_REPEAT_COUNT,
 } from "@/features/memoize-mode/model/constants";
+import {
+  advanceShuffleSeed,
+  createShuffleSeed,
+  shuffle,
+} from "@/features/memoize-mode/model/shuffle";
 import type { MemoizeSessionSettings } from "@/features/memoize-mode/model/types";
 import type { CardResponse } from "@/shared/apis/card";
 import type { CarouselApi } from "@/shared/components/carousel";
@@ -13,6 +21,7 @@ type MemoizeSessionState = {
   isPlaying: boolean;
   currentIndex: number;
   currentRound: number;
+  shuffleSeed: number;
 };
 
 type MemoizeSessionAction =
@@ -25,6 +34,11 @@ type MemoizeSessionAction =
   | { type: "current-index-changed"; currentIndex: number }
   | { type: "round-advanced" };
 
+const clampInteger = (value: number, min: number, max: number) => {
+  if (!Number.isFinite(value)) return min;
+  return Math.min(Math.max(Math.trunc(value), min), max);
+};
+
 const resetContentProgress = (
   state: MemoizeSessionState,
   settings: MemoizeSessionSettings,
@@ -34,6 +48,7 @@ const resetContentProgress = (
   isPlaying: false,
   currentIndex: 0,
   currentRound: 1,
+  shuffleSeed: advanceShuffleSeed(state.shuffleSeed),
 });
 
 const memoizeSessionReducer = (
@@ -77,6 +92,7 @@ const memoizeSessionReducer = (
         ...state,
         currentIndex: 0,
         currentRound: state.currentRound + 1,
+        shuffleSeed: advanceShuffleSeed(state.shuffleSeed),
       };
   }
 };
@@ -95,6 +111,7 @@ const createInitialSessionState = (
   isPlaying: studySettings.navigationType === "auto",
   currentIndex: 0,
   currentRound: 1,
+  shuffleSeed: createShuffleSeed(),
 });
 
 export const useMemoizeSession = (
@@ -110,8 +127,8 @@ export const useMemoizeSession = (
 
   const cards = useMemo(() => {
     if (state.settings.orderType === "sequential") return rawCards;
-    return [...rawCards].sort(() => Math.random() - 0.5);
-  }, [rawCards, state.settings.orderType]);
+    return shuffle(rawCards, state.shuffleSeed);
+  }, [rawCards, state.settings.orderType, state.shuffleSeed]);
 
   const registerCarouselApi = useCallback((api: CarouselApi) => {
     carouselApiRef.current = api;
@@ -140,14 +157,28 @@ export const useMemoizeSession = (
   const changeRepeatCount = useCallback(
     (repeatCount: number) => {
       if (state.isPlaying) return;
-      dispatch({ type: "repeat-count-changed", repeatCount });
+      dispatch({
+        type: "repeat-count-changed",
+        repeatCount: clampInteger(
+          repeatCount,
+          MIN_REPEAT_COUNT,
+          MAX_REPEAT_COUNT,
+        ),
+      });
       resetCarousel();
     },
     [resetCarousel, state.isPlaying],
   );
 
   const changeAutoTimerSeconds = useCallback((seconds: number) => {
-    dispatch({ type: "auto-timer-changed", seconds });
+    dispatch({
+      type: "auto-timer-changed",
+      seconds: clampInteger(
+        seconds,
+        MIN_AUTO_TIMER_SECONDS,
+        MAX_AUTO_TIMER_SECONDS,
+      ),
+    });
   }, []);
 
   const togglePlayback = useCallback(() => {
