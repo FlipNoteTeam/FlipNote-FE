@@ -2,12 +2,13 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { cardApi } from "@/shared/apis/card";
 import BaseLayout from "@/shared/layouts/base-layout";
-import { useLocation } from "@tanstack/react-router";
 import type { TestSettings } from "@/features/setting-study-mode/schemas/form.schema";
+import { selectTestCards } from "@/features/test-mode/model/select-test-cards";
 import { Button } from "@/shared/components/button";
 import { Textarea } from "@/shared/components/textarea";
 import { Card } from "@/shared/components/card";
 import { useTimer } from "@/shared/hooks/use-timer";
+import { createShuffleSeed } from "@/shared/lib/shuffle";
 import {
   Clock,
   Play,
@@ -17,9 +18,11 @@ import {
   ChevronRight,
 } from "lucide-react";
 
-type StudyState = TestSettings & {
-  groupId: number;
-  cardsetId: number;
+type TestModeProps = {
+  settings: TestSettings & {
+    groupId: number;
+    cardsetId: number;
+  };
 };
 
 type Answer = {
@@ -52,13 +55,27 @@ const formatTime = (seconds: number) => {
   return `${minutes}:${String(secs).padStart(2, "0")}`;
 };
 
-const TestMode = () => {
-  const { state } = useLocation();
-  const studySettings = state as unknown as StudyState | null;
+/**
+ * 출제 시드를 sessionStorage에 고정한다.
+ *
+ * 답변은 questionKey(카드 id) 기준으로 복원되므로, 새로고침 때마다 다시 뽑으면
+ * 복원된 답변이 화면에 없는 카드를 가리켜 세션이 깨진다. 시드를 세션에 묶어두고
+ * "처음부터"에서만 새로 발급한다.
+ */
+const readOrCreateSeed = (key: string) => {
+  const saved = Number(sessionStorage.getItem(key));
+  if (Number.isFinite(saved) && saved > 0) return saved;
 
-  const cardsetId = studySettings?.cardsetId ?? "exam";
+  const seed = createShuffleSeed();
+  sessionStorage.setItem(key, String(seed));
+  return seed;
+};
+
+const TestMode = ({ settings: studySettings }: TestModeProps) => {
+  const cardsetId = studySettings.cardsetId;
   const savedSessionKey = `flipnote-exam-session-${cardsetId}`;
   const timerKey = `flipnote-timer-${cardsetId}`;
+  const seedKey = `flipnote-exam-seed-${cardsetId}`;
 
   // 이전 세션 존재 여부와 남은 시간을 초기 렌더에서 동기적으로 읽음
   const [restoreDialogOpen, setRestoreDialogOpen] = useState(
@@ -81,18 +98,43 @@ const TestMode = () => {
     return 0;
   });
 
+  // 출제 시드 — 세션 동안 고정, "처음부터"에서만 재발급
+  const [selectionSeed, setSelectionSeed] = useState(() =>
+    readOrCreateSeed(seedKey),
+  );
+
   // 카드 데이터 조회
   const {
     data: cardsData,
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ["cards", studySettings?.cardsetId],
-    queryFn: () => cardApi.getCards(studySettings!.cardsetId),
-    enabled: !!studySettings?.cardsetId,
+    queryKey: ["cards", cardsetId],
+    queryFn: () => cardApi.getCards(cardsetId),
   });
 
-  const cards = useMemo(() => cardsData?.data?.data ?? [], [cardsData]);
+  const rawCards = useMemo(() => cardsData?.data?.data ?? [], [cardsData]);
+
+  // 시험 순서(orderType)와 출제 범위(testMode·randomPickCount)를 적용한 실제 출제 카드
+  const cards = useMemo(
+    () =>
+      selectTestCards(
+        rawCards,
+        {
+          orderType: studySettings.orderType,
+          testMode: studySettings.testMode,
+          randomPickCount: studySettings.randomPickCount,
+        },
+        selectionSeed,
+      ),
+    [
+      rawCards,
+      studySettings.orderType,
+      studySettings.testMode,
+      studySettings.randomPickCount,
+      selectionSeed,
+    ],
+  );
 
   // 답변 저장
   const [answers, setAnswers] = useState<Answer[]>([]);
@@ -124,8 +166,8 @@ const TestMode = () => {
   const [testResults, setTestResults] = useState<TestResult[]>([]);
 
   // 타이머 설정
-  const testDurationMinutes = studySettings?.testTimeMinutes ?? 30;
-  const isUnlimitedTime = studySettings?.isUnlimitedTime ?? false;
+  const testDurationMinutes = studySettings.testTimeMinutes ?? 30;
+  const isUnlimitedTime = studySettings.isUnlimitedTime;
 
   const handleAnswerChange = (questionKey: string, value: string) => {
     setAnswers((prev) =>
@@ -177,6 +219,7 @@ const TestMode = () => {
       if (submittedRef.current || phaseRef.current === "grading") {
         timer.stop();
         sessionStorage.removeItem(savedSessionKey);
+        sessionStorage.removeItem(seedKey);
         return;
       }
 
@@ -225,6 +268,9 @@ const TestMode = () => {
   const handleRestart = () => {
     timer.stop();
     sessionStorage.removeItem(savedSessionKey);
+    // 새 시험이므로 출제도 다시 뽑는다
+    sessionStorage.removeItem(seedKey);
+    setSelectionSeed(readOrCreateSeed(seedKey));
     setRestoreDialogOpen(false);
     // 카드 로드 후 answers 초기화는 useEffect가 담당
     setAnswers([]);

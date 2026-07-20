@@ -11,7 +11,7 @@ import {
   advanceShuffleSeed,
   createShuffleSeed,
   shuffle,
-} from "@/features/memoize-mode/model/shuffle";
+} from "@/shared/lib/shuffle";
 import type { MemoizeSessionSettings } from "@/features/memoize-mode/model/types";
 import type { CardResponse } from "@/shared/apis/card";
 import type { CarouselApi } from "@/shared/components/carousel";

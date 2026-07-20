@@ -39,7 +39,7 @@ function RouteComponent() {
   }
 
   if (settings.mode === "test") {
-    return <TestMode />;
+    return <TestMode settings={{ ...settings, groupId, cardsetId }} />;
   }
 
   return null;
