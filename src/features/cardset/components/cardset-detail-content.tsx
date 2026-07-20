@@ -186,7 +186,11 @@ const CardsetDetailContent = ({ groupId, cardsetId }: Props) => {
       </div>
 
       <Separator className="my-4" />
-      <StudySettings groupId={groupId} cardsetId={cardsetId} />
+      <StudySettings
+        groupId={groupId}
+        cardsetId={cardsetId}
+        totalCardCount={cardset.cardCount}
+      />
     </div>
   );
 };

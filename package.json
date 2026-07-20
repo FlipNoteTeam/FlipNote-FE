@@ -9,8 +9,9 @@
   "homepage": "/",
   "scripts": {
     "predev": "npm run generate:sw",
-    "dev": "vite",
-    "dev:mock": "VITE_USE_MOCK=true npm run dev",
+    "dev": "VITE_USE_MOCK=false vite",
+    "predev:mock": "npm run generate:sw",
+    "dev:mock": "VITE_USE_MOCK=true vite",
     "prebuild": "npm run generate:sw",
     "build": "tsc -b && vite build",
     "generate:sw": "node scripts/generate-fcm-sw.js",

@@ -1,5 +1,5 @@
 import { MemoizeMode } from "@/features/memoize-mode";
-import TestMode from "@/pages/learn/test-mode";
+import { TestMode } from "@/features/test-mode";
 import { createFileRoute, useLocation } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/cardsets/learning/")({
@@ -39,7 +39,7 @@ function RouteComponent() {
   }
 
   if (settings.mode === "test") {
-    return <TestMode />;
+    return <TestMode settings={{ ...settings, groupId, cardsetId }} />;
   }
 
   return null;

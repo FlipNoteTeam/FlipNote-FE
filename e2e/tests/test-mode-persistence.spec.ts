@@ -1,5 +1,6 @@
+import type { Page } from "@playwright/test";
 import { test, expect } from "../fixtures/auth";
-import { mockApi } from "../helpers/mock-api";
+import { mockCardsetApis } from "../helpers/cardset-mocks";
 import { mockCards } from "../fixtures/mock-data";
 
 /**
@@ -7,7 +8,7 @@ import { mockCards } from "../fixtures/mock-data";
  *
  * 대상: src/pages/learn/test-mode.tsx, src/shared/hooks/use-timer.ts
  *
- * 기대 동작 (버그 픽스 후 GREEN, 현재는 RED):
+ * 기대 동작:
  *   - 시험 도중 브라우저 새로고침/탭 닫기 시 답변과 남은 시간이 보존된다.
  *   - 재진입(새로고침 / SPA 이동 후 재진입) 시 "이전에 풀던 내역" 복원
  *     다이얼로그가 뜬다.
@@ -15,14 +16,15 @@ import { mockCards } from "../fixtures/mock-data";
  *     리셋되지 않음).
  *   - "처음부터" → 답변이 초기화되고 타이머가 전체 시간으로 리셋된다.
  *
- * 알려진 근본 원인 (이 테스트가 검증하는 대상):
+ * 과거 근본 원인 (수정 완료, 이 테스트가 회귀를 막는 대상):
  *   1) 답변/세션 저장이 effect cleanup에만 의존 → 새로고침·탭 닫기 시
- *      cleanup이 실행되지 않아 저장 자체가 누락됨. (pagehide/visibilitychange
- *      핸들러 부재)
+ *      cleanup이 실행되지 않아 저장 자체가 누락됨. (pagehide 핸들러로 해결)
  *   2) 새로고침 시 useTimer가 복원한 타이머를 mount effect의
- *      timer.start(full)가 덮어써 초기화함.
+ *      timer.start(full)가 덮어써 초기화함. (hasPersistedTimer 가드로 해결)
  *
- * DEV_MOCK 제거 후 실 API 연결 상태 기준.
+ * 하네스 주의: addInitScript는 새로고침마다 실행되므로 sessionStorage 초기화를
+ * 무조건 하면 앱이 저장한 세션을 지워 복원 동작이 영영 검증되지 않는다
+ * (실제로 이 스펙 3건이 그 이유로 false RED였다). 컨텍스트당 1회만 초기화한다.
  */
 
 const GROUP_ID = 1;
@@ -48,79 +50,21 @@ const TEST_SETTINGS = {
   totalCardCount: MOCK_CARDS.length,
 };
 
-async function mockAllApis(page: Parameters<typeof mockApi>[0]) {
-  const m = mockApi(page);
-
-  await m.succeed("**/api/auth/token/refresh", { success: true, data: {} });
-  await m.succeed("**/api/users/me", {
-    success: true,
-    data: {
-      userId: 1,
-      nickname: "테스터",
-      email: "test@test.com",
-      phone: "",
-      smsAgree: false,
-      profileImageUrl: "",
-    },
-  });
-  await m.succeed(`**/api/card-sets/${CARDSET_ID}`, {
-    success: true,
-    data: {
-      id: CARDSET_ID,
-      name: "테스트 카드셋",
-      groupId: GROUP_ID,
-      visibility: "PUBLIC",
-      category: "IT",
-      hashtag: "",
-      imageRefId: 0,
-      imageUrl: "",
-      cardCount: MOCK_CARDS.length,
-      likeCount: 0,
-      bookmarkCount: 0,
-      createdAt: "2024-01-01T00:00:00",
-      updatedAt: "2024-01-01T00:00:00",
-      liked: false,
-      bookmarked: false,
-      managers: [],
-    },
-  });
-  await m.succeed(`**/api/card-sets/${CARDSET_ID}/cards`, {
-    success: true,
-    data: MOCK_CARDS,
-  });
-  await m.succeed(`**/api/groups/${GROUP_ID}`, {
-    success: true,
-    data: {
-      groupId: GROUP_ID,
-      name: "테스트 그룹",
-      category: "IT",
-      description: "",
-      joinPolicy: "OPEN",
-      visibility: "PUBLIC",
-      maxMember: 10,
-      imageUrl: "",
-      createdAt: "2024-01-01T00:00:00",
-      modifiedAt: "2024-01-01T00:00:00",
-    },
-  });
-  await m.succeed(`**/api/groups/${GROUP_ID}/members`, {
-    success: true,
-    data: { memberInfoList: [] },
-  });
-  await m.succeed(`**/api/groups/${GROUP_ID}/permissions`, {
-    success: true,
-    data: { role: "MEMBER", permissions: [] },
-  });
-}
-
 /** 설정 화면(시험 모드) → "학습 시작" → 시험 화면 진입까지 이동 */
-async function navigateToTestMode(page: Parameters<typeof mockApi>[0]) {
+async function navigateToTestMode(page: Page) {
   await page.addInitScript(
     ({ key, value, sessionKey, timerKey }) => {
       localStorage.setItem(key, JSON.stringify(value));
-      // 이전 테스트/세션 잔여 상태 제거
-      sessionStorage.removeItem(sessionKey);
-      sessionStorage.removeItem(timerKey);
+
+      // addInitScript는 새로고침을 포함한 모든 네비게이션마다 실행된다.
+      // 무조건 지우면 앱이 pagehide에서 저장해둔 세션까지 새로고침 직후 날려서
+      // 복원 동작 자체를 검증할 수 없다. 컨텍스트당 최초 1회만 초기화한다.
+      const CLEARED = "__e2e_session_cleared";
+      if (!localStorage.getItem(CLEARED)) {
+        localStorage.setItem(CLEARED, "1");
+        sessionStorage.removeItem(sessionKey);
+        sessionStorage.removeItem(timerKey);
+      }
     },
     {
       key: STUDY_DEFAULTS_KEY,
@@ -129,7 +73,11 @@ async function navigateToTestMode(page: Parameters<typeof mockApi>[0]) {
       timerKey: TIMER_KEY,
     },
   );
-  await mockAllApis(page);
+  await mockCardsetApis(page, {
+    groupId: GROUP_ID,
+    cardsetId: CARDSET_ID,
+    cards: MOCK_CARDS,
+  });
 
   await page.goto(CARDSET_URL);
   await page.waitForSelector("text=학습 모드 선택");
@@ -144,7 +92,7 @@ async function navigateToTestMode(page: Parameters<typeof mockApi>[0]) {
 }
 
 /** sessionStorage의 타이머 키에서 남은 시간(초)을 계산해 읽는다. */
-const readTimerRemaining = (page: Parameters<typeof mockApi>[0]) =>
+const readTimerRemaining = (page: Page) =>
   page.evaluate((key) => {
     const raw = sessionStorage.getItem(key);
     if (!raw) return null;
@@ -160,10 +108,10 @@ const readTimerRemaining = (page: Parameters<typeof mockApi>[0]) =>
     return null;
   }, TIMER_KEY);
 
-const restoreDialog = (page: Parameters<typeof mockApi>[0]) =>
+const restoreDialog = (page: Page) =>
   page.getByRole("dialog", { name: "이전 시험 내역" });
 
-const firstAnswer = (page: Parameters<typeof mockApi>[0]) =>
+const firstAnswer = (page: Page) =>
   page.getByPlaceholder("답변을 입력하세요").first();
 
 const ANSWER_TEXT = "내가 작성한 답변입니다";
