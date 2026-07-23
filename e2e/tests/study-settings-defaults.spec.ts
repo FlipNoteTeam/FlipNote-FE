@@ -1,5 +1,7 @@
+import type { Page } from "@playwright/test";
 import { test, expect } from "../fixtures/auth";
-import { mockApi } from "../helpers/mock-api";
+import { mockCardsetApis } from "../helpers/cardset-mocks";
+import { mockCards } from "../fixtures/mock-data";
 
 /**
  * 학습 설정 localStorage 기본값 저장/복원 회귀 테스트.
@@ -17,74 +19,17 @@ const CARDSET_ID = 42;
 const CARDSET_URL = `/groups/${GROUP_ID}/cardsets/${CARDSET_ID}`;
 const LS_KEY = `flipnote-study-defaults-${CARDSET_ID}`;
 
-async function mockCardsetDetailApis(page: Parameters<typeof mockApi>[0]) {
-  const m = mockApi(page);
-
-  await m.succeed("**/api/auth/token/refresh", { success: true, data: {} });
-  await m.succeed("**/api/users/me", {
-    success: true,
-    data: {
-      userId: 1,
-      nickname: "테스터",
-      email: "test@test.com",
-      phone: "",
-      smsAgree: false,
-      profileImageUrl: "",
-    },
+/** 카드셋 상세 진입에 필요한 API 모킹 (학습 설정 화면이 카드 목록도 조회한다) */
+const mockCardsetDetailApis = (page: Page) =>
+  mockCardsetApis(page, {
+    groupId: GROUP_ID,
+    cardsetId: CARDSET_ID,
+    cards: mockCards,
   });
-
-  await m.succeed(`**/api/card-sets/${CARDSET_ID}`, {
-    success: true,
-    data: {
-      id: CARDSET_ID,
-      name: "테스트 카드셋",
-      groupId: GROUP_ID,
-      visibility: "PUBLIC",
-      category: "IT",
-      hashtag: "",
-      imageRefId: 0,
-      imageUrl: "",
-      cardCount: 10,
-      likeCount: 0,
-      bookmarkCount: 0,
-      createdAt: "2024-01-01T00:00:00",
-      updatedAt: "2024-01-01T00:00:00",
-      liked: false,
-      bookmarked: false,
-      managers: [],
-    },
-  });
-
-  await m.succeed(`**/api/groups/${GROUP_ID}`, {
-    success: true,
-    data: {
-      groupId: GROUP_ID,
-      name: "테스트 그룹",
-      category: "IT",
-      description: "",
-      joinPolicy: "OPEN",
-      visibility: "PUBLIC",
-      maxMember: 10,
-      imageUrl: "",
-      createdAt: "2024-01-01T00:00:00",
-      modifiedAt: "2024-01-01T00:00:00",
-    },
-  });
-
-  await m.succeed(`**/api/groups/${GROUP_ID}/members`, {
-    success: true,
-    data: { memberInfoList: [] },
-  });
-
-  await m.succeed(`**/api/groups/${GROUP_ID}/permissions`, {
-    success: true,
-    data: { role: "MEMBER", permissions: [] },
-  });
-}
 
 // ButtonCheckbox는 sr-only <input type="checkbox" value="..."> + <label> 구조.
 // 선택 상태는 input의 checked 속성으로 확인, 클릭은 label 텍스트로.
-const modeInput = (page: Parameters<typeof mockCardsetDetailApis>[0], value: string) =>
+const modeInput = (page: Page, value: string) =>
   page.locator(`input[type="checkbox"][value="${value}"]`);
 
 test.describe("학습 설정 localStorage 저장 및 복원", () => {

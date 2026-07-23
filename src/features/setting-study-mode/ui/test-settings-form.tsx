@@ -3,6 +3,7 @@ import { Description } from "@/shared/components/form";
 import { Label } from "@/shared/components/label";
 import { NumberInput } from "@/shared/components/number-input";
 import { ToggleGroup } from "@/shared/components/toggle-group";
+import type { ChangeEvent } from "react";
 import type { Control, FieldErrors } from "react-hook-form";
 import { useController, useWatch } from "react-hook-form";
 import type { StudySettingsFormField } from "../schemas/form.schema";
@@ -38,6 +39,22 @@ export function TestSettingsForm({
 
   const isUnlimitedTime = useWatch({ control, name: "isUnlimitedTime" });
   const testMode = useWatch({ control, name: "testMode" });
+
+  /**
+   * 폼에 noValidate가 없어 범위를 벗어난 값은 브라우저가 제출 자체를 막아버리고,
+   * zod 메시지는 화면에 도달하지 못한다. 그래서 하한(1) 위반은 입력 시점에 끊는다.
+   * 빈 값은 undefined로 남겨 제출 시 "문제 개수를 입력해주세요" 안내가 뜨게 둔다.
+   */
+  const handleRandomPickCountChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value;
+
+    if (raw === "") {
+      randomPickCountField.onChange(undefined);
+      return;
+    }
+
+    randomPickCountField.onChange(Math.max(1, Number(raw)));
+  };
 
   return (
     <>
@@ -120,30 +137,28 @@ export function TestSettingsForm({
           {testMode === "random" && (
             <div className="space-y-3 mt-3">
               <Label htmlFor="randomPickCount" className="text-sm font-medium">
-                랜덤 뽑기 개수
+                최대 문제 개수
               </Label>
               <Description>
-                전체 {totalCardCount}개 중 몇 개를 시험 볼까요?
+                입력한 개수만큼 무작위로 출제합니다. 순서도 함께 섞입니다.
               </Description>
               <div className="flex items-center gap-2">
                 <NumberInput
                   id="randomPickCount"
                   className="w-24"
                   value={randomPickCountField.value ?? ""}
-                  onChange={(e) =>
-                    randomPickCountField.onChange(
-                      e.target.value === ""
-                        ? undefined
-                        : Number(e.target.value),
-                    )
-                  }
+                  onChange={handleRandomPickCountChange}
                   onBlur={randomPickCountField.onBlur}
                   ref={randomPickCountField.ref}
                   min={1}
-                  max={totalCardCount}
                 />
                 <span className="text-sm">개</span>
               </div>
+              {/* 상한이 아니라 참고용 — 카드가 더 적으면 있는 만큼만 출제된다 */}
+              <p className="text-sm text-gray-500">
+                현재 카드셋의 카드는 {totalCardCount}개입니다. 이보다 많이
+                입력하면 {totalCardCount}개만 출제됩니다.
+              </p>
               {"randomPickCount" in errors && errors.randomPickCount && (
                 <p className="text-sm text-red-500 mt-1">
                   {errors.randomPickCount.message}

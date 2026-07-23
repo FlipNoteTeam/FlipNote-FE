@@ -62,11 +62,12 @@ export const testSettingsSchema = z
     testMode: z.enum(TEST_MODES, {
       message: "시험 모드를 선택해주세요",
     }),
-    totalCardCount: z.number().int().positive().optional(), // 전체 카드 개수 (컨텍스트로 전달)
+    // 낼 문제 수의 상한. 카드가 이보다 적으면 있는 만큼만 출제하므로
+    // 전체 카드 개수를 넘겨도 오류가 아니다. 하한만 강제한다.
     randomPickCount: z
-      .number({ message: "카드 개수를 입력해주세요" })
+      .number({ message: "문제 개수를 입력해주세요" })
       .int({ message: "정수를 입력해주세요" })
-      .positive({ message: "1 이상의 숫자를 입력해주세요" })
+      .min(1, { message: "1개 이상 입력해주세요" })
       .optional(),
   })
   .refine(
@@ -79,23 +80,7 @@ export const testSettingsSchema = z
   .refine(
     (data) => data.testMode !== "random" || data.randomPickCount !== undefined,
     {
-      message: "랜덤 뽑기 개수를 입력해주세요",
-      path: ["randomPickCount"],
-    }
-  )
-  .refine(
-    (data) => {
-      if (
-        data.testMode === "random" &&
-        data.randomPickCount &&
-        data.totalCardCount
-      ) {
-        return data.randomPickCount <= data.totalCardCount;
-      }
-      return true;
-    },
-    {
-      message: "랜덤 뽑기 개수는 전체 카드 개수를 초과할 수 없습니다",
+      message: "문제 개수를 입력해주세요",
       path: ["randomPickCount"],
     }
   );
