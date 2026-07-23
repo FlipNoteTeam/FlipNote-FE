@@ -16,28 +16,22 @@ export const MEMORIZE_MODE_DEFAULTS: StudySettingsFormField = {
   orderType: "sequential",
 };
 
-export const getTestModeDefaults = (
-  totalCardCount: number,
-): StudySettingsFormField => ({
+export const TEST_MODE_DEFAULTS: StudySettingsFormField = {
   mode: "test",
   isUnlimitedTime: false,
   testTimeMinutes: 30,
   orderType: "sequential",
   testMode: "all",
-  totalCardCount: totalCardCount || 10,
   randomPickCount: undefined,
-});
+};
 
 export const studyDefaultsKey = (cardsetId: number) =>
   `flipnote-study-defaults-${cardsetId}`;
 
 export const getDefaultsByMode = (
   mode: "memorize" | "test",
-  totalCardCount: number,
 ): StudySettingsFormField =>
-  mode === "memorize"
-    ? MEMORIZE_MODE_DEFAULTS
-    : getTestModeDefaults(totalCardCount);
+  mode === "memorize" ? MEMORIZE_MODE_DEFAULTS : TEST_MODE_DEFAULTS;
 
 type UseStudySettingsFormParams = {
   cardsetId: number;

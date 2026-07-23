@@ -39,11 +39,11 @@ const StudySettings = ({
   const handleModeChange = (value: string | number | string[]) => {
     const newMode = value as "memorize" | "test";
     modeField.onChange(newMode);
-    reset(getDefaultsByMode(newMode, totalCardCount));
+    reset(getDefaultsByMode(newMode));
   };
 
   const handleReset = () => {
-    reset(getDefaultsByMode(mode, totalCardCount));
+    reset(getDefaultsByMode(mode));
   };
 
   const onSubmit = handleSubmit((data) => {

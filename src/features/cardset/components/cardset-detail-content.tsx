@@ -1,5 +1,6 @@
 import { GROUP_CATEGORY_MAP } from "@/domain/group/types";
 import { cardSetApi } from "@/shared/apis";
+import { cardApi } from "@/shared/apis/card";
 import { Button } from "@/shared/components/button";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import useAuthStore from "@/stores/use-auth-store";
@@ -28,6 +29,18 @@ const CardsetDetailContent = ({ groupId, cardsetId }: Props) => {
     queryKey: ["cardset", groupId, cardsetId],
     queryFn: () => cardSetApi.getCardSet(cardsetId),
   });
+
+  // 임시: 카드셋 상세의 cardCount를 신뢰하지 않는다.
+  // 실서버가 실제 카드 수와 무관하게 항상 10을 내려주고 있어(2026-07-21 확인:
+  // 카드 3개인 카드셋도 0개인 카드셋도 모두 10), 학습 설정의 "전체 N개 중"과
+  // 뽑기 개수 상한이 어긋난다. 서버가 채워줄 때까지 카드 목록 길이를 쓴다.
+  // 학습 화면과 같은 쿼리 키라 캐시를 공유한다.
+  const { data: cardsData } = useSuspenseQuery({
+    queryKey: ["cards", cardsetId],
+    queryFn: () => cardApi.getCards(cardsetId),
+  });
+
+  const totalCardCount = cardsData?.data?.data?.length ?? 0;
 
   const { mutate, isPending } = useMutation({
     mutationFn: () => cardSetApi.deleteCardSet(cardsetId),
@@ -189,7 +202,7 @@ const CardsetDetailContent = ({ groupId, cardsetId }: Props) => {
       <StudySettings
         groupId={groupId}
         cardsetId={cardsetId}
-        totalCardCount={cardset.cardCount}
+        totalCardCount={totalCardCount}
       />
     </div>
   );

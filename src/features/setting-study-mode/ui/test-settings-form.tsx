@@ -120,10 +120,10 @@ export function TestSettingsForm({
           {testMode === "random" && (
             <div className="space-y-3 mt-3">
               <Label htmlFor="randomPickCount" className="text-sm font-medium">
-                랜덤 뽑기 개수
+                최대 문제 개수
               </Label>
               <Description>
-                전체 {totalCardCount}개 중 몇 개를 시험 볼까요?
+                입력한 개수만큼 무작위로 출제합니다. 순서도 함께 섞입니다.
               </Description>
               <div className="flex items-center gap-2">
                 <NumberInput
@@ -140,10 +140,14 @@ export function TestSettingsForm({
                   onBlur={randomPickCountField.onBlur}
                   ref={randomPickCountField.ref}
                   min={1}
-                  max={totalCardCount}
                 />
                 <span className="text-sm">개</span>
               </div>
+              {/* 상한이 아니라 참고용 — 카드가 더 적으면 있는 만큼만 출제된다 */}
+              <p className="text-sm text-gray-500">
+                현재 카드셋의 카드는 {totalCardCount}개입니다. 이보다 많이
+                입력하면 {totalCardCount}개만 출제됩니다.
+              </p>
               {"randomPickCount" in errors && errors.randomPickCount && (
                 <p className="text-sm text-red-500 mt-1">
                   {errors.randomPickCount.message}

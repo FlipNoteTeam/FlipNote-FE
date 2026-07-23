@@ -113,7 +113,7 @@ describe("selectTestCards", () => {
       expect(ids(result)).not.toEqual(["1", "2", "3"]);
     });
 
-    it("순차 순서면 뽑힌 카드를 원본 순서로 되돌린다", () => {
+    it("순차 순서를 골랐어도 뽑기이므로 순서를 섞는다", () => {
       const result = selectTestCards(
         cards,
         selection({
@@ -124,10 +124,11 @@ describe("selectTestCards", () => {
         SEED,
       );
 
+      // 원본 순서를 유지한 부분집합이면 안 된다
       const originalOrder = cards
         .filter((card) => ids(result).includes(card.id))
         .map((card) => card.id);
-      expect(ids(result)).toEqual(originalOrder);
+      expect(ids(result)).not.toEqual(originalOrder);
     });
 
     it("같은 시드면 같은 부분집합을 뽑는다 (새로고침 복원 안정성)", () => {
@@ -146,8 +147,8 @@ describe("selectTestCards", () => {
     });
   });
 
-  describe("randomPickCount 방어 (stale totalCardCount 대비)", () => {
-    it("카드 개수보다 크면 전체로 클램프한다", () => {
+  describe("randomPickCount는 상한이다", () => {
+    it("카드 개수보다 크면 있는 만큼만 낸다", () => {
       const result = selectTestCards(
         cards,
         selection({ testMode: "random", randomPickCount: 99 }),

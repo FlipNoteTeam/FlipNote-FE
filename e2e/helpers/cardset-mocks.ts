@@ -7,6 +7,12 @@ type CardsetMockOptions = {
   groupId: number;
   cardsetId: number;
   cards: readonly Card[];
+  /**
+   * 카드셋 상세가 내려주는 cardCount.
+   * 기본은 실제 카드 수지만, 실서버는 이 값이 실제와 어긋나므로(항상 10)
+   * 그 상황을 재현하는 테스트는 명시적으로 덮어쓴다.
+   */
+  cardCount?: number;
 };
 
 /**
@@ -17,7 +23,7 @@ type CardsetMockOptions = {
  */
 export async function mockCardsetApis(
   page: Page,
-  { groupId, cardsetId, cards }: CardsetMockOptions,
+  { groupId, cardsetId, cards, cardCount }: CardsetMockOptions,
 ) {
   const m = mockApi(page);
 
@@ -44,7 +50,7 @@ export async function mockCardsetApis(
       hashtag: "",
       imageRefId: 0,
       imageUrl: "",
-      cardCount: cards.length,
+      cardCount: cardCount ?? cards.length,
       likeCount: 0,
       bookmarkCount: 0,
       createdAt: "2024-01-01T00:00:00",
