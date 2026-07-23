@@ -16,8 +16,10 @@ import { mockCards } from "../fixtures/mock-data";
  * 정책: 랜덤 뽑기의 입력값은 낼 문제 수의 **상한**이다. 카드가 더 적으면 있는
  * 만큼만 출제하므로 초과 입력은 오류가 아니고, 카드 개수는 정보성으로만 보여준다.
  *
- * 하한 1개는 입력의 min 속성으로 브라우저가 제출 자체를 막으므로 e2e로 검증하지
- * 않는다(폼에 noValidate가 없어 zod 메시지까지 도달하지 않는다).
+ * 하한 1개는 입력 단계에서 1로 보정한다. 폼에 noValidate가 없어 범위 위반은
+ * 브라우저가 제출을 막아버리고 zod 메시지까지 도달하지 못하므로, 0이 폼 상태에
+ * 들어가지 않게 입력 시점에 끊는다. 단 빈 값은 허용해(undefined) 제출 시 zod
+ * 안내가 뜨게 둔다 — 빈 값은 min 위반이 아니라 네이티브 검증을 통과한다.
  */
 
 const GROUP_ID = 1;
@@ -102,6 +104,41 @@ test.describe("학습 설정 — 전체 카드 개수", () => {
     await expect(page.getByPlaceholder("답변을 입력하세요")).toHaveCount(
       cards.length,
     );
+  });
+
+  test("0을 입력하면 하한인 1로 보정된다", async ({
+    authenticatedPage: page,
+  }) => {
+    await openTestSettings(page, mockCards.slice(0, 3));
+
+    await pickCountInput(page).fill("0");
+
+    await expect(pickCountInput(page)).toHaveValue("1");
+  });
+
+  test("보정 후에도 여러 자리 수를 정상 입력할 수 있다", async ({
+    authenticatedPage: page,
+  }) => {
+    await openTestSettings(page, mockCards.slice(0, 3));
+
+    // 빈 칸에서 한 글자씩 입력하는 상황 — 첫 글자가 보정돼도 뒷자리가 막히면 안 된다
+    await pickCountInput(page).fill("");
+    await pickCountInput(page).pressSequentially("10");
+
+    await expect(pickCountInput(page)).toHaveValue("10");
+  });
+
+  test("칸을 비우면 제출 시 입력 안내가 뜬다", async ({
+    authenticatedPage: page,
+  }) => {
+    await openTestSettings(page, mockCards.slice(0, 3));
+
+    // 빈 값은 min 위반이 아니라 네이티브 검증을 통과하므로 zod 메시지까지 도달한다
+    await pickCountInput(page).fill("");
+    await page.getByRole("button", { name: "학습 시작" }).click();
+
+    await expect(page.getByText("문제 개수를 입력해주세요")).toBeVisible();
+    await expect(page).not.toHaveURL(/cardsets\/learning/);
   });
 
   test("저장된 설정을 복원해도 현재 카드 수를 안내한다", async ({
