@@ -1,7 +1,7 @@
 import UserInfoPage from "@/pages/user/info";
 import { createFileRoute } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/user/$userId/")({
+export const Route = createFileRoute("/_authenticated/user/$userId/")({
   component: RouteComponent,
 });
 

@@ -1,7 +1,7 @@
 import CreateGroup from "@/pages/create-group";
 import { createFileRoute } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/groups/create")({
+export const Route = createFileRoute("/_authenticated/groups/create")({
   component: RouteComponent,
   head: () => ({
     meta: [

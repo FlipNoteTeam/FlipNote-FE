@@ -1,12 +1,8 @@
 import GroupManagePage from "@/pages/group-manage";
-import { authGuard } from "@/routes/__utils/authGuard";
 import { createFileRoute } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/groups/$groupId/manage")({
+export const Route = createFileRoute("/_authenticated/groups/$groupId/manage")({
   component: RouteComponent,
-  beforeLoad: ({ context }) => {
-    authGuard({ auth: context.auth, mode: "protected" });
-  },
 });
 
 function RouteComponent() {

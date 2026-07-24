@@ -10,55 +10,40 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as PasswordResetRouteImport } from './routes/password-reset'
-import { Route as GroupListRouteImport } from './routes/group-list'
-import { Route as DashboardRouteImport } from './routes/dashboard'
-import { Route as CardsetListRouteImport } from './routes/cardset-list'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as GroupsIndexRouteImport } from './routes/groups/index'
 import { Route as SocialLoginSuccessRouteImport } from './routes/social-login/success'
 import { Route as SocialLoginFailureRouteImport } from './routes/social-login/failure'
 import { Route as SocialLinkSuccessRouteImport } from './routes/social-link/success'
 import { Route as SocialLinkFailureRouteImport } from './routes/social-link/failure'
 import { Route as SocialLinkConflictRouteImport } from './routes/social-link/conflict'
-import { Route as GroupsCreateRouteImport } from './routes/groups/create'
-import { Route as GroupsGroupIdRouteImport } from './routes/groups/$groupId'
 import { Route as AuthRegisterRouteImport } from './routes/auth/register'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
-import { Route as UserUserIdIndexRouteImport } from './routes/user/$userId/index'
-import { Route as GroupsGroupIdIndexRouteImport } from './routes/groups/$groupId/index'
-import { Route as CardsetsLearningIndexRouteImport } from './routes/cardsets/learning/index'
-import { Route as GroupsGroupIdManageRouteImport } from './routes/groups/$groupId/manage'
-import { Route as CardsetsEditorIdRouteImport } from './routes/cardsets/editor/$id'
-import { Route as GroupsGroupIdCardsetsCardsetIdIndexRouteImport } from './routes/groups/$groupId/cardsets/$cardsetId/index'
+import { Route as AuthenticatedGroupListRouteImport } from './routes/_authenticated/group-list'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedCardsetListRouteImport } from './routes/_authenticated/cardset-list'
+import { Route as AuthenticatedGroupsIndexRouteImport } from './routes/_authenticated/groups/index'
+import { Route as AuthenticatedGroupsCreateRouteImport } from './routes/_authenticated/groups/create'
+import { Route as AuthenticatedGroupsGroupIdRouteImport } from './routes/_authenticated/groups/$groupId'
+import { Route as AuthenticatedUserUserIdIndexRouteImport } from './routes/_authenticated/user/$userId/index'
+import { Route as AuthenticatedGroupsGroupIdIndexRouteImport } from './routes/_authenticated/groups/$groupId/index'
+import { Route as AuthenticatedCardsetsLearningIndexRouteImport } from './routes/_authenticated/cardsets/learning/index'
+import { Route as AuthenticatedGroupsGroupIdManageRouteImport } from './routes/_authenticated/groups/$groupId/manage'
+import { Route as AuthenticatedCardsetsEditorIdRouteImport } from './routes/_authenticated/cardsets/editor/$id'
+import { Route as AuthenticatedGroupsGroupIdCardsetsCardsetIdIndexRouteImport } from './routes/_authenticated/groups/$groupId/cardsets/$cardsetId/index'
 
 const PasswordResetRoute = PasswordResetRouteImport.update({
   id: '/password-reset',
   path: '/password-reset',
   getParentRoute: () => rootRouteImport,
 } as any)
-const GroupListRoute = GroupListRouteImport.update({
-  id: '/group-list',
-  path: '/group-list',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DashboardRoute = DashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CardsetListRoute = CardsetListRouteImport.update({
-  id: '/cardset-list',
-  path: '/cardset-list',
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const GroupsIndexRoute = GroupsIndexRouteImport.update({
-  id: '/groups/',
-  path: '/groups/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SocialLoginSuccessRoute = SocialLoginSuccessRouteImport.update({
@@ -86,16 +71,6 @@ const SocialLinkConflictRoute = SocialLinkConflictRouteImport.update({
   path: '/social-link/conflict',
   getParentRoute: () => rootRouteImport,
 } as any)
-const GroupsCreateRoute = GroupsCreateRouteImport.update({
-  id: '/groups/create',
-  path: '/groups/create',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const GroupsGroupIdRoute = GroupsGroupIdRouteImport.update({
-  id: '/groups/$groupId',
-  path: '/groups/$groupId',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthRegisterRoute = AuthRegisterRouteImport.update({
   id: '/auth/register',
   path: '/auth/register',
@@ -106,124 +81,164 @@ const AuthLoginRoute = AuthLoginRouteImport.update({
   path: '/auth/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const UserUserIdIndexRoute = UserUserIdIndexRouteImport.update({
-  id: '/user/$userId/',
-  path: '/user/$userId/',
-  getParentRoute: () => rootRouteImport,
+const AuthenticatedGroupListRoute = AuthenticatedGroupListRouteImport.update({
+  id: '/group-list',
+  path: '/group-list',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const GroupsGroupIdIndexRoute = GroupsGroupIdIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => GroupsGroupIdRoute,
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const CardsetsLearningIndexRoute = CardsetsLearningIndexRouteImport.update({
-  id: '/cardsets/learning/',
-  path: '/cardsets/learning/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const GroupsGroupIdManageRoute = GroupsGroupIdManageRouteImport.update({
-  id: '/manage',
-  path: '/manage',
-  getParentRoute: () => GroupsGroupIdRoute,
-} as any)
-const CardsetsEditorIdRoute = CardsetsEditorIdRouteImport.update({
-  id: '/cardsets/editor/$id',
-  path: '/cardsets/editor/$id',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const GroupsGroupIdCardsetsCardsetIdIndexRoute =
-  GroupsGroupIdCardsetsCardsetIdIndexRouteImport.update({
+const AuthenticatedCardsetListRoute =
+  AuthenticatedCardsetListRouteImport.update({
+    id: '/cardset-list',
+    path: '/cardset-list',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedGroupsIndexRoute =
+  AuthenticatedGroupsIndexRouteImport.update({
+    id: '/groups/',
+    path: '/groups/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedGroupsCreateRoute =
+  AuthenticatedGroupsCreateRouteImport.update({
+    id: '/groups/create',
+    path: '/groups/create',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedGroupsGroupIdRoute =
+  AuthenticatedGroupsGroupIdRouteImport.update({
+    id: '/groups/$groupId',
+    path: '/groups/$groupId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedUserUserIdIndexRoute =
+  AuthenticatedUserUserIdIndexRouteImport.update({
+    id: '/user/$userId/',
+    path: '/user/$userId/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedGroupsGroupIdIndexRoute =
+  AuthenticatedGroupsGroupIdIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedGroupsGroupIdRoute,
+  } as any)
+const AuthenticatedCardsetsLearningIndexRoute =
+  AuthenticatedCardsetsLearningIndexRouteImport.update({
+    id: '/cardsets/learning/',
+    path: '/cardsets/learning/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedGroupsGroupIdManageRoute =
+  AuthenticatedGroupsGroupIdManageRouteImport.update({
+    id: '/manage',
+    path: '/manage',
+    getParentRoute: () => AuthenticatedGroupsGroupIdRoute,
+  } as any)
+const AuthenticatedCardsetsEditorIdRoute =
+  AuthenticatedCardsetsEditorIdRouteImport.update({
+    id: '/cardsets/editor/$id',
+    path: '/cardsets/editor/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedGroupsGroupIdCardsetsCardsetIdIndexRoute =
+  AuthenticatedGroupsGroupIdCardsetsCardsetIdIndexRouteImport.update({
     id: '/cardsets/$cardsetId/',
     path: '/cardsets/$cardsetId/',
-    getParentRoute: () => GroupsGroupIdRoute,
+    getParentRoute: () => AuthenticatedGroupsGroupIdRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/cardset-list': typeof CardsetListRoute
-  '/dashboard': typeof DashboardRoute
-  '/group-list': typeof GroupListRoute
   '/password-reset': typeof PasswordResetRoute
+  '/cardset-list': typeof AuthenticatedCardsetListRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/group-list': typeof AuthenticatedGroupListRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
-  '/groups/$groupId': typeof GroupsGroupIdRouteWithChildren
-  '/groups/create': typeof GroupsCreateRoute
   '/social-link/conflict': typeof SocialLinkConflictRoute
   '/social-link/failure': typeof SocialLinkFailureRoute
   '/social-link/success': typeof SocialLinkSuccessRoute
   '/social-login/failure': typeof SocialLoginFailureRoute
   '/social-login/success': typeof SocialLoginSuccessRoute
-  '/groups/': typeof GroupsIndexRoute
-  '/cardsets/editor/$id': typeof CardsetsEditorIdRoute
-  '/groups/$groupId/manage': typeof GroupsGroupIdManageRoute
-  '/cardsets/learning/': typeof CardsetsLearningIndexRoute
-  '/groups/$groupId/': typeof GroupsGroupIdIndexRoute
-  '/user/$userId/': typeof UserUserIdIndexRoute
-  '/groups/$groupId/cardsets/$cardsetId/': typeof GroupsGroupIdCardsetsCardsetIdIndexRoute
+  '/groups/$groupId': typeof AuthenticatedGroupsGroupIdRouteWithChildren
+  '/groups/create': typeof AuthenticatedGroupsCreateRoute
+  '/groups/': typeof AuthenticatedGroupsIndexRoute
+  '/cardsets/editor/$id': typeof AuthenticatedCardsetsEditorIdRoute
+  '/groups/$groupId/manage': typeof AuthenticatedGroupsGroupIdManageRoute
+  '/cardsets/learning/': typeof AuthenticatedCardsetsLearningIndexRoute
+  '/groups/$groupId/': typeof AuthenticatedGroupsGroupIdIndexRoute
+  '/user/$userId/': typeof AuthenticatedUserUserIdIndexRoute
+  '/groups/$groupId/cardsets/$cardsetId/': typeof AuthenticatedGroupsGroupIdCardsetsCardsetIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/cardset-list': typeof CardsetListRoute
-  '/dashboard': typeof DashboardRoute
-  '/group-list': typeof GroupListRoute
   '/password-reset': typeof PasswordResetRoute
+  '/cardset-list': typeof AuthenticatedCardsetListRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/group-list': typeof AuthenticatedGroupListRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
-  '/groups/create': typeof GroupsCreateRoute
   '/social-link/conflict': typeof SocialLinkConflictRoute
   '/social-link/failure': typeof SocialLinkFailureRoute
   '/social-link/success': typeof SocialLinkSuccessRoute
   '/social-login/failure': typeof SocialLoginFailureRoute
   '/social-login/success': typeof SocialLoginSuccessRoute
-  '/groups': typeof GroupsIndexRoute
-  '/cardsets/editor/$id': typeof CardsetsEditorIdRoute
-  '/groups/$groupId/manage': typeof GroupsGroupIdManageRoute
-  '/cardsets/learning': typeof CardsetsLearningIndexRoute
-  '/groups/$groupId': typeof GroupsGroupIdIndexRoute
-  '/user/$userId': typeof UserUserIdIndexRoute
-  '/groups/$groupId/cardsets/$cardsetId': typeof GroupsGroupIdCardsetsCardsetIdIndexRoute
+  '/groups/create': typeof AuthenticatedGroupsCreateRoute
+  '/groups': typeof AuthenticatedGroupsIndexRoute
+  '/cardsets/editor/$id': typeof AuthenticatedCardsetsEditorIdRoute
+  '/groups/$groupId/manage': typeof AuthenticatedGroupsGroupIdManageRoute
+  '/cardsets/learning': typeof AuthenticatedCardsetsLearningIndexRoute
+  '/groups/$groupId': typeof AuthenticatedGroupsGroupIdIndexRoute
+  '/user/$userId': typeof AuthenticatedUserUserIdIndexRoute
+  '/groups/$groupId/cardsets/$cardsetId': typeof AuthenticatedGroupsGroupIdCardsetsCardsetIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/cardset-list': typeof CardsetListRoute
-  '/dashboard': typeof DashboardRoute
-  '/group-list': typeof GroupListRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/password-reset': typeof PasswordResetRoute
+  '/_authenticated/cardset-list': typeof AuthenticatedCardsetListRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/group-list': typeof AuthenticatedGroupListRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
-  '/groups/$groupId': typeof GroupsGroupIdRouteWithChildren
-  '/groups/create': typeof GroupsCreateRoute
   '/social-link/conflict': typeof SocialLinkConflictRoute
   '/social-link/failure': typeof SocialLinkFailureRoute
   '/social-link/success': typeof SocialLinkSuccessRoute
   '/social-login/failure': typeof SocialLoginFailureRoute
   '/social-login/success': typeof SocialLoginSuccessRoute
-  '/groups/': typeof GroupsIndexRoute
-  '/cardsets/editor/$id': typeof CardsetsEditorIdRoute
-  '/groups/$groupId/manage': typeof GroupsGroupIdManageRoute
-  '/cardsets/learning/': typeof CardsetsLearningIndexRoute
-  '/groups/$groupId/': typeof GroupsGroupIdIndexRoute
-  '/user/$userId/': typeof UserUserIdIndexRoute
-  '/groups/$groupId/cardsets/$cardsetId/': typeof GroupsGroupIdCardsetsCardsetIdIndexRoute
+  '/_authenticated/groups/$groupId': typeof AuthenticatedGroupsGroupIdRouteWithChildren
+  '/_authenticated/groups/create': typeof AuthenticatedGroupsCreateRoute
+  '/_authenticated/groups/': typeof AuthenticatedGroupsIndexRoute
+  '/_authenticated/cardsets/editor/$id': typeof AuthenticatedCardsetsEditorIdRoute
+  '/_authenticated/groups/$groupId/manage': typeof AuthenticatedGroupsGroupIdManageRoute
+  '/_authenticated/cardsets/learning/': typeof AuthenticatedCardsetsLearningIndexRoute
+  '/_authenticated/groups/$groupId/': typeof AuthenticatedGroupsGroupIdIndexRoute
+  '/_authenticated/user/$userId/': typeof AuthenticatedUserUserIdIndexRoute
+  '/_authenticated/groups/$groupId/cardsets/$cardsetId/': typeof AuthenticatedGroupsGroupIdCardsetsCardsetIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/password-reset'
     | '/cardset-list'
     | '/dashboard'
     | '/group-list'
-    | '/password-reset'
     | '/auth/login'
     | '/auth/register'
-    | '/groups/$groupId'
-    | '/groups/create'
     | '/social-link/conflict'
     | '/social-link/failure'
     | '/social-link/success'
     | '/social-login/failure'
     | '/social-login/success'
+    | '/groups/$groupId'
+    | '/groups/create'
     | '/groups/'
     | '/cardsets/editor/$id'
     | '/groups/$groupId/manage'
@@ -234,18 +249,18 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/password-reset'
     | '/cardset-list'
     | '/dashboard'
     | '/group-list'
-    | '/password-reset'
     | '/auth/login'
     | '/auth/register'
-    | '/groups/create'
     | '/social-link/conflict'
     | '/social-link/failure'
     | '/social-link/success'
     | '/social-login/failure'
     | '/social-login/success'
+    | '/groups/create'
     | '/groups'
     | '/cardsets/editor/$id'
     | '/groups/$groupId/manage'
@@ -256,47 +271,40 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
-    | '/cardset-list'
-    | '/dashboard'
-    | '/group-list'
+    | '/_authenticated'
     | '/password-reset'
+    | '/_authenticated/cardset-list'
+    | '/_authenticated/dashboard'
+    | '/_authenticated/group-list'
     | '/auth/login'
     | '/auth/register'
-    | '/groups/$groupId'
-    | '/groups/create'
     | '/social-link/conflict'
     | '/social-link/failure'
     | '/social-link/success'
     | '/social-login/failure'
     | '/social-login/success'
-    | '/groups/'
-    | '/cardsets/editor/$id'
-    | '/groups/$groupId/manage'
-    | '/cardsets/learning/'
-    | '/groups/$groupId/'
-    | '/user/$userId/'
-    | '/groups/$groupId/cardsets/$cardsetId/'
+    | '/_authenticated/groups/$groupId'
+    | '/_authenticated/groups/create'
+    | '/_authenticated/groups/'
+    | '/_authenticated/cardsets/editor/$id'
+    | '/_authenticated/groups/$groupId/manage'
+    | '/_authenticated/cardsets/learning/'
+    | '/_authenticated/groups/$groupId/'
+    | '/_authenticated/user/$userId/'
+    | '/_authenticated/groups/$groupId/cardsets/$cardsetId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  CardsetListRoute: typeof CardsetListRoute
-  DashboardRoute: typeof DashboardRoute
-  GroupListRoute: typeof GroupListRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   PasswordResetRoute: typeof PasswordResetRoute
   AuthLoginRoute: typeof AuthLoginRoute
   AuthRegisterRoute: typeof AuthRegisterRoute
-  GroupsGroupIdRoute: typeof GroupsGroupIdRouteWithChildren
-  GroupsCreateRoute: typeof GroupsCreateRoute
   SocialLinkConflictRoute: typeof SocialLinkConflictRoute
   SocialLinkFailureRoute: typeof SocialLinkFailureRoute
   SocialLinkSuccessRoute: typeof SocialLinkSuccessRoute
   SocialLoginFailureRoute: typeof SocialLoginFailureRoute
   SocialLoginSuccessRoute: typeof SocialLoginSuccessRoute
-  GroupsIndexRoute: typeof GroupsIndexRoute
-  CardsetsEditorIdRoute: typeof CardsetsEditorIdRoute
-  CardsetsLearningIndexRoute: typeof CardsetsLearningIndexRoute
-  UserUserIdIndexRoute: typeof UserUserIdIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -308,25 +316,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PasswordResetRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/group-list': {
-      id: '/group-list'
-      path: '/group-list'
-      fullPath: '/group-list'
-      preLoaderRoute: typeof GroupListRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/cardset-list': {
-      id: '/cardset-list'
-      path: '/cardset-list'
-      fullPath: '/cardset-list'
-      preLoaderRoute: typeof CardsetListRouteImport
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -334,13 +328,6 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/groups/': {
-      id: '/groups/'
-      path: '/groups'
-      fullPath: '/groups/'
-      preLoaderRoute: typeof GroupsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/social-login/success': {
@@ -378,20 +365,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SocialLinkConflictRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/groups/create': {
-      id: '/groups/create'
-      path: '/groups/create'
-      fullPath: '/groups/create'
-      preLoaderRoute: typeof GroupsCreateRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/groups/$groupId': {
-      id: '/groups/$groupId'
-      path: '/groups/$groupId'
-      fullPath: '/groups/$groupId'
-      preLoaderRoute: typeof GroupsGroupIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/auth/register': {
       id: '/auth/register'
       path: '/auth/register'
@@ -406,87 +379,152 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/user/$userId/': {
-      id: '/user/$userId/'
+    '/_authenticated/group-list': {
+      id: '/_authenticated/group-list'
+      path: '/group-list'
+      fullPath: '/group-list'
+      preLoaderRoute: typeof AuthenticatedGroupListRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/cardset-list': {
+      id: '/_authenticated/cardset-list'
+      path: '/cardset-list'
+      fullPath: '/cardset-list'
+      preLoaderRoute: typeof AuthenticatedCardsetListRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/groups/': {
+      id: '/_authenticated/groups/'
+      path: '/groups'
+      fullPath: '/groups/'
+      preLoaderRoute: typeof AuthenticatedGroupsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/groups/create': {
+      id: '/_authenticated/groups/create'
+      path: '/groups/create'
+      fullPath: '/groups/create'
+      preLoaderRoute: typeof AuthenticatedGroupsCreateRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/groups/$groupId': {
+      id: '/_authenticated/groups/$groupId'
+      path: '/groups/$groupId'
+      fullPath: '/groups/$groupId'
+      preLoaderRoute: typeof AuthenticatedGroupsGroupIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/user/$userId/': {
+      id: '/_authenticated/user/$userId/'
       path: '/user/$userId'
       fullPath: '/user/$userId/'
-      preLoaderRoute: typeof UserUserIdIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedUserUserIdIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/groups/$groupId/': {
-      id: '/groups/$groupId/'
+    '/_authenticated/groups/$groupId/': {
+      id: '/_authenticated/groups/$groupId/'
       path: '/'
       fullPath: '/groups/$groupId/'
-      preLoaderRoute: typeof GroupsGroupIdIndexRouteImport
-      parentRoute: typeof GroupsGroupIdRoute
+      preLoaderRoute: typeof AuthenticatedGroupsGroupIdIndexRouteImport
+      parentRoute: typeof AuthenticatedGroupsGroupIdRoute
     }
-    '/cardsets/learning/': {
-      id: '/cardsets/learning/'
+    '/_authenticated/cardsets/learning/': {
+      id: '/_authenticated/cardsets/learning/'
       path: '/cardsets/learning'
       fullPath: '/cardsets/learning/'
-      preLoaderRoute: typeof CardsetsLearningIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedCardsetsLearningIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/groups/$groupId/manage': {
-      id: '/groups/$groupId/manage'
+    '/_authenticated/groups/$groupId/manage': {
+      id: '/_authenticated/groups/$groupId/manage'
       path: '/manage'
       fullPath: '/groups/$groupId/manage'
-      preLoaderRoute: typeof GroupsGroupIdManageRouteImport
-      parentRoute: typeof GroupsGroupIdRoute
+      preLoaderRoute: typeof AuthenticatedGroupsGroupIdManageRouteImport
+      parentRoute: typeof AuthenticatedGroupsGroupIdRoute
     }
-    '/cardsets/editor/$id': {
-      id: '/cardsets/editor/$id'
+    '/_authenticated/cardsets/editor/$id': {
+      id: '/_authenticated/cardsets/editor/$id'
       path: '/cardsets/editor/$id'
       fullPath: '/cardsets/editor/$id'
-      preLoaderRoute: typeof CardsetsEditorIdRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedCardsetsEditorIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/groups/$groupId/cardsets/$cardsetId/': {
-      id: '/groups/$groupId/cardsets/$cardsetId/'
+    '/_authenticated/groups/$groupId/cardsets/$cardsetId/': {
+      id: '/_authenticated/groups/$groupId/cardsets/$cardsetId/'
       path: '/cardsets/$cardsetId'
       fullPath: '/groups/$groupId/cardsets/$cardsetId/'
-      preLoaderRoute: typeof GroupsGroupIdCardsetsCardsetIdIndexRouteImport
-      parentRoute: typeof GroupsGroupIdRoute
+      preLoaderRoute: typeof AuthenticatedGroupsGroupIdCardsetsCardsetIdIndexRouteImport
+      parentRoute: typeof AuthenticatedGroupsGroupIdRoute
     }
   }
 }
 
-interface GroupsGroupIdRouteChildren {
-  GroupsGroupIdManageRoute: typeof GroupsGroupIdManageRoute
-  GroupsGroupIdIndexRoute: typeof GroupsGroupIdIndexRoute
-  GroupsGroupIdCardsetsCardsetIdIndexRoute: typeof GroupsGroupIdCardsetsCardsetIdIndexRoute
+interface AuthenticatedGroupsGroupIdRouteChildren {
+  AuthenticatedGroupsGroupIdManageRoute: typeof AuthenticatedGroupsGroupIdManageRoute
+  AuthenticatedGroupsGroupIdIndexRoute: typeof AuthenticatedGroupsGroupIdIndexRoute
+  AuthenticatedGroupsGroupIdCardsetsCardsetIdIndexRoute: typeof AuthenticatedGroupsGroupIdCardsetsCardsetIdIndexRoute
 }
 
-const GroupsGroupIdRouteChildren: GroupsGroupIdRouteChildren = {
-  GroupsGroupIdManageRoute: GroupsGroupIdManageRoute,
-  GroupsGroupIdIndexRoute: GroupsGroupIdIndexRoute,
-  GroupsGroupIdCardsetsCardsetIdIndexRoute:
-    GroupsGroupIdCardsetsCardsetIdIndexRoute,
+const AuthenticatedGroupsGroupIdRouteChildren: AuthenticatedGroupsGroupIdRouteChildren =
+  {
+    AuthenticatedGroupsGroupIdManageRoute:
+      AuthenticatedGroupsGroupIdManageRoute,
+    AuthenticatedGroupsGroupIdIndexRoute: AuthenticatedGroupsGroupIdIndexRoute,
+    AuthenticatedGroupsGroupIdCardsetsCardsetIdIndexRoute:
+      AuthenticatedGroupsGroupIdCardsetsCardsetIdIndexRoute,
+  }
+
+const AuthenticatedGroupsGroupIdRouteWithChildren =
+  AuthenticatedGroupsGroupIdRoute._addFileChildren(
+    AuthenticatedGroupsGroupIdRouteChildren,
+  )
+
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedCardsetListRoute: typeof AuthenticatedCardsetListRoute
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedGroupListRoute: typeof AuthenticatedGroupListRoute
+  AuthenticatedGroupsGroupIdRoute: typeof AuthenticatedGroupsGroupIdRouteWithChildren
+  AuthenticatedGroupsCreateRoute: typeof AuthenticatedGroupsCreateRoute
+  AuthenticatedGroupsIndexRoute: typeof AuthenticatedGroupsIndexRoute
+  AuthenticatedCardsetsEditorIdRoute: typeof AuthenticatedCardsetsEditorIdRoute
+  AuthenticatedCardsetsLearningIndexRoute: typeof AuthenticatedCardsetsLearningIndexRoute
+  AuthenticatedUserUserIdIndexRoute: typeof AuthenticatedUserUserIdIndexRoute
 }
 
-const GroupsGroupIdRouteWithChildren = GroupsGroupIdRoute._addFileChildren(
-  GroupsGroupIdRouteChildren,
-)
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedCardsetListRoute: AuthenticatedCardsetListRoute,
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedGroupListRoute: AuthenticatedGroupListRoute,
+  AuthenticatedGroupsGroupIdRoute: AuthenticatedGroupsGroupIdRouteWithChildren,
+  AuthenticatedGroupsCreateRoute: AuthenticatedGroupsCreateRoute,
+  AuthenticatedGroupsIndexRoute: AuthenticatedGroupsIndexRoute,
+  AuthenticatedCardsetsEditorIdRoute: AuthenticatedCardsetsEditorIdRoute,
+  AuthenticatedCardsetsLearningIndexRoute:
+    AuthenticatedCardsetsLearningIndexRoute,
+  AuthenticatedUserUserIdIndexRoute: AuthenticatedUserUserIdIndexRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  CardsetListRoute: CardsetListRoute,
-  DashboardRoute: DashboardRoute,
-  GroupListRoute: GroupListRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   PasswordResetRoute: PasswordResetRoute,
   AuthLoginRoute: AuthLoginRoute,
   AuthRegisterRoute: AuthRegisterRoute,
-  GroupsGroupIdRoute: GroupsGroupIdRouteWithChildren,
-  GroupsCreateRoute: GroupsCreateRoute,
   SocialLinkConflictRoute: SocialLinkConflictRoute,
   SocialLinkFailureRoute: SocialLinkFailureRoute,
   SocialLinkSuccessRoute: SocialLinkSuccessRoute,
   SocialLoginFailureRoute: SocialLoginFailureRoute,
   SocialLoginSuccessRoute: SocialLoginSuccessRoute,
-  GroupsIndexRoute: GroupsIndexRoute,
-  CardsetsEditorIdRoute: CardsetsEditorIdRoute,
-  CardsetsLearningIndexRoute: CardsetsLearningIndexRoute,
-  UserUserIdIndexRoute: UserUserIdIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

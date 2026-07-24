@@ -2,7 +2,7 @@ import CardsetDetailSheet from "@/features/group-detail/components/cardset-detai
 import { PageSkeleton } from "@/shared/components/skeletons/page-skeleton";
 import { createFileRoute } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/groups/$groupId/cardsets/$cardsetId/")({
+export const Route = createFileRoute("/_authenticated/groups/$groupId/cardsets/$cardsetId/")({
   component: RouteComponent,
   pendingComponent: () => <PageSkeleton />,
 });
