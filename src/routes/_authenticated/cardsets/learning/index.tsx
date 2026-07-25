@@ -2,7 +2,7 @@ import { MemoizeMode } from "@/features/memoize-mode";
 import { TestMode } from "@/features/test-mode";
 import { createFileRoute, useLocation } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/cardsets/learning/")({
+export const Route = createFileRoute("/_authenticated/cardsets/learning/")({
   component: RouteComponent,
   head: () => ({
     meta: [

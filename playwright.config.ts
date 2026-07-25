@@ -1,6 +1,8 @@
 import { defineConfig, devices } from "@playwright/test";
 
-const PORT = 5173;
+// 다른 워크트리 dev 서버가 5173을 점유 중이면 E2E_PORT로 격리 포트를 지정한다.
+// (reuseExistingServer 때문에 그대로 두면 다른 워크트리 코드로 테스트가 돌아간다)
+const PORT = Number(process.env.E2E_PORT ?? 5173);
 const BASE_URL = `http://localhost:${PORT}`;
 
 export default defineConfig({
@@ -26,7 +28,7 @@ export default defineConfig({
     // E2E는 Playwright page.route로 API를 모킹하는데, MSW 서비스워커가 켜지면
     // 앱의 모든 fetch를 SW가 가로채고 page.route는 SW 발생 요청을 인터셉트하지
     // 못해 mock이 전부 실서버로 새어나간다. env로 한 번 더 못박아 격리한다.
-    command: "npm run dev",
+    command: `npm run dev -- --port ${PORT} --strictPort`,
     env: { ...process.env, VITE_USE_MOCK: "false" },
     url: BASE_URL,
     reuseExistingServer: !process.env.CI,

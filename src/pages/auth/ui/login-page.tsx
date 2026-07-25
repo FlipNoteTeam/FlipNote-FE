@@ -15,6 +15,7 @@ import {
 } from "@/features/auth/schemas/form.schema";
 import TextSeperator from "@/shared/components/text-separator";
 import { GoogleLogo } from "@/shared/components/logos";
+import { sanitizeRedirect } from "@/routes/__utils/-authGuard";
 
 const LoginPage = () => {
   const {
@@ -35,7 +36,7 @@ const LoginPage = () => {
       { email: data.email, password: data.password },
       {
         onSuccess: () => {
-          navigate({ to: search.redirect ?? "/" });
+          navigate({ to: sanitizeRedirect(search.redirect) });
         },
       }
     );

@@ -1,5 +1,5 @@
 import LoginPage from "@/pages/auth/ui/login-page";
-import { authGuard } from "@/routes/__utils/authGuard";
+import { requireGuest, waitForAuthInit } from "@/routes/__utils/-authGuard";
 import { createFileRoute } from "@tanstack/react-router";
 
 type LoginSearch = {
@@ -8,8 +8,9 @@ type LoginSearch = {
 
 export const Route = createFileRoute("/auth/login")({
   component: RouteComponent,
-  beforeLoad: ({ context }) => {
-    authGuard({ auth: context.auth, mode: "non-protected" });
+  beforeLoad: async () => {
+    await waitForAuthInit();
+    requireGuest();
   },
   validateSearch: (search: Record<string, unknown>): LoginSearch => {
     return {

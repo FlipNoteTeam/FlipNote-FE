@@ -1,4 +1,5 @@
 import type { User } from "@/shared/apis";
+import { queryClient } from "@/shared/lib/query-client";
 import axios from "axios";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
@@ -35,6 +36,8 @@ const useAuthStore = create<AuthState & AuthAction>()(
         },
       );
       set({ user: null, isAuthenticated: false });
+
+      queryClient.clear();
     },
 
     syncUser: async () => {

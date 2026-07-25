@@ -6,9 +6,14 @@ import PasswordResetRequestForm from "@/features/password-reset/components/passw
 import PasswordResetForm from "@/features/password-reset/components/password-reset-form";
 import { Button } from "@/shared/components/button";
 import { useState } from "react";
+import { requireGuest, waitForAuthInit } from "@/routes/__utils/-authGuard";
 
 export const Route = createFileRoute("/password-reset")({
   component: RouteComponent,
+  beforeLoad: async () => {
+    await waitForAuthInit();
+    requireGuest();
+  },
   validateSearch: z.object({
     token: z.string().optional(),
   }),

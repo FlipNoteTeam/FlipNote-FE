@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import BaseLayout from "@/shared/layouts/base-layout";
 import { CardGridSkeleton } from "@/shared/components/skeletons";
 
-export const Route = createFileRoute("/cardset-list")({
+export const Route = createFileRoute("/_authenticated/cardset-list")({
   component: RouteComponent,
   pendingComponent: PendingComponent,
   head: () => ({

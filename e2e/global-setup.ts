@@ -18,7 +18,8 @@ dotenv.config({ path: resolve(".env.development") });
 
 const STORAGE_STATE_DIR = resolve(".auth");
 const STORAGE_STATE_PATH = resolve(STORAGE_STATE_DIR, "user.json");
-const BASE_URL = "http://localhost:5173";
+// playwright.config.ts와 동일한 포트 규칙 (E2E_PORT로 격리 포트 지정 가능)
+const BASE_URL = `http://localhost:${process.env.E2E_PORT ?? 5173}`;
 
 async function globalSetup() {
   const email = process.env.E2E_TEST_EMAIL;
