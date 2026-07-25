@@ -34,17 +34,18 @@ const router = createRouter({
 });
 
 function App() {
-  const auth = useAuthStore();
+  const isInitialized = useAuthStore((state) => state.isInitialized);
+  const initializeAuth = useAuthStore((state) => state.initializeAuth);
 
   useEffect(() => {
-    if (!auth.isInitialized) {
-      auth.initializeAuth();
+    if (!isInitialized) {
+      initializeAuth();
     }
-  }, [auth]);
+  }, [isInitialized, initializeAuth]);
 
   return (
     <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} context={{ auth }} />
+      <RouterProvider router={router} />
       <ReactQueryDevtools initialIsOpen={false} />
       <Toaster position="top-center" richColors />
     </QueryClientProvider>
