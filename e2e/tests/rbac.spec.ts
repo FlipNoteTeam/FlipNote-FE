@@ -13,12 +13,38 @@ import { mockApi } from "../helpers/mock-api";
 
 const GROUP_ID = 9999;
 
-/** 그룹 detail 페이지가 정상 렌더되도록 필요한 API 모킹. role은 옵션. */
+/**
+ * 그룹 detail 페이지가 정상 렌더되도록 필요한 API 모킹.
+ *
+ * `permissions`는 **필수**다. role로부터 기본값을 추측하지 않는다 —
+ * 서버의 역할↔권한 매핑(`group_role_permissions`)은 그룹마다 다를 수 있고
+ * OWNER가 런타임에 바꿀 수 있으므로, 테스트가 그걸 가정하면 결정적이지 않다.
+ */
 async function mockGroupDetailPage(
   page: Parameters<typeof mockApi>[0],
-  opts: { myRole: "OWNER" | "HEAD_MANAGER" | "MANAGER" | "MEMBER"; members: Array<{ role: string; nickname: string }> },
+  opts: {
+    myRole: "OWNER" | "HEAD_MANAGER" | "MANAGER" | "MEMBER";
+    permissions: Array<"MEMBER_MANAGE" | "JOIN_REQUEST_MANAGE" | "INVITE">;
+    members: Array<{ role: string; nickname: string }>;
+  },
 ) {
   const m = mockApi(page);
+
+  // 인증 엔드포인트 모킹이 없으면 실제 토큰 갱신이 공유 storageState를 무효화해서
+  // 전체 스위트 실행 시 로그아웃 → 페이지 미렌더로 flaky하게 실패한다.
+  // (cardset-mocks.ts와 동일한 패턴. userId는 아래 멤버 목록과 겹치지 않는 값)
+  await m.succeed("**/api/auth/token/refresh", { success: true, data: {} });
+  await m.succeed("**/api/users/me", {
+    success: true,
+    data: {
+      userId: 777,
+      nickname: "테스터",
+      email: "test@test.com",
+      phone: "",
+      smsAgree: false,
+      profileImageUrl: "",
+    },
+  });
 
   await m.succeed(`**/api/groups/${GROUP_ID}`, {
     success: true,
@@ -50,7 +76,7 @@ async function mockGroupDetailPage(
 
   await m.succeed(`**/api/groups/${GROUP_ID}/permissions`, {
     success: true,
-    data: { role: opts.myRole, permissions: [] },
+    data: { role: opts.myRole, permissions: opts.permissions },
   });
 
   // cardsets (페이지네이션 응답 비어있음)
@@ -77,6 +103,7 @@ authTest("(A) MemberCard는 HEAD_MANAGER 역할을 '총괄 매니저'로 표시"
 }) => {
   await mockGroupDetailPage(authenticatedPage, {
     myRole: "MEMBER",
+    permissions: [],
     members: [{ role: "HEAD_MANAGER", nickname: "테스트 헤드매니저" }],
   });
 
@@ -96,6 +123,7 @@ authTest(
   async ({ authenticatedPage }) => {
     await mockGroupDetailPage(authenticatedPage, {
       myRole: "MEMBER",
+      permissions: [],
       members: [{ role: "OWNER", nickname: "소유자" }],
     });
 
