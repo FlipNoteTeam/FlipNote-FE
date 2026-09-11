@@ -21,15 +21,28 @@ export function useYjs(options: UseYjsOptions) {
   );
 
   const providerRef = useRef<YjsProvider | null>(null);
+  const connectPromiseRef = useRef<Promise<boolean> | null>(null);
 
   const connect = useCallback(
-    async (authToken?: string) => {
-      try {
-        const provider = new YjsProvider(cardsetId, userId);
-        providerRef.current = provider;
+    (authToken?: string) => {
+      if (connectPromiseRef.current) {
+        return connectPromiseRef.current;
+      }
 
-        const success = await provider.connect(authToken || token || "");
-        if (success) {
+      if (providerRef.current?.getHasAccess()) {
+        return Promise.resolve(true);
+      }
+
+      providerRef.current?.disconnect();
+
+      const provider = new YjsProvider(cardsetId, userId);
+      providerRef.current = provider;
+
+      const connectionPromise = provider
+        .connect(authToken || token || "")
+        .then((success) => {
+          if (!success) return false;
+
           setIsConnected(true);
           setHasAccess(provider.getHasAccess());
           setConnectionError(null);
@@ -62,21 +75,29 @@ export function useYjs(options: UseYjsOptions) {
           setAwarenessStates(new Map(provider.getAwarenessStates()));
 
           return true;
-        }
-        return false;
-      } catch (error) {
-        setConnectionError(
-          error instanceof Error ? error.message : "Connection failed",
-        );
-        setIsConnected(false);
-        setHasAccess(false);
-        return false;
-      }
+        })
+        .catch((error) => {
+          setConnectionError(
+            error instanceof Error ? error.message : "Connection failed",
+          );
+          setIsConnected(false);
+          setHasAccess(false);
+          return false;
+        })
+        .finally(() => {
+          if (providerRef.current === provider) {
+            connectPromiseRef.current = null;
+          }
+        });
+
+      connectPromiseRef.current = connectionPromise;
+      return connectionPromise;
     },
     [cardsetId, userId, token],
   );
 
   const disconnect = useCallback(() => {
+    connectPromiseRef.current = null;
     if (providerRef.current) {
       providerRef.current.disconnect();
       providerRef.current = null;
