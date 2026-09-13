@@ -84,8 +84,9 @@ vi.mock("./yjs-provider", () => {
 
 import { useYjs } from "./use-yjs";
 
-(globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT =
-  true;
+(
+  globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
+).IS_REACT_ACT_ENVIRONMENT = true;
 
 type HookState = ReturnType<typeof useYjs>;
 type MockProvider = {
