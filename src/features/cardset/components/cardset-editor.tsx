@@ -277,12 +277,8 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
     }
   };
 
-  const handleCollaborationConnect = useCallback(async () => {
-    try {
-      await connect();
-    } catch (error) {
-      console.error("협업 모드 연결 실패:", error);
-    }
+  const handleCollaborationConnect = useCallback(() => {
+    connect();
   }, [connect]);
 
   // Awareness

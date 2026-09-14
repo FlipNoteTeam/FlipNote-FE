@@ -105,6 +105,13 @@ const latestProvider = (): MockProvider => {
   return provider as MockProvider;
 };
 
+const flushAsyncUpdates = async (): Promise<void> => {
+  await Promise.resolve();
+  await Promise.resolve();
+  await Promise.resolve();
+  await new Promise((resolve) => setTimeout(resolve, 0));
+};
+
 function HookHarness({ onChange }: { onChange: (state: HookState) => void }) {
   const state = useYjs({
     cardsetId: "cardset-1",
@@ -157,11 +164,12 @@ describe("useYjs 상태 전이", () => {
     await renderHook();
 
     await act(async () => {
-      await state?.connect("replacement-token");
+      state?.connect();
     });
+    await act(flushAsyncUpdates);
 
     const provider = latestProvider();
-    expect(provider.connect).toHaveBeenCalledWith("replacement-token");
+    expect(provider.connect).toHaveBeenCalledWith("");
     expect(state).toMatchObject({
       isConnected: true,
       hasAccess: true,
@@ -191,7 +199,7 @@ describe("useYjs 상태 전이", () => {
   it("연결 해제 이벤트가 협업 상태를 해제한다", async () => {
     await renderHook();
     await act(async () => {
-      await state?.connect();
+      state?.connect();
     });
 
     const provider = latestProvider();
@@ -208,7 +216,7 @@ describe("useYjs 상태 전이", () => {
     mockControls.shouldFailNextConnection = true;
 
     await act(async () => {
-      await expect(state?.connect()).resolves.toBe(false);
+      state?.connect();
     });
 
     expect(state).toMatchObject({
@@ -218,7 +226,7 @@ describe("useYjs 상태 전이", () => {
     });
   });
 
-  it("연결 중 중복 요청은 하나의 handshake 결과를 공유한다", async () => {
+  it("연결 중 중복 요청은 하나의 handshake만 실행한다", async () => {
     await renderHook();
 
     let resolveConnection: ((success: boolean) => void) | undefined;
@@ -226,21 +234,21 @@ describe("useYjs 상태 전이", () => {
       resolveConnection = resolve;
     });
 
-    let firstConnection: Promise<boolean> | undefined;
-    let secondConnection: Promise<boolean> | undefined;
     await act(async () => {
-      firstConnection = state?.connect();
-      secondConnection = state?.connect();
+      state?.connect();
+      state?.connect();
     });
 
-    expect(firstConnection).toBe(secondConnection);
     expect(providerInstances).toHaveLength(1);
+    expect(state?.isConnecting).toBe(true);
 
     resolveConnection?.(true);
-    await act(async () => {
-      await expect(firstConnection).resolves.toBe(true);
-    });
+    await act(flushAsyncUpdates);
 
-    expect(state).toMatchObject({ isConnected: true, hasAccess: true });
+    expect(state).toMatchObject({
+      isConnected: true,
+      hasAccess: true,
+      isConnecting: false,
+    });
   });
 });
