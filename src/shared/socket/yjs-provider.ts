@@ -27,6 +27,10 @@ export class YjsProvider {
   private userId: string;
   private hasAccess = false;
   private hasSynced = false;
+  private pendingConnection?: {
+    reject: (reason?: unknown) => void;
+    cleanup: () => void;
+  };
 
   // Y.js 카드 배열
   public cardsArray: Y.Array<Y.Map<any>>;
@@ -61,7 +65,18 @@ export class YjsProvider {
       try {
         this.socket = socketManager.connect(token);
 
-        this.socket.once("connect", () => {
+        const socket = this.socket;
+        const cleanup = () => {
+          socket.off("connect", handleConnect);
+          socket.off("connect_error", handleConnectError);
+          if (this.pendingConnection?.cleanup === cleanup) {
+            this.pendingConnection = undefined;
+          }
+        };
+
+        const handleConnect = () => {
+          cleanup();
+
           // 소켓 이벤트 리스너 등록 — 반드시 connect 이후에
           this.setupSocketListeners();
 
@@ -87,17 +102,44 @@ export class YjsProvider {
           this.hasAccess = true; // access-control 제거했으면 필요
 
           resolve(true);
-        });
+        };
 
-        this.socket.once("connect_error", reject);
+        const handleConnectError = (error: Error) => {
+          cleanup();
+          reject(error);
+        };
+
+        this.pendingConnection = { reject, cleanup };
+
+        socket.once("connect", handleConnect);
+        socket.once("connect_error", handleConnectError);
       } catch (error) {
         reject(error);
       }
     });
   }
 
-  disconnect(): void {
+  cancelConnection(): void {
+    if (!this.pendingConnection) return;
+
+    const { cleanup, reject } = this.pendingConnection;
+    cleanup();
+    reject(new Error("Connection cancelled"));
+
+    this.closeSocket();
+  }
+
+  private closeSocket(): void {
     if (this.socket) {
+      socketManager.disconnect();
+      this.socket = null;
+    }
+    this.isConnected = false;
+    this.hasAccess = false;
+  }
+
+  disconnect(): void {
+    if (this.socket && this.isConnected) {
       // 카드셋에서 나가기
       this.sendMessage({
         type: "leave-cardset",
@@ -105,13 +147,14 @@ export class YjsProvider {
           cardsetId: this.cardsetId,
         },
       } as LeaveCardsetMessage);
-
-      socketManager.disconnect();
-      this.socket = null;
     }
 
-    this.isConnected = false;
-    this.hasAccess = false;
+    if (this.pendingConnection) {
+      this.cancelConnection();
+      return;
+    }
+
+    this.closeSocket();
   }
 
   private setupDocumentListeners(): void {
