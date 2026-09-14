@@ -5,12 +5,16 @@ import type { CardData } from "./card-types";
 interface UseYjsOptions {
   cardsetId: string;
   userId: string;
-  token?: string;
   autoConnect?: boolean;
 }
 
+type ConnectionAttempt = {
+  attemptCount: number;
+  isConnecting: boolean;
+};
+
 export function useYjs(options: UseYjsOptions) {
-  const { cardsetId, userId, token, autoConnect = false } = options;
+  const { cardsetId, userId, autoConnect = false } = options;
   const [isConnected, setIsConnected] = useState(false);
   const [hasAccess, setHasAccess] = useState(false);
   const [hasSynced, setHasSynced] = useState(false);
@@ -19,85 +23,101 @@ export function useYjs(options: UseYjsOptions) {
   const [awarenessStates, setAwarenessStates] = useState<Map<number, unknown>>(
     new Map(),
   );
+  const [connectionAttempt, setConnectionAttempt] =
+    useState<ConnectionAttempt>({
+      attemptCount: 0,
+      isConnecting: false,
+    });
 
   const providerRef = useRef<YjsProvider | null>(null);
-  const connectPromiseRef = useRef<Promise<boolean> | null>(null);
 
   const connect = useCallback(
-    (authToken?: string) => {
-      if (connectPromiseRef.current) {
-        return connectPromiseRef.current;
-      }
+    (): void => {
+      setConnectionAttempt((currentAttempt) => {
+        if (
+          currentAttempt.isConnecting ||
+          providerRef.current?.getHasAccess()
+        ) {
+          return currentAttempt;
+        }
 
-      if (providerRef.current?.getHasAccess()) {
-        return Promise.resolve(true);
-      }
-
-      providerRef.current?.disconnect();
-
-      const provider = new YjsProvider(cardsetId, userId);
-      providerRef.current = provider;
-
-      const connectionPromise = provider
-        .connect(authToken || token || "")
-        .then((success) => {
-          if (!success) return false;
-
-          setIsConnected(true);
-          setHasAccess(provider.getHasAccess());
-          setConnectionError(null);
-
-          // 카드 변경 리스너 설정
-          provider.onCardsChange((updatedCards) => {
-            setCards(updatedCards);
-          });
-
-          // Awareness 변경 리스너 설정
-          provider.onAwarenessChange((states) => {
-            setAwarenessStates(new Map(states));
-          });
-
-          // 초기 동기화 완료 콜백
-          provider.onSynced(() => {
-            setHasSynced(true);
-          });
-
-          // 소켓 끊김 콜백
-          provider.onDisconnect(() => {
-            setIsConnected(false);
-            setHasAccess(false);
-          });
-
-          // 초기 카드 로드
-          setCards(provider.getCards());
-
-          // 초기 Awareness 로드
-          setAwarenessStates(new Map(provider.getAwarenessStates()));
-
-          return true;
-        })
-        .catch((error) => {
-          setConnectionError(
-            error instanceof Error ? error.message : "Connection failed",
-          );
-          setIsConnected(false);
-          setHasAccess(false);
-          return false;
-        })
-        .finally(() => {
-          if (providerRef.current === provider) {
-            connectPromiseRef.current = null;
-          }
-        });
-
-      connectPromiseRef.current = connectionPromise;
-      return connectionPromise;
+        return {
+          attemptCount: currentAttempt.attemptCount + 1,
+          isConnecting: true,
+        };
+      });
     },
-    [cardsetId, userId, token],
+    [],
   );
 
+  useEffect(() => {
+    if (!connectionAttempt.isConnecting) return;
+
+    const { attemptCount } = connectionAttempt;
+    const provider = new YjsProvider(cardsetId, userId);
+    let isCurrentAttempt = true;
+
+    providerRef.current?.disconnect();
+    providerRef.current = provider;
+
+    provider
+      .connect("")
+      .then((success) => {
+        if (!isCurrentAttempt || !success) return;
+
+        setIsConnected(true);
+        setHasAccess(provider.getHasAccess());
+        setConnectionError(null);
+
+        provider.onCardsChange((updatedCards) => {
+          setCards(updatedCards);
+        });
+
+        provider.onAwarenessChange((states) => {
+          setAwarenessStates(new Map(states));
+        });
+
+        provider.onSynced(() => {
+          setHasSynced(true);
+        });
+
+        provider.onDisconnect(() => {
+          setIsConnected(false);
+          setHasAccess(false);
+        });
+
+        setCards(provider.getCards());
+        setAwarenessStates(new Map(provider.getAwarenessStates()));
+      })
+      .catch((error) => {
+        if (!isCurrentAttempt) return;
+
+        setConnectionError(
+          error instanceof Error ? error.message : "Connection failed",
+        );
+        setIsConnected(false);
+        setHasAccess(false);
+      })
+      .finally(() => {
+        if (!isCurrentAttempt) return;
+
+        setConnectionAttempt((currentAttempt) =>
+          currentAttempt.attemptCount === attemptCount
+            ? { ...currentAttempt, isConnecting: false }
+            : currentAttempt,
+        );
+      });
+
+    return () => {
+      isCurrentAttempt = false;
+    };
+  }, [cardsetId, connectionAttempt, userId]);
+
   const disconnect = useCallback(() => {
-    connectPromiseRef.current = null;
+    setConnectionAttempt((currentAttempt) => ({
+      ...currentAttempt,
+      isConnecting: false,
+    }));
     if (providerRef.current) {
       providerRef.current.disconnect();
       providerRef.current = null;
@@ -169,6 +189,7 @@ export function useYjs(options: UseYjsOptions) {
 
   return {
     isConnected,
+    isConnecting: connectionAttempt.isConnecting,
     hasAccess,
     hasSynced,
     connectionError,
