@@ -31,6 +31,12 @@ class FakeSocket {
     return this;
   }
 
+  off(event: string, handler: EventHandler): this {
+    this.listeners.get(event)?.delete(handler);
+    this.onceListeners.get(event)?.delete(handler);
+    return this;
+  }
+
   emit(event: string, payload: unknown): boolean {
     this.emitted.push({ event, payload });
     return true;
