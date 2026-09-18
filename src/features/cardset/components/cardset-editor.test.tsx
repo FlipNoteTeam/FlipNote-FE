@@ -4,7 +4,7 @@ import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import * as Y from "yjs";
-import type { CardData } from "@/shared/socket/card-types";
+import type { CardData } from "@/features/collaborative-editor";
 
 type MockCollaborationState = {
   isConnected: boolean;
@@ -28,7 +28,7 @@ const collaborationState = vi.hoisted(() => ({
   value: undefined as unknown as MockCollaborationState,
 }));
 
-vi.mock("@/shared/socket/use-yjs", () => ({
+vi.mock("@/features/collaborative-editor", () => ({
   useYjs: () => collaborationState.value,
 }));
 

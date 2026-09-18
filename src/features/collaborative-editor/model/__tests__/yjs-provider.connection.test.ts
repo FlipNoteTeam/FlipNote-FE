@@ -1,15 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { asSocket, FakeSocket } from "./__tests__/fixtures/fake-socket";
+import { asSocket, FakeSocket } from "./fixtures/fake-socket";
 
-vi.mock("./index", () => ({
+vi.mock("@/shared/socket", () => ({
   socketManager: {
     connect: vi.fn(),
     disconnect: vi.fn(),
   },
 }));
 
-import { socketManager } from "./index";
-import { YjsProvider } from "./yjs-provider";
+import { socketManager } from "@/shared/socket";
+import { YjsProvider } from "../yjs-provider";
 
 describe("YjsProvider 연결 취소", () => {
   let socket: FakeSocket;
