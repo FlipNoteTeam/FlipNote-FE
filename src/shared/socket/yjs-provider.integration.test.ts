@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Socket } from "socket.io-client";
 import * as Y from "yjs";
+import { asSocket, FakeSocket } from "./__tests__/fixtures/fake-socket";
 
 vi.mock("./index", () => ({
   socketManager: {
@@ -12,51 +12,20 @@ vi.mock("./index", () => ({
 import { socketManager } from "./index";
 import { YjsProvider } from "./yjs-provider";
 
-type EventHandler = (...args: unknown[]) => void;
-
-class ConnectedSocket {
-  connected = true;
+class ConnectedSocket extends FakeSocket {
   peer?: ConnectedSocket;
-  private readonly listeners = new Map<string, Set<EventHandler>>();
 
-  on(event: string, handler: EventHandler): this {
-    const handlers = this.listeners.get(event) ?? new Set<EventHandler>();
-    handlers.add(handler);
-    this.listeners.set(event, handlers);
-    return this;
-  }
-
-  once(event: string, handler: EventHandler): this {
-    const onceHandler: EventHandler = (...args) => {
-      this.listeners.get(event)?.delete(onceHandler);
-      handler(...args);
-    };
-    return this.on(event, onceHandler);
-  }
-
-  off(event: string, handler: EventHandler): this {
-    this.listeners.get(event)?.delete(handler);
-    return this;
-  }
-
-  emit(event: string, payload: unknown): boolean {
+  override emit(event: string, payload: unknown): boolean {
+    const wasEmitted = super.emit(event, payload);
     if (event === "update") {
       this.peer?.trigger("sync", payload);
     }
     if (event === "awareness") {
       this.peer?.trigger("awareness", { data: payload });
     }
-    return true;
-  }
-
-  trigger(event: string, ...args: unknown[]): void {
-    [...(this.listeners.get(event) ?? [])].forEach((handler) =>
-      handler(...args),
-    );
+    return wasEmitted;
   }
 }
-
-const asSocket = (socket: ConnectedSocket): Socket => socket as unknown as Socket;
 
 const emptyDocumentUpdate = (): Uint8Array => Y.encodeStateAsUpdate(new Y.Doc());
 
@@ -70,6 +39,8 @@ describe("YjsProvider 다중 참여자 통합", () => {
     vi.clearAllMocks();
     firstSocket = new ConnectedSocket();
     secondSocket = new ConnectedSocket();
+    firstSocket.connected = true;
+    secondSocket.connected = true;
     firstSocket.peer = secondSocket;
     secondSocket.peer = firstSocket;
     vi.mocked(socketManager.connect)
