@@ -1,6 +1,6 @@
 # AGENTS.md
 
-This file provides guidance to Codex (Codex.ai/code) when working with code in this repository.
+This file provides repository-wide guidance for AI coding agents working in this project.
 
 ## Essential Commands
 
@@ -145,8 +145,8 @@ Example:
 ```typescript
 // features/create-group/schemas/form.schema.ts
 export const createGroupFormSchema = z.object({
-  name: z.string().min(1, "그룹명을 입력해주세요"),
-  category: z.enum(GROUP_CATEGORIES, { message: "카테고리를 선택해주세요" }),
+  name: z.string().min(1, "Please enter a group name"),
+  category: z.enum(GROUP_CATEGORIES, { message: "Please select a category" }),
 });
 export type CreateGroupFormField = z.infer<typeof createGroupFormSchema>;
 
@@ -157,7 +157,7 @@ const { register, handleSubmit, formState: { errors } } = useForm<CreateGroupFor
 });
 
 // JSX — use FormField wrapper
-<FormField label="그룹명" required error={errors.name}>
+<FormField label="Group name" required error={errors.name}>
   <Input id="name" {...register("name")} />
 </FormField>
 ```
@@ -256,6 +256,24 @@ Required in `.env.development` and `.env.production`:
 - `SidebarTabLayout` adapts from horizontal to vertical on mobile
 - GNB has separate authenticated/unauthenticated UI
 
+## Requirements and Design Context
+
+Before changing feature behavior, architecture, API integration, or user-facing UI:
+
+1. Find the task-relevant requirements, design, decision, and API documents under `docs/`.
+2. Read those documents and the relevant existing tests before planning or editing code.
+3. Treat documented behavior as the contract. If documents, current code, and tests conflict, report the conflict and ask for direction rather than silently choosing one.
+4. Preserve behavior outside the agreed scope. Add or update regression tests for behavior that could be affected by the change.
+5. Update the relevant requirements/design document and tests when a deliberate behavior or architecture change is made.
+
+### Documentation Routing
+
+| Work area | Read before changing code |
+| --- | --- |
+| Real-time cardset editor | `docs/realtime-editor.md`, `docs/editor-doc-structure.md`, `docs/api/cardset-service.md`, relevant `src/shared/socket/**/*.test.*` and editor tests |
+| Feature architecture or file placement | `docs/architecture.md`, `docs/fsd-architecture-guide.md`, `docs/component-patterns.md` |
+| Refactoring item | the matching `docs/refactoring/NN-*.md`, plus its linked documents |
+
 ### Key Conventions
 
 1. **Query keys**: Include all parameters for cache isolation
@@ -284,15 +302,15 @@ Required in `.env.development` and `.env.production`:
 
 ## Refactoring Rules (AI-Native Workflow)
 
-리팩토링 작업 시 다음 규칙을 따른다:
+Follow these rules for refactoring work:
 
-1. **단일 항목 단일 PR**: `docs/refactoring/NN-*.md` 하나당 PR 하나
-2. **시작 시**: 해당 .md를 먼저 읽고, 체크리스트와 Done 기준을 `TodoWrite`로 등록
-3. **연관 문서 참조**: 작업 시작 전 `docs/architecture.md`, `docs/fsd-architecture-guide.md`, `docs/component-patterns.md`, `docs/component-reusability-guide.md` 중 관련 문서를 함께 읽어 기존 패턴을 우선 재사용
-4. **금지**: `any` 타입, 미사용 import, 주석 처리된 죽은 코드
-5. **네이밍**: 기존 코드 컨벤션 유지 (kebab-case 파일명, camelCase 변수)
-6. **커밋**: `fix:` / `feat:` / `refactor:` prefix만 사용. 브랜치명에 Jira 키(`XX-123`)가 있으면 `scripts/prepare-commit-jira.sh`가 자동 삽입
-7. **완료 기준 (husky pre-push와 동일)**:
-   - `npm run lint` 통과
-   - `npx tsc -b` 통과
-   - 해당 .md의 체크리스트 + 수동 검증 시나리오 전부 완료
+1. **One item, one PR**: Create one PR for each `docs/refactoring/NN-*.md` item.
+2. **At the start**: Read the matching document first and register its checklist and done criteria in `TodoWrite`.
+3. **Related documents**: Before work starts, read the relevant documents among `docs/architecture.md`, `docs/fsd-architecture-guide.md`, `docs/component-patterns.md`, and `docs/component-reusability-guide.md`; reuse established patterns where possible.
+4. **Do not use**: `any`, unused imports, or commented-out dead code.
+5. **Naming**: Follow the existing conventions: kebab-case filenames and camelCase variables.
+6. **Commits**: Use `fix:`, `feat:`, `refactor:`, `chore:`, `test:`, or `docs:` prefixes. If the branch name has a Jira key (`XX-123`), `scripts/prepare-commit-jira.sh` adds it automatically.
+7. **Done criteria** (same as Husky pre-push):
+   - `npm run lint` passes
+   - `npx tsc -b` passes
+   - The matching document's checklist and all manual verification scenarios are complete

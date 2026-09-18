@@ -25,9 +25,20 @@ Role split for every refactoring task:
 ### Step 1: Analyze
 
 - Read the target file(s) / feature code.
-- Read related architecture docs (`docs/architecture.md`, `docs/fsd-architecture-guide.md`, `docs/component-patterns.md`) as needed.
+- Find and read the task-relevant requirements, design, decision, and API documents under `docs/`, in addition to related architecture docs (`docs/architecture.md`, `docs/fsd-architecture-guide.md`, `docs/component-patterns.md`) as needed.
+- Read the relevant existing tests and state the behavior that must remain unchanged before proposing edits.
+- If requirements, code, and tests conflict, report the conflict and resolve it with the developer before refactoring.
 - List current problems: duplication, type mismatches, pattern violations, etc.
 - Read domain/feature layer code to understand the blast radius.
+
+#### Documentation Routing
+
+| Refactoring area | Required references |
+| --- | --- |
+| Real-time cardset editor | `docs/realtime-editor.md`, `docs/editor-doc-structure.md`, `docs/api/cardset-service.md`, relevant Socket and editor tests |
+| Any documented refactoring item | matching `docs/refactoring/NN-*.md` and documents it links to |
+
+Do not read every document by default. Read the documents routed to the task and any directly relevant documents discovered while analysing it.
 
 ### Step 2: Plan (with the developer)
 
