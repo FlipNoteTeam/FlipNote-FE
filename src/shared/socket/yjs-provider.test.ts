@@ -151,24 +151,24 @@ describe("YjsProvider 협업 회귀", () => {
     });
   });
 
-  it("질문과 답변을 독립적인 Y.Text로 관리하여 동시 수정이 덮어써지지 않고 수렴한다", async () => {
+  it("두 클라이언트가 질문을 동시에 수정해도 Y.Text 변경이 수렴한다", async () => {
     await connect();
     sync([{ id: "card-1", question: "base", answer: "answer" }]);
 
     const remoteDocument = new Y.Doc();
     Y.applyUpdate(remoteDocument, Y.encodeStateAsUpdate(getDocument(provider)));
 
-    const localQuestion = provider.getCardQuestionText(0);
-    const remoteQuestion = remoteDocument
+    const firstClientQuestion = provider.getCardQuestionText(0);
+    const secondClientQuestion = remoteDocument
       .getArray<Y.Map<unknown>>("cards")
       .get(0)
       ?.get("question") as Y.Text | undefined;
 
-    expect(localQuestion).not.toBeNull();
-    expect(remoteQuestion).toBeDefined();
+    expect(firstClientQuestion).not.toBeNull();
+    expect(secondClientQuestion).toBeDefined();
 
-    localQuestion?.insert(4, " local");
-    remoteQuestion?.insert(4, " remote");
+    firstClientQuestion?.insert(4, " first");
+    secondClientQuestion?.insert(4, " second");
 
     const localUpdate = Y.encodeStateAsUpdate(getDocument(provider));
     const remoteUpdate = Y.encodeStateAsUpdate(remoteDocument);
@@ -176,10 +176,10 @@ describe("YjsProvider 협업 회귀", () => {
     Y.applyUpdate(remoteDocument, localUpdate);
 
     expect(provider.getCardQuestionText(0)?.toString()).toBe(
-      remoteQuestion?.toString(),
+      secondClientQuestion?.toString(),
     );
-    expect(provider.getCardQuestionText(0)?.toString()).toContain("local");
-    expect(provider.getCardQuestionText(0)?.toString()).toContain("remote");
+    expect(provider.getCardQuestionText(0)?.toString()).toContain("first");
+    expect(provider.getCardQuestionText(0)?.toString()).toContain("second");
     expect(provider.getCardAnswerText(0)?.toString()).toBe("answer");
   });
 

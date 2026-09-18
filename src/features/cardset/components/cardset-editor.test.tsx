@@ -3,22 +3,29 @@
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import * as Y from "yjs";
+import type { CardData } from "@/shared/socket/card-types";
+
+type MockCollaborationState = {
+  isConnected: boolean;
+  hasAccess: boolean;
+  hasSynced: boolean;
+  connectionError: string | null;
+  cards: CardData[];
+  awarenessStates: Map<number, unknown>;
+  connect: () => void;
+  addCard: (card: { question: string; answer: string }) => string;
+  deleteCard: (index: number) => void;
+  setAwareness: (
+    field: "question" | "answer",
+    cardIndex: number,
+  ) => void;
+  getCardQuestionText: (index: number) => Y.Text | null;
+  getCardAnswerText: (index: number) => Y.Text | null;
+};
 
 const collaborationState = vi.hoisted(() => ({
-  value: {
-    isConnected: false,
-    hasAccess: false,
-    hasSynced: false,
-    connectionError: null as string | null,
-    cards: [],
-    awarenessStates: new Map<number, unknown>(),
-    connect: vi.fn(),
-    addCard: vi.fn(),
-    deleteCard: vi.fn(),
-    setAwareness: vi.fn(),
-    getCardQuestionText: vi.fn(() => null),
-    getCardAnswerText: vi.fn(() => null),
-  },
+  value: undefined as unknown as MockCollaborationState,
 }));
 
 vi.mock("@/shared/socket/use-yjs", () => ({
@@ -53,25 +60,51 @@ const click = async (element: HTMLElement): Promise<void> => {
   });
 };
 
-describe("CardsetEditor 로컬 편집 모드", () => {
+const createConnectedState = () => {
+  const document = new Y.Doc();
+  const cardsArray = document.getArray<Y.Map<unknown>>("cards");
+  const cards: CardData[] = [
+    { id: "card-1", question: "첫 번째 질문", answer: "첫 번째 답변" },
+    { id: "card-2", question: "두 번째 질문", answer: "두 번째 답변" },
+  ];
+  const questionTexts = cards.map((card) => new Y.Text(card.question));
+  const answerTexts = cards.map((card) => new Y.Text(card.answer));
+
+  cardsArray.push(
+    cards.map((card, index) => {
+      const cardMap = new Y.Map<unknown>();
+      cardMap.set("id", card.id);
+      cardMap.set("question", questionTexts[index]);
+      cardMap.set("answer", answerTexts[index]);
+      return cardMap;
+    }),
+  );
+
+  return {
+    state: {
+      isConnected: true,
+      hasAccess: true,
+      hasSynced: true,
+      connectionError: null,
+      cards,
+      awarenessStates: new Map<number, unknown>(),
+      connect: vi.fn(),
+      addCard: vi.fn(() => "new-card"),
+      deleteCard: vi.fn(),
+      setAwareness: vi.fn(),
+      getCardQuestionText: vi.fn((index: number) => questionTexts[index] ?? null),
+      getCardAnswerText: vi.fn((index: number) => answerTexts[index] ?? null),
+    } satisfies MockCollaborationState,
+    questionTexts,
+    answerTexts,
+  };
+};
+
+describe("CardsetEditor 협업 편집 모드", () => {
   let container: HTMLDivElement;
   let root: Root;
 
   beforeEach(() => {
-    collaborationState.value = {
-      isConnected: false,
-      hasAccess: false,
-      hasSynced: false,
-      connectionError: null,
-      cards: [],
-      awarenessStates: new Map(),
-      connect: vi.fn(),
-      addCard: vi.fn(),
-      deleteCard: vi.fn(),
-      setAwareness: vi.fn(),
-      getCardQuestionText: vi.fn(() => null),
-      getCardAnswerText: vi.fn(() => null),
-    };
     container = document.createElement("div");
     document.body.append(container);
     root = createRoot(container);
@@ -84,7 +117,10 @@ describe("CardsetEditor 로컬 편집 모드", () => {
     container.remove();
   });
 
-  it("연결 전에도 초기 카드 한 장을 로컬에서 편집할 수 있다", async () => {
+  it("동기화된 카드의 질문과 답변을 Y.Text에 반영한다", async () => {
+    const { state, questionTexts, answerTexts } = createConnectedState();
+    collaborationState.value = state;
+
     await act(async () => {
       root.render(<CardsetEditor cardsetId="cardset-1" />);
     });
@@ -93,17 +129,21 @@ describe("CardsetEditor 로컬 편집 모드", () => {
     const answer = container.querySelector<HTMLTextAreaElement>("#answer");
     if (!question || !answer) throw new Error("카드 입력 필드를 찾지 못했습니다.");
 
-    await setTextareaValue(question, "로컬 질문");
-    await setTextareaValue(answer, "로컬 답변");
+    expect(question.value).toBe("첫 번째 질문");
+    expect(answer.value).toBe("첫 번째 답변");
 
-    expect(question.value).toBe("로컬 질문");
-    expect(answer.value).toBe("로컬 답변");
-    expect(container.textContent).toContain("총 1개");
-    expect(container.textContent).toContain("로컬 질문");
-    expect(container.textContent).toContain("로컬 답변");
+    await setTextareaValue(question, "수정된 질문");
+    await setTextareaValue(answer, "수정된 답변");
+
+    expect(questionTexts[0]?.toString()).toBe("수정된 질문");
+    expect(answerTexts[0]?.toString()).toBe("수정된 답변");
+    expect(container.textContent).toContain("총 2개");
   });
 
-  it("카드를 추가하고 삭제하되 마지막 한 장은 삭제할 수 없다", async () => {
+  it("카드 추가와 삭제를 협업 provider에 요청한다", async () => {
+    const { state } = createConnectedState();
+    collaborationState.value = state;
+
     await act(async () => {
       root.render(<CardsetEditor cardsetId="cardset-1" />);
     });
@@ -115,7 +155,7 @@ describe("CardsetEditor 로컬 편집 모드", () => {
 
     await click(addButton);
 
-    expect(container.textContent).toContain("총 2개");
+    expect(state.addCard).toHaveBeenCalledWith({ question: "", answer: "" });
     const deleteButtons = container.querySelectorAll<HTMLButtonElement>(
       "button.opacity-0",
     );
@@ -123,7 +163,6 @@ describe("CardsetEditor 로컬 편집 모드", () => {
 
     await click(deleteButtons[1] as HTMLButtonElement);
 
-    expect(container.textContent).toContain("총 1개");
-    expect(container.querySelectorAll("button.opacity-0")).toHaveLength(0);
+    expect(state.deleteCard).toHaveBeenCalledWith(1);
   });
 });
