@@ -14,7 +14,11 @@ import { socketManager } from "@/shared/socket";
 import { YjsProvider } from "../yjs-provider";
 
 const getDocument = (provider: YjsProvider): Y.Doc =>
-  (provider as unknown as { doc: Y.Doc }).doc;
+  (
+    provider as unknown as {
+      document: { doc: Y.Doc };
+    }
+  ).document.doc;
 
 const makeUpdate = (cards: CardData[]): Uint8Array => {
   const document = new Y.Doc();
@@ -168,7 +172,7 @@ describe("YjsProvider 협업 회귀", () => {
     await connect();
     sync([{ id: "card-1", question: "question", answer: "answer" }]);
     const onDisconnect = vi.fn();
-    provider.onDisconnect(onDisconnect);
+    provider.subscribe({ onDisconnect });
 
     socket.trigger("disconnect");
     provider.updateCardQuestion(0, "must not be written");

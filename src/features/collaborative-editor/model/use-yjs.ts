@@ -30,6 +30,7 @@ export function useYjs(options: UseYjsOptions) {
     });
 
   const providerRef = useRef<YjsProvider | null>(null);
+  const unsubscribeRef = useRef<(() => void) | null>(null);
 
   const connect = useCallback(
     (): void => {
@@ -57,8 +58,25 @@ export function useYjs(options: UseYjsOptions) {
     const provider = new YjsProvider(cardsetId, userId);
     let isCurrentAttempt = true;
 
+    unsubscribeRef.current?.();
     providerRef.current?.disconnect();
     providerRef.current = provider;
+
+    unsubscribeRef.current = provider.subscribe({
+      onCardsChange: (updatedCards) => {
+        setCards(updatedCards);
+      },
+      onAwarenessChange: (states) => {
+        setAwarenessStates(new Map(states));
+      },
+      onSynced: () => {
+        setHasSynced(true);
+      },
+      onDisconnect: () => {
+        setIsConnected(false);
+        setHasAccess(false);
+      },
+    });
 
     provider
       .connect("")
@@ -68,23 +86,6 @@ export function useYjs(options: UseYjsOptions) {
         setIsConnected(true);
         setHasAccess(provider.getHasAccess());
         setConnectionError(null);
-
-        provider.onCardsChange((updatedCards) => {
-          setCards(updatedCards);
-        });
-
-        provider.onAwarenessChange((states) => {
-          setAwarenessStates(new Map(states));
-        });
-
-        provider.onSynced(() => {
-          setHasSynced(true);
-        });
-
-        provider.onDisconnect(() => {
-          setIsConnected(false);
-          setHasAccess(false);
-        });
 
         setCards(provider.getCards());
         setAwarenessStates(new Map(provider.getAwarenessStates()));
@@ -118,6 +119,8 @@ export function useYjs(options: UseYjsOptions) {
       ...currentAttempt,
       isConnecting: false,
     }));
+    unsubscribeRef.current?.();
+    unsubscribeRef.current = null;
     if (providerRef.current) {
       providerRef.current.disconnect();
       providerRef.current = null;
