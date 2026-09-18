@@ -5,6 +5,13 @@ import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { CardData } from "../card-types";
 
+type MockYjsProviderListeners = {
+  onCardsChange?: (cards: CardData[]) => void;
+  onAwarenessChange?: (states: Map<number, unknown>) => void;
+  onSynced?: () => void;
+  onDisconnect?: () => void;
+};
+
 const providerInstances = vi.hoisted(() => [] as unknown[]);
 const mockControls = vi.hoisted(() => ({
   shouldFailNextConnection: false,
@@ -15,10 +22,7 @@ vi.mock("../yjs-provider", () => {
   class MockYjsProvider {
     hasAccess = false;
     cards: CardData[] = [];
-    cardsChangeCallback?: (cards: CardData[]) => void;
-    awarenessChangeCallback?: (states: Map<number, unknown>) => void;
-    syncedCallback?: () => void;
-    disconnectCallback?: () => void;
+    listeners?: MockYjsProviderListeners;
     connect = vi.fn(async () => {
       if (mockControls.shouldFailNextConnection) {
         mockControls.shouldFailNextConnection = false;
@@ -54,21 +58,14 @@ vi.mock("../yjs-provider", () => {
       return new Map();
     }
 
-    onCardsChange(callback: (cards: CardData[]) => void): void {
-      this.cardsChangeCallback = callback;
-    }
-
-    onAwarenessChange(callback: (states: Map<number, unknown>) => void): void {
-      this.awarenessChangeCallback = callback;
-    }
-
-    onSynced(callback: () => void): void {
-      this.syncedCallback = callback;
-    }
-
-    onDisconnect(callback: () => void): void {
-      this.disconnectCallback = callback;
-    }
+    subscribe = vi.fn((listeners: MockYjsProviderListeners) => {
+      this.listeners = listeners;
+      return () => {
+        if (this.listeners === listeners) {
+          this.listeners = undefined;
+        }
+      };
+    });
 
     addCard = vi.fn(() => "new-card");
     deleteCard = vi.fn();
@@ -94,10 +91,7 @@ type MockProvider = {
   cards: CardData[];
   connect: ReturnType<typeof vi.fn>;
   disconnect: ReturnType<typeof vi.fn>;
-  cardsChangeCallback?: (cards: CardData[]) => void;
-  awarenessChangeCallback?: (states: Map<number, unknown>) => void;
-  syncedCallback?: () => void;
-  disconnectCallback?: () => void;
+  listeners?: MockYjsProviderListeners;
 };
 
 const latestProvider = (): MockProvider => {
@@ -179,13 +173,13 @@ describe("useYjs 상태 전이", () => {
     });
 
     await act(async () => {
-      provider.cardsChangeCallback?.([
+      provider.listeners?.onCardsChange?.([
         { id: "card-1", question: "질문", answer: "답변" },
       ]);
-      provider.awarenessChangeCallback?.(
+      provider.listeners?.onAwarenessChange?.(
         new Map([[2, { field: "question", cardIndex: 0 }]]),
       );
-      provider.syncedCallback?.();
+      provider.listeners?.onSynced?.();
     });
 
     expect(state?.cards).toEqual([
@@ -206,7 +200,7 @@ describe("useYjs 상태 전이", () => {
     const provider = latestProvider();
     provider.hasAccess = false;
     await act(async () => {
-      provider.disconnectCallback?.();
+      provider.listeners?.onDisconnect?.();
     });
 
     expect(state).toMatchObject({ isConnected: false, hasAccess: false });

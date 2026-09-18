@@ -1,30 +1,30 @@
-/* eslint-disable */
-// @ts-nocheck
-
-/** @TODO: yjs쪽 타입 제대로 지정 */
-import * as Y from "yjs";
-import { Awareness } from "y-protocols/awareness";
-import { Socket } from "socket.io-client";
+import type { Socket } from "socket.io-client";
 import { socketManager } from "@/shared/socket";
 import type {
-  YjsMessage,
+  ClientMessage,
   UpdateMessage,
   AwarenessMessage,
   LeaveCardsetMessage,
   SyncMessage,
   ServerAwarenessMessage,
-} from "./yjs-types";
-import type { CardData } from "./card-types";
+} from "./socket-events";
+import type { CardData as Card } from "./card-types";
+import { YjsAwareness } from "./yjs-awareness";
+import { YjsDocument } from "./yjs-document";
 
-import * as awarenessProtocol from "y-protocols/awareness";
+export type YjsProviderListeners = {
+  onCardsChange?: (cards: Card[]) => void;
+  onAwarenessChange?: (states: Map<number, unknown>) => void;
+  onSynced?: () => void;
+  onDisconnect?: () => void;
+};
 
 export class YjsProvider {
-  private doc: Y.Doc;
-  private awareness: Awareness;
+  private readonly cardsetId: string;
+  private readonly userId: string;
+
   private socket: Socket | null = null;
   private isConnected = false;
-  private cardsetId: string;
-  private userId: string;
   private hasAccess = false;
   private hasSynced = false;
   private pendingConnection?: {
@@ -32,33 +32,19 @@ export class YjsProvider {
     cleanup: () => void;
   };
 
-  // Y.js 카드 배열
-  public cardsArray: Y.Array<Y.Map<any>>;
+  private readonly document: YjsDocument;
+  private readonly awareness: YjsAwareness;
 
-  // 카드 변경 콜백
-  private onCardsChangeCallback?: (cards: CardData[]) => void;
-
-  // Awareness 변경 콜백
-  private onAwarenessChangeCallback?: (states: Map<number, any>) => void;
-
-  // 초기 동기화 완료 콜백
-  private onSyncedCallback?: () => void;
-
-  // 연결 끊김 콜백
-  private onDisconnectCallback?: () => void;
+  private listeners?: YjsProviderListeners;
 
   constructor(cardsetId: string, userId: string) {
     this.cardsetId = cardsetId;
     this.userId = userId;
 
-    this.doc = new Y.Doc();
-    this.awareness = new Awareness(this.doc);
-
-    // 카드 배열 생성
-    this.cardsArray = this.doc.getArray("cards");
+    this.document = new YjsDocument();
+    this.awareness = new YjsAwareness(this.document.getYDoc());
 
     this.setupDocumentListeners();
-    this.setupAwarenessListeners();
   }
   connect(token: string): Promise<boolean> {
     return new Promise((resolve, reject) => {
@@ -141,12 +127,13 @@ export class YjsProvider {
   disconnect(): void {
     if (this.socket && this.isConnected) {
       // 카드셋에서 나가기
-      this.sendMessage({
+      const message: LeaveCardsetMessage = {
         type: "leave-cardset",
         data: {
           cardsetId: this.cardsetId,
         },
-      } as LeaveCardsetMessage);
+      };
+      this.sendMessage(message);
     }
 
     if (this.pendingConnection) {
@@ -158,52 +145,38 @@ export class YjsProvider {
   }
 
   private setupDocumentListeners(): void {
-    // 문서 업데이트 시 다른 클라이언트에게 전송
-    this.doc.on("update", (update: Uint8Array, origin: any) => {
-      console.log("[emit] update");
+    this.document.onUpdate((update, origin) => {
       if (
         origin !== this &&
         this.hasAccess &&
         this.isConnected &&
         this.hasSynced
       ) {
-        this.sendMessage({
+        const message: UpdateMessage = {
           type: "update",
           data: { cardsetId: this.cardsetId, update },
-        } as UpdateMessage);
+        };
+        this.sendMessage(message);
       }
     });
 
-    // 카드 배열 변경 감지
-    this.cardsArray.observe(() => {
-      if (this.onCardsChangeCallback) {
-        this.onCardsChangeCallback(this.getCards());
-      }
+    this.document.onCardsChange((cards) => {
+      this.listeners?.onCardsChange?.(cards);
     });
-  }
 
-  private setupAwarenessListeners(): void {
-    // Awareness 변경 시 다른 클라이언트에게 전송
-    this.awareness.on("change", () => {
+    this.awareness.onChange(() => {
       if (this.hasAccess && this.isConnected) {
-        const awarenessUpdate = awarenessProtocol.encodeAwarenessUpdate(
-          this.awareness,
-          Array.from(this.awareness.getStates().keys()),
-        );
-
-        this.sendMessage({
+        const message: AwarenessMessage = {
           type: "awareness",
           data: {
             cardsetId: this.cardsetId,
-            awareness: awarenessUpdate,
+            awareness: this.awareness.createUpdate(),
           },
-        } as AwarenessMessage);
+        };
+        this.sendMessage(message);
       }
 
-      // Awareness 콜백 호출
-      if (this.onAwarenessChangeCallback) {
-        this.onAwarenessChangeCallback(this.awareness.getStates());
-      }
+      this.listeners?.onAwarenessChange?.(this.getAwarenessStates());
     });
   }
 
@@ -217,54 +190,19 @@ export class YjsProvider {
     this.socket.on("disconnect", () => {
       this.isConnected = false;
       this.hasAccess = false;
-      if (this.onDisconnectCallback) {
-        this.onDisconnectCallback();
-      }
+      this.listeners?.onDisconnect?.();
     });
 
     // 동기화 메시지 처리 (서버가 업데이트를 브로드캐스트)
     this.socket.on("sync", (message: SyncMessage) => {
       if (!this.hasAccess) return;
 
-      let updateBinary: Uint8Array;
-
-      if (
-        typeof message === "object" &&
-        message !== null &&
-        "update" in message &&
-        "cardsetId" in message
-      ) {
-        // 새 포맷: Socket.io가 자동 파싱한 JS 객체 {cardsetId, update: ArrayBuffer | number[]}
-        updateBinary = new Uint8Array(message.update);
-      } else {
-        // 구 포맷: Buffer → TextDecoder → JSON parse
-        const jsonString = new TextDecoder().decode(message);
-        const parsed = JSON.parse(jsonString);
-        updateBinary = new Uint8Array(parsed.update);
-      }
-
-      const logCards = (label: string) => {
-        const arr = this.doc.getArray("cards");
-        const cards = arr.map((cardMap: Y.Map<any>) => ({
-          id: cardMap.get("id"),
-          question: cardMap.get("question")?.toString(),
-          answer: cardMap.get("answer")?.toString(),
-        }));
-        console.log(label, cards);
-      };
-
-      logCards("증분값 적용 전");
-
-      Y.applyUpdate(this.doc, updateBinary, this);
+      this.document.applyUpdate(new Uint8Array(message.update), this);
 
       if (!this.hasSynced) {
         this.hasSynced = true;
-        if (this.onSyncedCallback) {
-          this.onSyncedCallback();
-        }
+        this.listeners?.onSynced?.();
       }
-
-      logCards("증분값 적용 후");
     });
 
     // Awareness 메시지 처리
@@ -272,16 +210,10 @@ export class YjsProvider {
       if (!this.hasAccess) return;
 
       // 백엔드가 { data: { cardsetId, awareness: number[] } } 형태로 전송
-      const awarenessData = message?.data?.awareness ?? message?.awareness;
+      const awarenessData =
+        "data" in message ? message.data.awareness : message.awareness;
 
-      if (!awarenessData) return;
-
-      const awarenessUpdate = new Uint8Array(awarenessData);
-      awarenessProtocol.applyAwarenessUpdate(
-        this.awareness,
-        awarenessUpdate,
-        this,
-      );
+      this.awareness.applyUpdate(new Uint8Array(awarenessData), this);
     });
 
     // 토큰 만료 처리
@@ -290,11 +222,12 @@ export class YjsProvider {
       this.disconnect();
     });
 
+    //@TODO http handshake과정에서 401 발생 시 토큰 재발급 시도 필요
     // 에러 처리
     this.socket.on("error", () => {});
   }
 
-  private sendMessage({ type, data }: YjsMessage): void {
+  private sendMessage({ type, data }: ClientMessage): void {
     if (this.socket?.connected) {
       this.socket.emit(type, data);
     }
@@ -305,41 +238,17 @@ export class YjsProvider {
   /**
    * 카드 배열을 CardData[]로 변환
    */
-  getCards(): CardData[] {
-    const cards: CardData[] = [];
-
-    this.cardsArray.forEach((cardMap) => {
-      const id = cardMap.get("id") as string;
-      const questionText = cardMap.get("question") as Y.Text;
-      const answerText = cardMap.get("answer") as Y.Text;
-
-      cards.push({
-        id,
-        question: questionText?.toString() || "",
-        answer: answerText?.toString() || "",
-      });
-    });
-
-    return cards;
+  getCards(): Card[] {
+    return this.document.getCards();
   }
 
   /**
    * 새 카드 추가
    */
-  addCard(card: Omit<CardData, "id">): string {
+  addCard(card: Omit<Card, "id">): string {
     if (!this.hasAccess) return "";
 
-    const id = crypto.randomUUID();
-
-    const cardMap = new Y.Map();
-
-    cardMap.set("id", id);
-    cardMap.set("question", new Y.Text(card.question));
-    cardMap.set("answer", new Y.Text(card.answer));
-
-    this.cardsArray.push([cardMap]);
-
-    return id;
+    return this.document.addCard(card);
   }
 
   /**
@@ -347,9 +256,7 @@ export class YjsProvider {
    */
   deleteCard(index: number): void {
     if (!this.hasAccess) return;
-    if (index < 0 || index >= this.cardsArray.length) return;
-
-    this.cardsArray.delete(index, 1);
+    this.document.deleteCard(index);
   }
 
   /**
@@ -357,17 +264,7 @@ export class YjsProvider {
    */
   updateCardQuestion(index: number, question: string): void {
     if (!this.hasAccess) return;
-    if (index < 0 || index >= this.cardsArray.length) return;
-
-    const cardMap = this.cardsArray.get(index);
-    const questionText = cardMap.get("question") as Y.Text;
-
-    if (questionText) {
-      this.doc.transact(() => {
-        questionText.delete(0, questionText.length);
-        questionText.insert(0, question);
-      });
-    }
+    this.document.updateCardQuestion(index, question);
   }
 
   /**
@@ -375,57 +272,37 @@ export class YjsProvider {
    */
   updateCardAnswer(index: number, answer: string): void {
     if (!this.hasAccess) return;
-    if (index < 0 || index >= this.cardsArray.length) return;
-
-    const cardMap = this.cardsArray.get(index);
-    const answerText = cardMap.get("answer") as Y.Text;
-
-    if (answerText) {
-      this.doc.transact(() => {
-        answerText.delete(0, answerText.length);
-        answerText.insert(0, answer);
-      });
-    }
+    this.document.updateCardAnswer(index, answer);
   }
 
   /**
    * 특정 카드의 question Y.Text 가져오기
    */
-  getCardQuestionText(index: number): Y.Text | null {
-    if (index < 0 || index >= this.cardsArray.length) return null;
-
-    const cardMap = this.cardsArray.get(index);
-    return cardMap.get("question") as Y.Text;
+  getCardQuestionText(index: number) {
+    return this.document.getCardQuestionText(index);
   }
 
   /**
    * 특정 카드의 answer Y.Text 가져오기
    */
-  getCardAnswerText(index: number): Y.Text | null {
-    if (index < 0 || index >= this.cardsArray.length) return null;
-
-    const cardMap = this.cardsArray.get(index);
-    return cardMap.get("answer") as Y.Text;
+  getCardAnswerText(index: number) {
+    return this.document.getCardAnswerText(index);
   }
 
-  /**
-   * 카드 변경 리스너 등록
-   */
-  onCardsChange(callback: (cards: CardData[]) => void): void {
-    this.onCardsChangeCallback = callback;
-  }
+  subscribe(listeners: YjsProviderListeners): () => void {
+    this.listeners = listeners;
 
-  /**
-   * Awareness 변경 리스너 등록
-   */
-  onAwarenessChange(callback: (states: Map<number, any>) => void): void {
-    this.onAwarenessChangeCallback = callback;
+    return () => {
+      if (this.listeners === listeners) {
+        this.listeners = undefined;
+      }
+    };
   }
 
   /**
    * 현재 Awareness 상태 가져오기
    */
-  getAwarenessStates(): Map<number, any> {
+  getAwarenessStates(): Map<number, unknown> {
     return this.awareness.getStates();
   }
 
@@ -437,14 +314,6 @@ export class YjsProvider {
     return this.hasSynced;
   }
 
-  onSynced(callback: () => void): void {
-    this.onSyncedCallback = callback;
-  }
-
-  onDisconnect(callback: () => void): void {
-    this.onDisconnectCallback = callback;
-  }
-
   setAwareness(
     field: "question" | "answer",
     cardIndex: number,
@@ -452,14 +321,11 @@ export class YjsProvider {
   ): void {
     if (!this.hasAccess) return;
 
-    this.awareness.setLocalStateField("field", field);
-    this.awareness.setLocalStateField("cardIndex", cardIndex);
-    if (cursor) {
-      this.awareness.setLocalStateField("cursor", cursor);
-    }
-    this.awareness.setLocalStateField("user", {
-      id: this.userId,
-      name: `User ${this.userId}`,
-    });
+    this.awareness.setLocalState(
+      field,
+      cardIndex,
+      { id: this.userId, name: `User ${this.userId}` },
+      cursor,
+    );
   }
 }
