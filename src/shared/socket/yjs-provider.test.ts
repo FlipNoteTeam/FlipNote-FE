@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Socket } from "socket.io-client";
 import * as Y from "yjs";
 import type { CardData } from "./card-types";
+import { asSocket, FakeSocket } from "./__tests__/fixtures/fake-socket";
 
 vi.mock("./index", () => ({
   socketManager: {
@@ -12,54 +12,6 @@ vi.mock("./index", () => ({
 
 import { socketManager } from "./index";
 import { YjsProvider } from "./yjs-provider";
-
-type EventHandler = (...args: unknown[]) => void;
-
-class FakeSocket {
-  connected = false;
-  readonly emitted: Array<{ event: string; payload: unknown }> = [];
-  private readonly listeners = new Map<string, Set<EventHandler>>();
-  private readonly onceListeners = new Map<string, Set<EventHandler>>();
-
-  on(event: string, handler: EventHandler): this {
-    this.addListener(this.listeners, event, handler);
-    return this;
-  }
-
-  once(event: string, handler: EventHandler): this {
-    this.addListener(this.onceListeners, event, handler);
-    return this;
-  }
-
-  off(event: string, handler: EventHandler): this {
-    this.listeners.get(event)?.delete(handler);
-    this.onceListeners.get(event)?.delete(handler);
-    return this;
-  }
-
-  emit(event: string, payload: unknown): boolean {
-    this.emitted.push({ event, payload });
-    return true;
-  }
-
-  trigger(event: string, ...args: unknown[]): void {
-    const persistent = [...(this.listeners.get(event) ?? [])];
-    const once = [...(this.onceListeners.get(event) ?? [])];
-    this.onceListeners.delete(event);
-
-    [...persistent, ...once].forEach((handler) => handler(...args));
-  }
-
-  private addListener(
-    target: Map<string, Set<EventHandler>>,
-    event: string,
-    handler: EventHandler,
-  ): void {
-    const handlers = target.get(event) ?? new Set<EventHandler>();
-    handlers.add(handler);
-    target.set(event, handlers);
-  }
-}
 
 const getDocument = (provider: YjsProvider): Y.Doc =>
   (provider as unknown as { doc: Y.Doc }).doc;
@@ -80,8 +32,6 @@ const makeUpdate = (cards: CardData[]): Uint8Array => {
 
   return Y.encodeStateAsUpdate(document);
 };
-
-const asSocket = (socket: FakeSocket): Socket => socket as unknown as Socket;
 
 describe("YjsProvider 협업 회귀", () => {
   let socket: FakeSocket;
