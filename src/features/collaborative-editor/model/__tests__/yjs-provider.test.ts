@@ -1,17 +1,17 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import * as Y from "yjs";
-import type { CardData } from "./card-types";
-import { asSocket, FakeSocket } from "./__tests__/fixtures/fake-socket";
+import type { CardData } from "../card-types";
+import { asSocket, FakeSocket } from "./fixtures/fake-socket";
 
-vi.mock("./index", () => ({
+vi.mock("@/shared/socket", () => ({
   socketManager: {
     connect: vi.fn(),
     disconnect: vi.fn(),
   },
 }));
 
-import { socketManager } from "./index";
-import { YjsProvider } from "./yjs-provider";
+import { socketManager } from "@/shared/socket";
+import { YjsProvider } from "../yjs-provider";
 
 const getDocument = (provider: YjsProvider): Y.Doc =>
   (provider as unknown as { doc: Y.Doc }).doc;

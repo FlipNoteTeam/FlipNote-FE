@@ -3,7 +3,7 @@
 import { act, useEffect } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { CardData } from "./card-types";
+import type { CardData } from "../card-types";
 
 const providerInstances = vi.hoisted(() => [] as unknown[]);
 const mockControls = vi.hoisted(() => ({
@@ -11,7 +11,7 @@ const mockControls = vi.hoisted(() => ({
   pendingConnection: undefined as Promise<boolean> | undefined,
 }));
 
-vi.mock("./yjs-provider", () => {
+vi.mock("../yjs-provider", () => {
   class MockYjsProvider {
     hasAccess = false;
     cards: CardData[] = [];
@@ -82,7 +82,7 @@ vi.mock("./yjs-provider", () => {
   return { YjsProvider: MockYjsProvider };
 });
 
-import { useYjs } from "./use-yjs";
+import { useYjs } from "../use-yjs";
 
 (
   globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }

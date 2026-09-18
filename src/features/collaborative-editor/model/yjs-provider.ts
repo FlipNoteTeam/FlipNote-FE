@@ -5,7 +5,7 @@
 import * as Y from "yjs";
 import { Awareness } from "y-protocols/awareness";
 import { Socket } from "socket.io-client";
-import { socketManager } from "./index";
+import { socketManager } from "@/shared/socket";
 import type {
   YjsMessage,
   UpdateMessage,
