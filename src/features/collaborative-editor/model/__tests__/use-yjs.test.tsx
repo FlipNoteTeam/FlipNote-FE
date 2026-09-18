@@ -5,67 +5,72 @@ import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { CardData } from "../card-types";
 
-type MockYjsProviderListeners = {
-  onCardsChange?: (cards: CardData[]) => void;
-  onAwarenessChange?: (states: Map<number, unknown>) => void;
-  onSynced?: () => void;
-  onDisconnect?: () => void;
+type ProviderSnapshot = {
+  isConnected: boolean;
+  isConnecting: boolean;
+  hasAccess: boolean;
+  hasSynced: boolean;
+  connectionError: string | null;
+  cards: CardData[];
+  awarenessStates: Map<number, unknown>;
 };
 
 const providerInstances = vi.hoisted(() => [] as unknown[]);
-const mockControls = vi.hoisted(() => ({
-  shouldFailNextConnection: false,
-  pendingConnection: undefined as Promise<boolean> | undefined,
-}));
+const mockControls = vi.hoisted(() => ({ shouldFailNextConnection: false }));
 
 vi.mock("../yjs-provider", () => {
   class MockYjsProvider {
-    hasAccess = false;
-    cards: CardData[] = [];
-    listeners?: MockYjsProviderListeners;
+    snapshot: ProviderSnapshot = {
+      isConnected: false,
+      isConnecting: false,
+      hasAccess: false,
+      hasSynced: false,
+      connectionError: null,
+      cards: [],
+      awarenessStates: new Map(),
+    };
+    listeners = new Set<() => void>();
     connect = vi.fn(async () => {
       if (mockControls.shouldFailNextConnection) {
         mockControls.shouldFailNextConnection = false;
+        this.updateSnapshot({
+          isConnecting: false,
+          connectionError: "handshake failed",
+        });
         throw new Error("handshake failed");
       }
-      if (mockControls.pendingConnection) {
-        const pendingConnection = mockControls.pendingConnection;
-        mockControls.pendingConnection = undefined;
-        const success = await pendingConnection;
-        this.hasAccess = success;
-        return success;
-      }
-      this.hasAccess = true;
+      this.updateSnapshot({
+        isConnected: true,
+        isConnecting: false,
+        hasAccess: true,
+      });
       return true;
     });
     disconnect = vi.fn(() => {
-      this.hasAccess = false;
+      this.updateSnapshot({ isConnected: false, hasAccess: false });
     });
 
     constructor() {
       providerInstances.push(this);
     }
 
+    getSnapshot(): ProviderSnapshot {
+      return this.snapshot;
+    }
+
     getHasAccess(): boolean {
-      return this.hasAccess;
+      return this.snapshot.hasAccess;
     }
 
-    getCards(): CardData[] {
-      return this.cards;
+    subscribe(listener: () => void): () => void {
+      this.listeners.add(listener);
+      return () => this.listeners.delete(listener);
     }
 
-    getAwarenessStates(): Map<number, unknown> {
-      return new Map();
+    updateSnapshot(update: Partial<ProviderSnapshot>): void {
+      this.snapshot = { ...this.snapshot, ...update };
+      this.listeners.forEach((listener) => listener());
     }
-
-    subscribe = vi.fn((listeners: MockYjsProviderListeners) => {
-      this.listeners = listeners;
-      return () => {
-        if (this.listeners === listeners) {
-          this.listeners = undefined;
-        }
-      };
-    });
 
     addCard = vi.fn(() => "new-card");
     deleteCard = vi.fn();
@@ -81,17 +86,14 @@ vi.mock("../yjs-provider", () => {
 
 import { useYjs } from "../use-yjs";
 
-(
-  globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
-).IS_REACT_ACT_ENVIRONMENT = true;
+(globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT =
+  true;
 
 type HookState = ReturnType<typeof useYjs>;
 type MockProvider = {
-  hasAccess: boolean;
-  cards: CardData[];
   connect: ReturnType<typeof vi.fn>;
   disconnect: ReturnType<typeof vi.fn>;
-  listeners?: MockYjsProviderListeners;
+  updateSnapshot: (update: Partial<ProviderSnapshot>) => void;
 };
 
 const latestProvider = (): MockProvider => {
@@ -100,33 +102,32 @@ const latestProvider = (): MockProvider => {
   return provider as MockProvider;
 };
 
-const flushAsyncUpdates = async (): Promise<void> => {
-  await Promise.resolve();
-  await Promise.resolve();
-  await Promise.resolve();
-  await new Promise((resolve) => setTimeout(resolve, 0));
-};
-
 function HookHarness({ onChange }: { onChange: (state: HookState) => void }) {
-  const state = useYjs({
-    cardsetId: "cardset-1",
-    userId: "user-1",
-    autoConnect: false,
-  });
-
-  useEffect(() => {
-    onChange(state);
-  }, [onChange, state]);
-
+  const state = useYjs({ cardsetId: "cardset-1", userId: "user-1" });
+  useEffect(() => onChange(state), [onChange, state]);
   return null;
 }
 
-describe("useYjs 상태 전이", () => {
+describe("useYjs 상태 구독", () => {
   let container: HTMLDivElement;
   let root: Root;
   let state: HookState | undefined;
 
-  const renderHook = async (): Promise<void> => {
+  beforeEach(() => {
+    providerInstances.length = 0;
+    mockControls.shouldFailNextConnection = false;
+    state = undefined;
+    container = document.createElement("div");
+    document.body.append(container);
+    root = createRoot(container);
+  });
+
+  afterEach(async () => {
+    await act(async () => root.unmount());
+    container.remove();
+  });
+
+  it("provider snapshot 변경을 React 상태로 반영한다", async () => {
     await act(async () => {
       root.render(
         <HookHarness
@@ -136,83 +137,38 @@ describe("useYjs 상태 전이", () => {
         />,
       );
     });
-  };
-
-  beforeEach(() => {
-    providerInstances.length = 0;
-    mockControls.shouldFailNextConnection = false;
-    mockControls.pendingConnection = undefined;
-    state = undefined;
-    container = document.createElement("div");
-    document.body.append(container);
-    root = createRoot(container);
-  });
-
-  afterEach(async () => {
-    await act(async () => {
-      root.unmount();
-    });
-    container.remove();
-  });
-
-  it("연결·동기화·변경 이벤트를 React 상태로 반영한다", async () => {
-    await renderHook();
-
-    await act(async () => {
-      state?.connect();
-    });
-    await act(flushAsyncUpdates);
+    await act(async () => state?.connect());
 
     const provider = latestProvider();
+    await act(async () => {
+      provider.updateSnapshot({
+        hasSynced: true,
+        cards: [{ id: "card-1", question: "질문", answer: "답변" }],
+        awarenessStates: new Map([[2, { field: "question" }]]),
+      });
+    });
+
     expect(provider.connect).toHaveBeenCalledWith("");
     expect(state).toMatchObject({
       isConnected: true,
       hasAccess: true,
-      hasSynced: false,
-      connectionError: null,
+      hasSynced: true,
+      cards: [{ id: "card-1", question: "질문", answer: "답변" }],
     });
+  });
 
+  it("연결 실패 snapshot을 그대로 노출한다", async () => {
     await act(async () => {
-      provider.listeners?.onCardsChange?.([
-        { id: "card-1", question: "질문", answer: "답변" },
-      ]);
-      provider.listeners?.onAwarenessChange?.(
-        new Map([[2, { field: "question", cardIndex: 0 }]]),
+      root.render(
+        <HookHarness
+          onChange={(nextState) => {
+            state = nextState;
+          }}
+        />,
       );
-      provider.listeners?.onSynced?.();
     });
-
-    expect(state?.cards).toEqual([
-      { id: "card-1", question: "질문", answer: "답변" },
-    ]);
-    expect(state?.awarenessStates).toEqual(
-      new Map([[2, { field: "question", cardIndex: 0 }]]),
-    );
-    expect(state?.hasSynced).toBe(true);
-  });
-
-  it("연결 해제 이벤트가 협업 상태를 해제한다", async () => {
-    await renderHook();
-    await act(async () => {
-      state?.connect();
-    });
-
-    const provider = latestProvider();
-    provider.hasAccess = false;
-    await act(async () => {
-      provider.listeners?.onDisconnect?.();
-    });
-
-    expect(state).toMatchObject({ isConnected: false, hasAccess: false });
-  });
-
-  it("연결 실패를 오류 상태로 노출하고 권한을 부여하지 않는다", async () => {
-    await renderHook();
     mockControls.shouldFailNextConnection = true;
-
-    await act(async () => {
-      state?.connect();
-    });
+    await act(async () => state?.connect());
 
     expect(state).toMatchObject({
       isConnected: false,
@@ -221,12 +177,15 @@ describe("useYjs 상태 전이", () => {
     });
   });
 
-  it("연결 중 중복 요청은 하나의 handshake만 실행한다", async () => {
-    await renderHook();
-
-    let resolveConnection: ((success: boolean) => void) | undefined;
-    mockControls.pendingConnection = new Promise<boolean>((resolve) => {
-      resolveConnection = resolve;
+  it("연결 중 중복 요청은 하나의 provider handshake만 실행한다", async () => {
+    await act(async () => {
+      root.render(
+        <HookHarness
+          onChange={(nextState) => {
+            state = nextState;
+          }}
+        />,
+      );
     });
 
     await act(async () => {
@@ -235,15 +194,30 @@ describe("useYjs 상태 전이", () => {
     });
 
     expect(providerInstances).toHaveLength(1);
-    expect(state?.isConnecting).toBe(true);
+    expect(latestProvider().connect).toHaveBeenCalledOnce();
+  });
 
-    resolveConnection?.(true);
-    await act(flushAsyncUpdates);
+  it("명시적 해제 시 provider 구독과 snapshot을 초기화한다", async () => {
+    await act(async () => {
+      root.render(
+        <HookHarness
+          onChange={(nextState) => {
+            state = nextState;
+          }}
+        />,
+      );
+    });
+    await act(async () => state?.connect());
 
+    const provider = latestProvider();
+    await act(async () => state?.disconnect());
+
+    expect(provider.disconnect).toHaveBeenCalledOnce();
     expect(state).toMatchObject({
-      isConnected: true,
-      hasAccess: true,
-      isConnecting: false,
+      isConnected: false,
+      hasAccess: false,
+      hasSynced: false,
+      cards: [],
     });
   });
 });

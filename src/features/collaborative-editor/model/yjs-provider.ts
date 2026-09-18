@@ -12,21 +12,33 @@ import type { CardData as Card } from "./card-types";
 import { YjsAwareness } from "./yjs-awareness";
 import { YjsDocument } from "./yjs-document";
 
-export type YjsProviderListeners = {
-  onCardsChange?: (cards: Card[]) => void;
-  onAwarenessChange?: (states: Map<number, unknown>) => void;
-  onSynced?: () => void;
-  onDisconnect?: () => void;
+export type YjsProviderSnapshot = {
+  isConnected: boolean;
+  isConnecting: boolean;
+  hasAccess: boolean;
+  hasSynced: boolean;
+  connectionError: string | null;
+  cards: Card[];
+  awarenessStates: Map<number, unknown>;
 };
+
+const createInitialSnapshot = (): YjsProviderSnapshot => ({
+  isConnected: false,
+  isConnecting: false,
+  hasAccess: false,
+  hasSynced: false,
+  connectionError: null,
+  cards: [],
+  awarenessStates: new Map(),
+});
 
 export class YjsProvider {
   private readonly cardsetId: string;
   private readonly userId: string;
 
   private socket: Socket | null = null;
-  private isConnected = false;
-  private hasAccess = false;
-  private hasSynced = false;
+  private snapshot = createInitialSnapshot();
+  private readonly snapshotListeners = new Set<() => void>();
   private pendingConnection?: {
     reject: (reason?: unknown) => void;
     cleanup: () => void;
@@ -34,8 +46,6 @@ export class YjsProvider {
 
   private readonly document: YjsDocument;
   private readonly awareness: YjsAwareness;
-
-  private listeners?: YjsProviderListeners;
 
   constructor(cardsetId: string, userId: string) {
     this.cardsetId = cardsetId;
@@ -47,8 +57,12 @@ export class YjsProvider {
     this.setupDocumentListeners();
   }
   connect(token: string): Promise<boolean> {
+    if (this.snapshot.isConnecting) return Promise.resolve(false);
+    if (this.snapshot.hasAccess) return Promise.resolve(true);
+
     return new Promise((resolve, reject) => {
       try {
+        this.updateSnapshot({ isConnecting: true, connectionError: null });
         this.socket = socketManager.connect(token);
 
         const socket = this.socket;
@@ -84,14 +98,23 @@ export class YjsProvider {
             },
           });
 
-          this.isConnected = true;
-          this.hasAccess = true; // access-control 제거했으면 필요
+          this.updateSnapshot({
+            isConnected: true,
+            isConnecting: false,
+            hasAccess: true,
+          });
 
           resolve(true);
         };
 
         const handleConnectError = (error: Error) => {
           cleanup();
+          this.updateSnapshot({
+            isConnected: false,
+            isConnecting: false,
+            hasAccess: false,
+            connectionError: error.message,
+          });
           reject(error);
         };
 
@@ -100,6 +123,12 @@ export class YjsProvider {
         socket.once("connect", handleConnect);
         socket.once("connect_error", handleConnectError);
       } catch (error) {
+        this.updateSnapshot({
+          isConnected: false,
+          isConnecting: false,
+          hasAccess: false,
+          connectionError: error instanceof Error ? error.message : "Connection failed",
+        });
         reject(error);
       }
     });
@@ -120,12 +149,15 @@ export class YjsProvider {
       socketManager.disconnect();
       this.socket = null;
     }
-    this.isConnected = false;
-    this.hasAccess = false;
+    this.updateSnapshot({
+      isConnected: false,
+      isConnecting: false,
+      hasAccess: false,
+    });
   }
 
   disconnect(): void {
-    if (this.socket && this.isConnected) {
+    if (this.socket && this.snapshot.isConnected) {
       // 카드셋에서 나가기
       const message: LeaveCardsetMessage = {
         type: "leave-cardset",
@@ -148,9 +180,9 @@ export class YjsProvider {
     this.document.onUpdate((update, origin) => {
       if (
         origin !== this &&
-        this.hasAccess &&
-        this.isConnected &&
-        this.hasSynced
+        this.snapshot.hasAccess &&
+        this.snapshot.isConnected &&
+        this.snapshot.hasSynced
       ) {
         const message: UpdateMessage = {
           type: "update",
@@ -161,11 +193,11 @@ export class YjsProvider {
     });
 
     this.document.onCardsChange((cards) => {
-      this.listeners?.onCardsChange?.(cards);
+      this.updateSnapshot({ cards });
     });
 
     this.awareness.onChange(() => {
-      if (this.hasAccess && this.isConnected) {
+      if (this.snapshot.hasAccess && this.snapshot.isConnected) {
         const message: AwarenessMessage = {
           type: "awareness",
           data: {
@@ -176,7 +208,9 @@ export class YjsProvider {
         this.sendMessage(message);
       }
 
-      this.listeners?.onAwarenessChange?.(this.getAwarenessStates());
+      this.updateSnapshot({
+        awarenessStates: new Map(this.awareness.getStates()),
+      });
     });
   }
 
@@ -184,30 +218,27 @@ export class YjsProvider {
     if (!this.socket) return;
 
     this.socket.on("connect", () => {
-      this.isConnected = true;
+      this.updateSnapshot({ isConnected: true });
     });
 
     this.socket.on("disconnect", () => {
-      this.isConnected = false;
-      this.hasAccess = false;
-      this.listeners?.onDisconnect?.();
+      this.updateSnapshot({ isConnected: false, hasAccess: false });
     });
 
     // 동기화 메시지 처리 (서버가 업데이트를 브로드캐스트)
     this.socket.on("sync", (message: SyncMessage) => {
-      if (!this.hasAccess) return;
+      if (!this.snapshot.hasAccess) return;
 
       this.document.applyUpdate(new Uint8Array(message.update), this);
 
-      if (!this.hasSynced) {
-        this.hasSynced = true;
-        this.listeners?.onSynced?.();
+      if (!this.snapshot.hasSynced) {
+        this.updateSnapshot({ hasSynced: true });
       }
     });
 
     // Awareness 메시지 처리
     this.socket.on("awareness", (message: ServerAwarenessMessage) => {
-      if (!this.hasAccess) return;
+      if (!this.snapshot.hasAccess) return;
 
       // 백엔드가 { data: { cardsetId, awareness: number[] } } 형태로 전송
       const awarenessData =
@@ -218,7 +249,7 @@ export class YjsProvider {
 
     // 토큰 만료 처리
     this.socket.on("expired", () => {
-      this.hasAccess = false;
+      this.updateSnapshot({ hasAccess: false });
       this.disconnect();
     });
 
@@ -246,7 +277,7 @@ export class YjsProvider {
    * 새 카드 추가
    */
   addCard(card: Omit<Card, "id">): string {
-    if (!this.hasAccess) return "";
+    if (!this.snapshot.hasAccess) return "";
 
     return this.document.addCard(card);
   }
@@ -255,7 +286,7 @@ export class YjsProvider {
    * 카드 삭제
    */
   deleteCard(index: number): void {
-    if (!this.hasAccess) return;
+    if (!this.snapshot.hasAccess) return;
     this.document.deleteCard(index);
   }
 
@@ -263,7 +294,7 @@ export class YjsProvider {
    * 카드의 question 업데이트
    */
   updateCardQuestion(index: number, question: string): void {
-    if (!this.hasAccess) return;
+    if (!this.snapshot.hasAccess) return;
     this.document.updateCardQuestion(index, question);
   }
 
@@ -271,7 +302,7 @@ export class YjsProvider {
    * 카드의 answer 업데이트
    */
   updateCardAnswer(index: number, answer: string): void {
-    if (!this.hasAccess) return;
+    if (!this.snapshot.hasAccess) return;
     this.document.updateCardAnswer(index, answer);
   }
 
@@ -289,29 +320,28 @@ export class YjsProvider {
     return this.document.getCardAnswerText(index);
   }
 
-  subscribe(listeners: YjsProviderListeners): () => void {
-    this.listeners = listeners;
+  subscribe(listener: () => void): () => void {
+    this.snapshotListeners.add(listener);
+    return () => this.snapshotListeners.delete(listener);
+  }
 
-    return () => {
-      if (this.listeners === listeners) {
-        this.listeners = undefined;
-      }
-    };
+  getSnapshot(): YjsProviderSnapshot {
+    return this.snapshot;
   }
 
   /**
    * 현재 Awareness 상태 가져오기
    */
   getAwarenessStates(): Map<number, unknown> {
-    return this.awareness.getStates();
+    return this.snapshot.awarenessStates;
   }
 
   getHasAccess(): boolean {
-    return this.hasAccess;
+    return this.snapshot.hasAccess;
   }
 
   getHasSynced(): boolean {
-    return this.hasSynced;
+    return this.snapshot.hasSynced;
   }
 
   setAwareness(
@@ -319,7 +349,7 @@ export class YjsProvider {
     cardIndex: number,
     cursor?: { index: number; length: number },
   ): void {
-    if (!this.hasAccess) return;
+    if (!this.snapshot.hasAccess) return;
 
     this.awareness.setLocalState(
       field,
@@ -327,5 +357,10 @@ export class YjsProvider {
       { id: this.userId, name: `User ${this.userId}` },
       cursor,
     );
+  }
+
+  private updateSnapshot(update: Partial<YjsProviderSnapshot>): void {
+    this.snapshot = { ...this.snapshot, ...update };
+    this.snapshotListeners.forEach((listener) => listener());
   }
 }

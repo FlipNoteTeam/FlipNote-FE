@@ -172,7 +172,7 @@ describe("YjsProvider 협업 회귀", () => {
     await connect();
     sync([{ id: "card-1", question: "question", answer: "answer" }]);
     const onDisconnect = vi.fn();
-    provider.subscribe({ onDisconnect });
+    provider.subscribe(onDisconnect);
 
     socket.trigger("disconnect");
     provider.updateCardQuestion(0, "must not be written");
