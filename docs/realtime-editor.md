@@ -30,6 +30,29 @@
 - 카드 추가·삭제는 `Y.Array` 변경으로 모든 참여자에게 반영돼야 한다.
 - awareness는 편집 중인 카드·필드·커서와 사용자 정보를 전달하며, 연결 해제한 사용자의 상태는 제거된다.
 
+### Awareness 사용자 식별과 편집자 표기
+
+서버가 다른 참여자의 awareness를 전달할 때에는 인증된 socket 연결의 사용자 정보를 함께 포함한다.
+
+```ts
+{
+  data: {
+    cardsetId: string;
+    awareness: Uint8Array;
+    userId: string;
+    userName: string;
+  };
+}
+```
+
+- `awareness`는 Yjs client ID를 key로 하는 presence state이며, 카드·필드·커서와 `user.id`를 포함한다.
+- 프론트엔드는 수신한 `userId`와 일치하는 awareness state의 표시 이름을 서버의 `userName`으로 갱신한다. 클라이언트가 만든 임시 이름(`User {userId}`)은 서버 메타데이터가 없을 때만 fallback으로 사용한다.
+- 사용자 이름은 서버가 인증한 socket 연결 기준이므로, 화면 표기에 클라이언트가 임의로 전송한 이름을 신뢰하지 않는다.
+- 에디터는 현재 탭의 Yjs client ID만 협업자 목록에서 제외한다. 사용자 ID로 제외하면 같은 계정으로 연 다른 탭·브라우저까지 숨겨진다.
+- 따라서 현재 탭 본인은 focus 상태로만 인지하고, 같은 계정의 다른 탭과 다른 계정의 참여자는 모두 편집자로 표시한다.
+
+이 구분은 사용자 ID가 사람의 정체성이고 Yjs client ID는 탭·연결 단위의 정체성이기 때문이다.
+
 ### 연결 lifecycle
 
 1. Socket 연결 후 `auth`, `join-cardset`을 순서대로 전송한다.
@@ -60,6 +83,7 @@ Y.Doc
 ## 회귀 테스트 기준
 
 - Provider 단위 테스트: 연결, sync, 원격 update 재전송 방지, 카드 CRUD, awareness, disconnect
+- Awareness 사용자 표기: 서버 `userName` 반영, 현재 client ID 제외, 같은 user ID의 별도 client 표시
 - Provider 통합 테스트: 두 참여자의 카드·텍스트·awareness 동기화
 - Hook 테스트: 연결·동기화·실패·재시도·해제 상태 전이
 - Editor 테스트: sync 완료 후 Y.Text 편집, 카드 CRUD 요청, 연결 상태별 controls
