@@ -81,6 +81,9 @@ describe("YjsProvider 협업 회귀", () => {
     expect(provider.getHasAccess()).toBe(true);
     expect(provider.getHasSynced()).toBe(false);
     expect(provider.getCards()).toEqual([]);
+    expect(provider.getSnapshot().localClientId).toBe(
+      getDocument(provider).clientID,
+    );
   });
 
   it("서버 문서를 반영한 뒤 카드를 추가하고 변경 사항을 전파한다", async () => {
@@ -146,7 +149,7 @@ describe("YjsProvider 협업 회귀", () => {
       remoteDocument,
     );
     remoteAwareness.setLocalState({
-      user: { id: "user-2", name: "Editor Two" },
+      user: { id: "user-2", name: "untrusted-name" },
       cardIndex: 0,
       field: "answer",
       cursor: { index: 2, length: 0 },
@@ -157,11 +160,16 @@ describe("YjsProvider 협업 회귀", () => {
     ]);
 
     socket.trigger("awareness", {
-      data: { cardsetId: "cardset-1", awareness: Array.from(update) },
+      data: {
+        cardsetId: "cardset-1",
+        awareness: Array.from(update),
+        userId: "user-2",
+        userName: "이이람람",
+      },
     });
 
     expect(provider.getAwarenessStates().get(remoteDocument.clientID)).toMatchObject({
-      user: { id: "user-2", name: "Editor Two" },
+      user: { id: "user-2", name: "이이람람" },
       cardIndex: 0,
       field: "answer",
       cursor: { index: 2, length: 0 },

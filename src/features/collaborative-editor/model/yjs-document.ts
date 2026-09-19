@@ -87,6 +87,10 @@ export class YjsDocument {
     return this.doc;
   }
 
+  getClientId(): number {
+    return this.doc.clientID;
+  }
+
   private updateCardText(
     index: number,
     field: CardField,
