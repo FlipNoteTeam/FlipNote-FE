@@ -25,6 +25,7 @@ const disconnectedSnapshot: YjsProviderSnapshot = {
   connectionError: null,
   cards: [],
   awarenessStates: new Map(),
+  localClientId: null,
 };
 
 const noopUnsubscribe = () => undefined;

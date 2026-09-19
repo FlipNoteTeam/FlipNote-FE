@@ -13,6 +13,7 @@ type ProviderSnapshot = {
   connectionError: string | null;
   cards: CardData[];
   awarenessStates: Map<number, unknown>;
+  localClientId: number | null;
 };
 
 const providerInstances = vi.hoisted(() => [] as unknown[]);
@@ -28,6 +29,7 @@ vi.mock("../yjs-provider", () => {
       connectionError: null,
       cards: [],
       awarenessStates: new Map(),
+      localClientId: 1,
     };
     listeners = new Set<() => void>();
     connect = vi.fn(async () => {

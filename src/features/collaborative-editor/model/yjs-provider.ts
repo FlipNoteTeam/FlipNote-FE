@@ -20,9 +20,12 @@ export type YjsProviderSnapshot = {
   connectionError: string | null;
   cards: Card[];
   awarenessStates: Map<number, unknown>;
+  localClientId: number | null;
 };
 
-const createInitialSnapshot = (): YjsProviderSnapshot => ({
+const createInitialSnapshot = (
+  localClientId: number | null,
+): YjsProviderSnapshot => ({
   isConnected: false,
   isConnecting: false,
   hasAccess: false,
@@ -30,6 +33,7 @@ const createInitialSnapshot = (): YjsProviderSnapshot => ({
   connectionError: null,
   cards: [],
   awarenessStates: new Map(),
+  localClientId,
 });
 
 export class YjsProvider {
@@ -37,7 +41,7 @@ export class YjsProvider {
   private readonly userId: string;
 
   private socket: Socket | null = null;
-  private snapshot = createInitialSnapshot();
+  private snapshot: YjsProviderSnapshot;
   private readonly snapshotListeners = new Set<() => void>();
   private pendingConnection?: {
     reject: (reason?: unknown) => void;
@@ -53,6 +57,7 @@ export class YjsProvider {
 
     this.document = new YjsDocument();
     this.awareness = new YjsAwareness(this.document.getYDoc());
+    this.snapshot = createInitialSnapshot(this.document.getClientId());
 
     this.setupDocumentListeners();
   }
@@ -240,11 +245,19 @@ export class YjsProvider {
     this.socket.on("awareness", (message: ServerAwarenessMessage) => {
       if (!this.snapshot.hasAccess) return;
 
-      // 백엔드가 { data: { cardsetId, awareness: number[] } } 형태로 전송
-      const awarenessData =
-        "data" in message ? message.data.awareness : message.awareness;
+      const awarenessPayload = "data" in message ? message.data : message;
 
-      this.awareness.applyUpdate(new Uint8Array(awarenessData), this);
+      this.awareness.applyUpdate(
+        new Uint8Array(awarenessPayload.awareness),
+        this,
+      );
+      this.awareness.updateUserName(
+        awarenessPayload.userId,
+        awarenessPayload.userName,
+      );
+      this.updateSnapshot({
+        awarenessStates: new Map(this.awareness.getStates()),
+      });
     });
 
     // 토큰 만료 처리

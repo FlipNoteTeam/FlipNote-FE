@@ -51,6 +51,8 @@ export type SyncMessage = {
 
 type AwarenessPayload = CardsetEventPayload & {
   awareness: BinaryPayload;
+  userId: string;
+  userName: string;
 };
 
 export type ServerAwarenessMessage =

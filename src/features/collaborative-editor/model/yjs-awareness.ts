@@ -9,6 +9,10 @@ type AwarenessUser = {
   name: string;
 };
 
+type AwarenessState = {
+  user?: AwarenessUser;
+};
+
 export class YjsAwareness {
   private readonly awareness: Awareness;
   private onChangeCallback?: () => void;
@@ -37,6 +41,16 @@ export class YjsAwareness {
 
   applyUpdate(update: Uint8Array, origin: unknown): void {
     awarenessProtocol.applyAwarenessUpdate(this.awareness, update, origin);
+  }
+
+  updateUserName(userId: string, userName: string): void {
+    const states = this.awareness.getStates() as Map<number, AwarenessState>;
+
+    states.forEach((state) => {
+      if (state.user?.id === userId) {
+        state.user = { ...state.user, name: userName };
+      }
+    });
   }
 
   setLocalState(
