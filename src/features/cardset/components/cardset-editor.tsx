@@ -64,6 +64,7 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
     connectionError,
     cards: yjsCards,
     awarenessStates,
+    localClientId,
     connect,
     addCard,
     deleteCard,
@@ -281,10 +282,8 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
   }, [connect]);
 
   // Awareness
-  const selfClientId = (awarenessStates.get(0) as { clientId?: number })
-    ?.clientId;
   const collaborators = Array.from(awarenessStates.entries())
-    .filter(([clientId]) => clientId !== selfClientId)
+    .filter(([clientId]) => clientId !== localClientId)
     .map(([clientId, state]) => {
       const s = state as {
         user?: { id: string; name: string };
@@ -297,8 +296,7 @@ export function CardsetEditor({ cardsetId }: CardsetEditorProps) {
         field: s.field as "question" | "answer" | undefined,
         cardIndex: s.cardIndex as number | undefined,
       };
-    })
-    .filter((c) => c.user);
+    });
 
   const getUserColor = (userId: string) => {
     const colors = [

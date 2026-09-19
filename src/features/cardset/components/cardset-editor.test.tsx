@@ -13,6 +13,7 @@ type MockCollaborationState = {
   connectionError: string | null;
   cards: CardData[];
   awarenessStates: Map<number, unknown>;
+  localClientId: number | null;
   connect: () => void;
   addCard: (card: { question: string; answer: string }) => string;
   deleteCard: (index: number) => void;
@@ -88,6 +89,7 @@ const createConnectedState = () => {
       connectionError: null,
       cards,
       awarenessStates: new Map<number, unknown>(),
+      localClientId: 1,
       connect: vi.fn(),
       addCard: vi.fn(() => "new-card"),
       deleteCard: vi.fn(),
@@ -164,5 +166,26 @@ describe("CardsetEditor 협업 편집 모드", () => {
     await click(deleteButtons[1] as HTMLButtonElement);
 
     expect(state.deleteCard).toHaveBeenCalledWith(1);
+  });
+
+  it("awareness의 사용자 이름을 현재 편집자로 표시한다", async () => {
+    const { state } = createConnectedState();
+    state.awarenessStates = new Map([
+      [
+        2,
+        {
+          user: { id: "user-2", name: "이이람람" },
+          cardIndex: 0,
+          field: "question",
+        },
+      ],
+    ]);
+    collaborationState.value = state;
+
+    await act(async () => {
+      root.render(<CardsetEditor cardsetId="cardset-1" />);
+    });
+
+    expect(container.textContent).toContain("이이람람");
   });
 });
