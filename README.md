@@ -94,7 +94,7 @@ npm run preview
 
 ### 배포 (GitHub Actions)
 
-`main` 브랜치에 push 시 GitHub Actions가 자동으로 아래 과정을 실행합니다.
+`dev` 브랜치에 push 시 GitHub Actions가 자동으로 아래 과정을 실행합니다.
 
 1. `npm ci` — 의존성 설치
 2. `npm run build` — 프로덕션 빌드
@@ -102,6 +102,8 @@ npm run preview
 4. CloudFront 캐시 무효화 (`/*`)
 
 > 배포에 필요한 환경 변수(`S3_ACCESS_KEY`, `S3_SECRET_KEY`, `S3_BUCKET_REGION`, `S3_BUCKET_NAME`, `CLOUDFRONT_DISTRIBUTION_ID`)는 GitHub Repository → Settings → Secrets and variables → Actions에 등록해야 합니다.
+
+`v2` 브랜치는 별도 `v2-cd` 워크플로로 배포됩니다. GitHub Repository → Settings → Environments에 `FlipNote-FE-v2` Environment를 만들고, 위와 같은 키의 v2 전용 secrets(`FE_ENV` 포함)을 등록해야 합니다. 이 Environment의 S3 버킷과 CloudFront distribution은 `dev` 배포 대상과 달라야 합니다.
 > 
 
 ---

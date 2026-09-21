@@ -23,7 +23,7 @@ jobs:
             );
 
             for (const branch of branches) {
-              if (branch.name === 'main' || branch.name === 'dev') continue;
+              if (['main', 'dev', 'v2'].includes(branch.name)) continue;
 
               const commits = await github.request(
                 'GET /repos/{owner}/{repo}/commits',
